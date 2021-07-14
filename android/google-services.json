@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "489414181286",
+    "project_id": "plansmanager-17596",
+    "storage_bucket": "plansmanager-17596.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:489414181286:android:061121b5226453ab4c0f67",
+        "android_client_info": {
+          "package_name": "com.example.plansmanager"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "489414181286-d208gt0lgkf9ikh22v5r38503pcf6nmm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAtnFOIrp90PL9HqWtWggfxai8IDXTlGFQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "489414181286-d208gt0lgkf9ikh22v5r38503pcf6nmm.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "489414181286-ffn3rig4l4h1k7l79b1s70kgs83a8m92.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.plansmanager"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
