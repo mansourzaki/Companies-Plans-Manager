@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:plansmanager/Screens/login_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   static final routeName = 'HomeScreen';
@@ -34,6 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
               onPressed: () async {
                 await _auth.signOut();
+                Navigator.of(context).pushReplacementNamed(LoginScreen.routeName);
               },
               icon: Icon(Icons.exit_to_app))
         ],

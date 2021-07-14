@@ -267,6 +267,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           primary: Colors.green),
                                       onPressed: () {
                                         if (_formKey.currentState!.validate()) {
+                                          FocusScope.of(context).unfocus();
                                           _register();
                                         }
                                       },
@@ -310,29 +311,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
       setState(() {
         _isloading = true;
       });
-      _userCredential = await _auth
-          .createUserWithEmailAndPassword(
-              email: _emailController.text.trim(),
-              password: _passwordController.text.trim())
-          .then((value) async {
-        value.user!.updateDisplayName(_nameController.text);
-        await firestore.collection('users').add({
-          'id': value.user?.uid,
-          'name': _nameController.text,
-          'email': _emailController.text,
-          'teamName': _teamNameController.text,
-        });
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('تم التسجيل بنجاح'),
-          backgroundColor: Colors.green,
-        ));
-        //Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
-        setState(() {
-          _isloading = false;
-          Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
-        });
+      _userCredential = await _auth.createUserWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      await _userCredential.user!.updateDisplayName(_nameController.text);
+      await firestore.collection('users').add({
+        'id': _userCredential.user!.uid,
+        'name': _nameController.text,
+        'email': _emailController.text,
+        'teamName': _teamNameController.text,
       });
 
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('تم التسجيل بنجاح'),
+        backgroundColor: Colors.green,
+      ));
+      Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
+      
+      setState(() {
+        _isloading = false;
+      });
       print(_userCredential);
     } on FirebaseAuthException catch (e) {
       setState(() {
