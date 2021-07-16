@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:plansmanager/Screens/login_screen.dart';
-
-import 'home_screen.dart';
+import 'package:plansmanager/Screens/home_screen.dart';
+import 'plans_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   static final routeName = 'RegisterScreen';
@@ -130,6 +130,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   return null;
                                 },
                                 controller: _emailController,
+                                keyboardType: TextInputType.emailAddress,
                                 decoration: InputDecoration(
                                   hintStyle: TextStyle(color: Colors.black),
                                   prefixIcon: Icon(
@@ -192,8 +193,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               textDirection: TextDirection.rtl,
                               child: TextFormField(
                                 obscureText: true,
-                                autovalidateMode:
-                                    AutovalidateMode.onUserInteraction,
+
+                                // autovalidateMode:
+                                //     AutovalidateMode.onUserInteraction,
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return 'ادخل كلمة المرور';
@@ -329,7 +331,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         backgroundColor: Colors.green,
       ));
       Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
-      
+
       setState(() {
         _isloading = false;
       });

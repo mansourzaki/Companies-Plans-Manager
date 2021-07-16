@@ -1,92 +1,69 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:plansmanager/Screens/login_screen.dart';
+import 'package:plansmanager/widgets/calendar.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
   static final routeName = 'HomeScreen';
-
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final _auth = FirebaseAuth.instance;
-  List _months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December'
-  ];
-
   @override
   Widget build(BuildContext context) {
-    //final user = FirebaseAuth.instance.currentUser;
     return Scaffold(
-      appBar: AppBar(
-        actions: [
-          IconButton(
-              onPressed: () async {
-                await _auth.signOut();
-                Navigator.of(context).pushReplacementNamed(LoginScreen.routeName);
-              },
-              icon: Icon(Icons.exit_to_app))
+      appBar: AppBar(),
+      body: CustomScrollView(
+        slivers: [
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: PersistentHeader(Calendar()),
+          ),
+          SliverList(
+            delegate: SliverChildListDelegate(
+              [
+                Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: ListView.separated(
+                      physics: NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemBuilder: (context, i) {
+                        return ListTile(leading: Icon(Icons.task));
+                      },
+                      separatorBuilder: (context, i) {
+                        return Divider();
+                      },
+                      itemCount: 20),
+                )
+              ],
+            ),
+          ),
         ],
-        backgroundColor: Color.fromRGBO(250, 250, 250, 1),
-        elevation: 0,
-      ),
-      body: Container(
-        //margin: EdgeInsets.only(left: 10),
-        child: ListView(
-          scrollDirection: Axis.vertical,
-          children: [
-            Container(
-              height: 40,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: _months.length,
-                itemBuilder: (context, i) {
-                  return InkWell(
-                    onTap: () {},
-                    child: Container(
-                      margin: EdgeInsets.symmetric(horizontal: 10),
-                      alignment: Alignment.center,
-                      width: 100,
-                      child: Text(_months[i]),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          color: Colors.blue[200]),
-                    ),
-                  );
-                },
-              ),
-            ),
-            Container(
-              child: Row(
-                children: [
-                  Container(
-                    color: Colors.red,
-                    height: 40,
-                    child: Column(),
-                  ),
-                  Container(
-                    color: Colors.red,
-                    height: 40,
-                    child: Column(),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
       ),
     );
+  }
+}
+
+class PersistentHeader extends SliverPersistentHeaderDelegate {
+  final Widget widget;
+  PersistentHeader(this.widget);
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return Container(
+      child: widget,
+    );
+  }
+
+  @override
+  double get maxExtent => 340;
+
+  @override
+  double get minExtent => 150;
+
+  @override
+  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
+    return true;
   }
 }

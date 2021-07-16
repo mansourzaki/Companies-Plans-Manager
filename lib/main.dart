@@ -2,7 +2,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:plansmanager/Screens/forgot_password_screen.dart';
+import 'package:plansmanager/Screens/plans_screen.dart';
 import 'package:plansmanager/Screens/home_screen.dart';
+import 'package:plansmanager/provider/plan.dart';
+import 'package:provider/provider.dart';
 import 'Screens/login_screen.dart';
 import 'Screens/register_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -10,7 +13,14 @@ import 'package:firebase_core/firebase_core.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(MyApp());
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(
+        create: (_) => Plan(),
+      ),
+    ],
+    child: MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -28,7 +38,7 @@ class MyApp extends StatelessWidget {
         builder: (context, userSnashot) {
           if (userSnashot.hasData) {
             print('hi');
-            return HomeScreen();
+            return PlansScreen();
           }
           print('hi');
           return LoginScreen();
@@ -39,6 +49,7 @@ class MyApp extends StatelessWidget {
         RegisterScreen.routeName: (ctx) => RegisterScreen(),
         LoginScreen.routeName: (ctx) => LoginScreen(),
         ForgotPasswordScreen.routeName: (ctx) => ForgotPasswordScreen(),
+        PlansScreen.routeName: (ctx) => PlansScreen()
       },
     );
   }
