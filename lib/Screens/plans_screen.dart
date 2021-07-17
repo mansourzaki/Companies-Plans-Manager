@@ -56,31 +56,41 @@ class _PlansScreenState extends State<PlansScreen> {
             ),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                FutureBuilder(
-                  future: FirebaseFirestore.instance.collection('plans').get(),
-                  builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                    if (!snapshot.hasData) {
-                      return Center(
-                        child: Text('NOo Data'),
-                      );
-                    }
-                    List data =
-                        snapshot.data!.docs.map((e) => e.data()).toList();
+                // FutureBuilder(
+                //   future: FirebaseFirestore.instance.collection('plans').get(),
+                //   builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                //     if (!snapshot.hasData) {
+                //       return Center(
+                //         child: Text('NOo Data'),
+                //       );
+                //     }
+                //     List data =
+                //         snapshot.data!.docs.map((e) => e.data()).toList();
 
-                    print(data);
+                //     print(data);
+                //     return
+                // Consumer<Plan>(
+                //   builder: (context, plan, child) {
+                //     List<Plan> plans = [];
+                //     plan.getPlans().then((value) {
+                //       plans = value;
+                //       print(plans.length);
+                //     });
+
+                //  return
+                FutureBuilder(
+                  future: context.read<Plan>().getPlans(),
+                  builder: (context, AsyncSnapshot<List<Plan>> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: Text('Getting Data'));
+                    }
                     return ListView.builder(
                       physics: NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
-                      itemCount: data.length,
+                      itemCount: snapshot.data!.length,
                       itemBuilder: (context, i) {
                         return Directionality(
                           textDirection: TextDirection.rtl,
-                          // child: PlanCard(
-                          //     name: tasksList[i].name,
-                          //     startDate: tasksList[i].startDate,
-                          //     endDate: tasksList[i].endDate,
-                          //     teamName: tasksList[i].teamName),
-
                           child: Container(
                             margin: EdgeInsets.all(8),
                             decoration: BoxDecoration(
@@ -90,7 +100,7 @@ class _PlansScreenState extends State<PlansScreen> {
                             child: ListTile(
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10)),
-                              title: Text(data[i]['name']),
+                              title: Text(snapshot.data![i].name!),
                               leading: Icon(Icons.task),
                               onTap: () {},
                               // data[i]['endDate'].to
@@ -102,6 +112,9 @@ class _PlansScreenState extends State<PlansScreen> {
                     );
                   },
                 ),
+                // )
+                // },
+                // ),
               ]),
             ),
           ),

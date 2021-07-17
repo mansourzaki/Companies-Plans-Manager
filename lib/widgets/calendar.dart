@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class Calendar extends StatefulWidget {
-  const Calendar({Key? key}) : super(key: key);
+  const Calendar({
+    Key? key,
+  }) : super(key: key);
 
   @override
   _CalendarState createState() => _CalendarState();
@@ -30,18 +32,19 @@ class _CalendarState extends State<Calendar> {
         });
       },
       onDaySelected: (selectedDay, focusedDay) {
-        if (!isSameDay(DateTime.now(), selectedDay)) {
-          setState(() {
-            _selectedDay = selectedDay;
-            _focusedDay = focusedDay;
-          });
-        }
+        // if (!isSameDay(DateTime.now(), selectedDay)) {
+        
+        setState(() {
+          _selectedDay = selectedDay;
+          _focusedDay = focusedDay;
+        });
+
+        // }
       },
       onPageChanged: (focusedDay) {
-       setState(() {
-         _focusedDay = focusedDay;
-       });
-        
+        setState(() {
+          _focusedDay = focusedDay;
+        });
       },
       selectedDayPredicate: (day) {
         return isSameDay(_selectedDay, day);

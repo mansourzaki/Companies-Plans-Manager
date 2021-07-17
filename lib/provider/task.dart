@@ -15,9 +15,8 @@ class Task with ChangeNotifier{
   Future getTasks() async{
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     CollectionReference ref = firestore.collection('Plans');
-    DocumentSnapshot snapshot = await ref.doc('riPpQ6rXySIpV5Xj4b7Z').get();
-    
-    
+    await ref.get();
+
     
   }
 }
