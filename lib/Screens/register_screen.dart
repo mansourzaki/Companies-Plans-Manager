@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:plansmanager/Screens/login_screen.dart';
 import 'package:plansmanager/Screens/home_screen.dart';
-import 'plans_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   static final routeName = 'RegisterScreen';
@@ -319,7 +318,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
 
       await _userCredential.user!.updateDisplayName(_nameController.text);
-      await firestore.collection('users').add({
+      await firestore.collection('users').doc(_userCredential.user!.uid).set({
         'id': _userCredential.user!.uid,
         'name': _nameController.text,
         'email': _emailController.text,

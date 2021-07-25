@@ -1,22 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class Task with ChangeNotifier{
+class Task {
   String? name;
-  DateTime? startTime;
+  Timestamp? startTime;
   DateTime? endTime;
+  int? workHours;
+  List<String>? team;
+  bool? status;
 
-  Task({
-    this.name,
-    this.startTime,
-    this.endTime
-  });
-
-  Future getTasks() async{
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-    CollectionReference ref = firestore.collection('Plans');
-    await ref.get();
-
-    
-  }
+  Task(
+      {@required this.name,
+      this.startTime,
+      this.endTime,
+      this.workHours,
+      this.status,
+      this.team
+      });
 }

@@ -4,6 +4,7 @@ import 'package:plansmanager/Screens/forgot_password_screen.dart';
 import 'package:plansmanager/Screens/register_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:plansmanager/Screens/home_screen.dart';
+
 class LoginScreen extends StatefulWidget {
   static final routeName = 'LoginScreen';
   const LoginScreen({Key? key}) : super(key: key);
@@ -44,7 +45,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
     return false;
   }
-
 
   @override
   Widget build(BuildContext context) {

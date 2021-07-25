@@ -1,12 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:plansmanager/provider/plan.dart';
-import 'package:plansmanager/provider/tasks.dart';
-import 'package:plansmanager/widgets/calendar.dart';
-import 'package:plansmanager/widgets/planCard.dart';
+import 'package:plansmanager/widgets/plans_calendar.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart' as intl;
 
 class PlansScreen extends StatefulWidget {
   static final routeName = 'PlansScreen';
@@ -16,78 +13,74 @@ class PlansScreen extends StatefulWidget {
 }
 
 class _PlansScreenState extends State<PlansScreen> {
-  List _months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December'
-  ];
+  // List _months = [
+  //   'January',
+  //   'February',
+  //   'March',
+  //   'April',
+  //   'May',
+  //   'June',
+  //   'July',
+  //   'August',
+  //   'September',
+  //   'October',
+  //   'November',
+  //   'December'
+  // ];
+  @override
+  void initState() {
+    context.read<Plan>().getPlans();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     //final user = FirebaseAuth.instance.currentUser;
-
+   // const curveHeight = 50.0;
     return Scaffold(
-      //appBar: AppBar(),
+      appBar: AppBar(
+        title: Text(' الخطط الشهرية'),
+        centerTitle: true,
+        // shape: RoundedRectangleBorder(
+        //   borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
+        // )
+      ),
       drawer: Drawer(),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          context.read<Plan>().getPlans();
+          // context.read<Plan>().addNewPlan(
+          //       Plan(
+          //         name: 'خطة جديدة',
+          //         startDate: Timestamp.fromDate(DateTime(2021, 7)),
+          //         tasks: [Task(name: 'plan 1'), Task(name: 'Plan 2')],
+          //         teamName: 'anything',
+          //         endDate: Timestamp.fromDate(DateTime(2021, 9)),
+          //       ),
+          //     );
+          //    context.read<Plan>().plansBasedOnMonth(7);
         },
         child: Icon(Icons.add),
       ),
       body: CustomScrollView(
         slivers: [
-          SliverAppBar(
-            pinned: true,
-          ),
           SliverStickyHeader(
             header: Container(
-              child: Calendar(),
+              child: PlansCalendar(),
               color: Colors.white,
             ),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // FutureBuilder(
-                //   future: FirebaseFirestore.instance.collection('plans').get(),
-                //   builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                //     if (!snapshot.hasData) {
-                //       return Center(
-                //         child: Text('NOo Data'),
-                //       );
-                //     }
-                //     List data =
-                //         snapshot.data!.docs.map((e) => e.data()).toList();
-
-                //     print(data);
-                //     return
-                // Consumer<Plan>(
-                //   builder: (context, plan, child) {
-                //     List<Plan> plans = [];
-                //     plan.getPlans().then((value) {
-                //       plans = value;
-                //       print(plans.length);
-                //     });
-
-                //  return
-                FutureBuilder(
-                  future: context.read<Plan>().getPlans(),
-                  builder: (context, AsyncSnapshot<List<Plan>> snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: Text('Getting Data'));
+                Consumer<Plan>(
+                  builder: (context, plan, child) {
+                    if (plan.plans.length == 0) {
+                      return Center(
+                        child: Text('No Data Found'),
+                      );
                     }
                     return ListView.builder(
                       physics: NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
-                      itemCount: snapshot.data!.length,
+                      itemCount: plan.plans.length,
                       itemBuilder: (context, i) {
                         return Directionality(
                           textDirection: TextDirection.rtl,
@@ -100,18 +93,23 @@ class _PlansScreenState extends State<PlansScreen> {
                             child: ListTile(
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10)),
-                              title: Text(snapshot.data![i].name!),
+                              title: Text(plan.plans[i].name!),
                               leading: Icon(Icons.task),
+
                               onTap: () {},
                               // data[i]['endDate'].to
-                              subtitle: Text('' + ' - ' + ''),
+
+                              subtitle: Text(
+                                  '${intl.DateFormat('y/M/d').format(plan.plans[i].startDate!.toDate())} - ${intl.DateFormat('y/M/d').format(plan.plans[i].endDate!.toDate())}'),
                             ),
                           ),
                         );
                       },
                     );
                   },
-                ),
+                )
+                //   },
+                //  ),
                 // )
                 // },
                 // ),
@@ -165,6 +163,22 @@ class MonthsListView extends StatelessWidget {
   }
 }
 
+class MyShapeBorder extends ContinuousRectangleBorder {
+  const MyShapeBorder(this.curveHeight);
+  final double curveHeight;
+
+  @override
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) => Path()
+    ..lineTo(0, rect.size.height)
+    ..quadraticBezierTo(
+      rect.size.width / 2,
+      rect.size.height + curveHeight * 2,
+      rect.size.width,
+      rect.size.height,
+    )
+    ..lineTo(rect.size.width, 0)
+    ..close();
+}
 // class PersistentHeader extends SliverPersistentHeaderDelegate {
 //   final Widget widget;
 //   PersistentHeader(this.widget);

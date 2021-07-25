@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:plansmanager/Screens/add_new_task.dart';
 import 'package:plansmanager/Screens/forgot_password_screen.dart';
 import 'package:plansmanager/Screens/plans_screen.dart';
 import 'package:plansmanager/Screens/home_screen.dart';
@@ -38,7 +39,8 @@ class MyApp extends StatelessWidget {
         builder: (context, userSnashot) {
           if (userSnashot.hasData) {
             print('hi');
-            return PlansScreen();
+
+            return HomeScreen();
           }
           print('hi');
           return LoginScreen();
@@ -49,7 +51,8 @@ class MyApp extends StatelessWidget {
         RegisterScreen.routeName: (ctx) => RegisterScreen(),
         LoginScreen.routeName: (ctx) => LoginScreen(),
         ForgotPasswordScreen.routeName: (ctx) => ForgotPasswordScreen(),
-        PlansScreen.routeName: (ctx) => PlansScreen()
+        PlansScreen.routeName: (ctx) => PlansScreen(),
+        AddNewTask.routeName: (ctx) => AddNewTask()
       },
     );
   }

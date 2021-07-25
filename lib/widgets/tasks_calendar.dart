@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:plansmanager/provider/plan.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:provider/provider.dart';
 
-class Calendar extends StatefulWidget {
-  const Calendar({
+class TasksCalendar extends StatefulWidget {
+  const TasksCalendar({
     Key? key,
   }) : super(key: key);
 
   @override
-  _CalendarState createState() => _CalendarState();
+  _TasksCalendarState createState() => _TasksCalendarState();
 }
 
-Map<DateTime, List<dynamic>>? _events;
-List<dynamic>? _selectedEvents;
+// Map<DateTime, List<dynamic>>? _events;
+// List<dynamic>? _selectedEvents;
 DateTime _focusedDay = DateTime.now();
 DateTime? _selectedDay;
 CalendarFormat _calendarFormat = CalendarFormat.month;
 
-class _CalendarState extends State<Calendar> {
+class _TasksCalendarState extends State<TasksCalendar> {
   GlobalKey myKey = GlobalKey();
 
   @override
@@ -33,7 +35,7 @@ class _CalendarState extends State<Calendar> {
       },
       onDaySelected: (selectedDay, focusedDay) {
         // if (!isSameDay(DateTime.now(), selectedDay)) {
-        
+         
         setState(() {
           _selectedDay = selectedDay;
           _focusedDay = focusedDay;
@@ -41,11 +43,13 @@ class _CalendarState extends State<Calendar> {
 
         // }
       },
-      onPageChanged: (focusedDay) {
-        setState(() {
-          _focusedDay = focusedDay;
-        });
+      onHeaderTapped: (date) {
+        // print(date.month);
+        context.read<Plan>().getPlans(month: date.month);
       },
+      // onPageChanged: (date) {
+      //   context.read<Plan>().getPlans(month: date.month);
+      // },
       selectedDayPredicate: (day) {
         return isSameDay(_selectedDay, day);
       },
