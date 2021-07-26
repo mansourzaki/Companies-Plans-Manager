@@ -29,7 +29,7 @@ class _PlansScreenState extends State<PlansScreen> {
   // ];
   @override
   void initState() {
-    context.read<Plan>().getPlans();
+    //context.read<Plan>().getPlans();
     super.initState();
   }
 

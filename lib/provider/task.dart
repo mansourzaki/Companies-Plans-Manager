@@ -6,15 +6,22 @@ class Task {
   Timestamp? startTime;
   DateTime? endTime;
   int? workHours;
-  List<String>? team;
+  List<String>? teams;
   bool? status;
+  String? type;
+  String? ach;
+  int? percentage;
+  String? notes;
 
   Task(
-      {@required this.name,
+      {this.name,
       this.startTime,
       this.endTime,
       this.workHours,
       this.status,
-      this.team
-      });
+      this.teams,
+      this.percentage,
+      this.notes,
+      this.ach,
+      this.type});
 }

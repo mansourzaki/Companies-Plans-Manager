@@ -45,7 +45,7 @@ class _PlansCalendarState extends State<PlansCalendar> {
       },
       onHeaderTapped: (date) {
         // print(date.month);
-        context.read<Plan>().getPlans(month: date.month);
+        //context.read<Plan>().getPlans(month: date.month);
       },
       // onPageChanged: (date) {
       //   context.read<Plan>().getPlans(month: date.month);

@@ -21,6 +21,7 @@ class Plan with ChangeNotifier {
   // List<Task> _tasks = [];
   String userId = FirebaseAuth.instance.currentUser!.uid;
   List<Plan> _plans = [];
+
   Future addNewPlan(Plan plan) async {
     try {
       CollectionReference ref = FirebaseFirestore.instance.collection('plans');
@@ -48,19 +49,19 @@ class Plan with ChangeNotifier {
   void addPlan(Plan plan, int month, BuildContext context) {
     try {
       print('in method');
-      final ref = FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .collection('Plans');
+      final ref = FirebaseFirestore.instance.collection('plans');
 
-      ref.where('month', isEqualTo: month).get().then((value) {
-        print(value.docs.length);
+      ref
+          .where('month', isEqualTo: month)
+          .where('userId', isEqualTo: userId)
+          .get()
+          .then((value) {
+        print('${value.docs.length} + teeest');
         if (value.docs.length == 0) {
           ref.add({
             'name': plan.name,
-            'startDate': plan.startDate,
+            'userId': userId,
             'month': month,
-            'endDate': plan.endDate,
           });
         } else {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -83,23 +84,102 @@ class Plan with ChangeNotifier {
       print(error);
     }
   }
+  List<Task> allTasks = [];
+
+  Future<void> getAllTasks(int month) async {
+    print('cleared');
+    List<Task> ts = [];
+    await FirebaseFirestore.instance
+        .collection('plans')
+        .where('userId', isEqualTo: userId)
+        .where('month', isEqualTo: month)
+        .get()
+        .then((value) async {
+      value.docs.first.reference
+          .collection('tasks')
+          .get()
+          .then((value) => value.docs.forEach((element) {
+                Timestamp t = element['endTime'];
+                ts.add(Task(
+                    name: element['name'],
+                    startTime: element['startTime'],
+                    endTime: t.toDate(),
+                    status: element['status']));
+              }));
+    });
+    this.tasks = ts;
+  }
+
+  Future<void> setTasksBasedOnSelectedDay(int day) async {
+    if (this.tasks == null) {
+      print('equal null');
+      await getAllTasks(DateTime.now().month);
+      notifyListeners();
+    } else if (this.tasks!.length == 0) {
+      print('equal 0');
+      await getAllTasks(DateTime.now().month);
+      notifyListeners();
+    } else if (this.tasks!.length != 0) {
+      print('have items');
+      // List<Task> ts = this.tasks!;
+      tasks = tasks!
+          .where((element) => element.startTime!.toDate().day == day)
+          .toList();
+      print(tasks!.length);
+      // this.tasks = ts;
+      print('in today');
+      notifyListeners();
+    }
+  }
+
+  void setTasksBasedOnSelectedMonth(int month) {
+    if (this.tasks!.length == 0) {
+      getAllTasks(DateTime.now().month);
+    }
+    if (this.tasks!.length != 0) {
+      List<Task> ts = this.tasks!;
+      tasks = ts
+          .where((element) => element.startTime!.toDate().month == month)
+          .toList();
+      print(ts.length);
+      // this.tasks = ts;
+      print('in monthhhh ${tasks!.length}');
+    }
+    notifyListeners();
+  }
+
+  List<Task> getTasks() {
+    notifyListeners();
+    return tasks!;
+  }
 
 //new add task
   void addTask(Task task, int month) async {
     try {
       FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .collection('Plans')
+          .collection('plans')
+          .where('userId', isEqualTo: userId)
           .where('month', isEqualTo: month)
           .get()
           .then((value) {
-        value.docs.first.reference.collection('tasks').add({
-          'name': task.name,
-          'startTime': task.startTime,
-          'endTime': task.endTime,
-          'status': task.status,
-        });
+        print(value.docs.length);
+        if (value.docs.length != 0) {
+          value.docs.first.reference.collection('tasks').add({
+            'name': task.name,
+            'startTime': task.startTime,
+            'endTime': task.endTime,
+            'status': task.status,
+            'workHours': task.workHours,
+            'teams': task.teams,
+            'type': task.type,
+            'ach': task.ach,
+            'percentage': task.percentage,
+            'notes': task.notes
+          });
+          notifyListeners();
+        } else {
+          print('else teeeeest');
+        }
       });
     } catch (error) {
       print('error ${error.toString()}');
@@ -114,41 +194,59 @@ class Plan with ChangeNotifier {
     // List<Plan> plansList = await getPlans(month: DateTime.now().month);
   }
 
-  List<Future<Plan>> getPlansNewVerison(int month) {
+  void getPlansNewVerison(int month) {
     try {
       if (month > 0 && month <= 12) {
         List<Future<Plan>> ls = [];
         FirebaseFirestore.instance
-            .collection('users')
-            .doc(userId)
-            .collection('Plans')
+            .collection('plans')
+            .where('userId', isEqualTo: userId)
             .where('month', isEqualTo: month)
             .get()
             .then((value) {
-          ls = value.docs.map((e) async {
-            return Plan(
-                name: e['name'],
-                startDate: e['startDate'],
-                endDate: e['endDate'],
-                tasks: await e.reference.collection('tasks').get().then(
-                    (value) => value.docs
-                        .map((e) => Task(name: e['name'], status: e['status']))
-                        .toList()));
-          }).toList();
+          print(value.docs.length);
+          List<Task> ts = [];
+
+          value.docs.forEach((e) {
+            Plan(
+              name: e['name'],
+              startDate: e['startDate'],
+              endDate: e['endDate'],
+              tasks: ts,
+            );
+          });
+          // value.docs.map((e) async {
+          //   return Plan(
+          //       name: e['name'],
+          //       startDate: e['startDate'],
+          //       endDate: e['endDate'],
+          //       tasks: await e.reference.collection('tasks').get().then(
+          //           (value) => value.docs
+          //               .map((e) => Task(name: e['name'], status: e['status']))
+          //               .toList()));
+          // }).toList();
         });
         print('length ${ls.length}');
-        return ls;
       } else {
         print('else');
-        return [];
       }
     } catch (error) {
       print('catch');
-      return [];
     }
   }
 
-  void getTodayTasks() {}
+  void getTodayTasks() {
+    if (this.tasks!.length != 0) {
+      List<Task> ts = this.tasks!;
+      ts.where(
+          (element) => element.startTime!.toDate().day == DateTime.now().day);
+      print(ts.length);
+      this.tasks = ts;
+      print('in today');
+    }
+    notifyListeners();
+  }
+
   //List<Task> get getTasks => [..._tasks];
 
   List<Plan> get plans {
@@ -221,7 +319,9 @@ class Plan with ChangeNotifier {
           String id = e.id;
           // tasksSnapshot = await ref.doc(id).collection('tasks').get();
           ref.doc(id).collection('tasks').get().then((value) {
-            _tasks = value.docs.map((e) => Task(name: e['name'])).toList();
+            _tasks = value.docs
+                .map((e) => Task(name: e['name'], startTime: Timestamp.now()))
+                .toList();
           });
           return Plan(
             name: e['name'],
@@ -243,7 +343,9 @@ class Plan with ChangeNotifier {
           // tasksSnapshot = await ref.doc(id).collection('tasks').get();
           ref.doc(id).collection('tasks').get().then((value) {
             print('inside get plans with month');
-            _tasks = value.docs.map((e) => Task(name: e['name'])).toList();
+            _tasks = value.docs
+                .map((e) => Task(name: e['name'], startTime: Timestamp.now()))
+                .toList();
             print('${_tasks.first.name} Fiiiiirst of list');
           });
           return Plan(
