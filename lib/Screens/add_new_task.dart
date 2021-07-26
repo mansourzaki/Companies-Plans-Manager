@@ -49,12 +49,12 @@ class _AddNewTaskState extends State<AddNewTask> {
                 )
               : IconButton(
                   onPressed: () {
+                    setState(() {
+                      _isloading = true;
+                    });
                     _formKey.currentState!.save();
                     try {
                       if (_formKey.currentState!.validate()) {
-                        setState(() {
-                          _isloading = true;
-                        });
                         print('$_t fiiirst');
                         // print(Timestamp.fromDate(
                         //          DateTime.parse(_dateController.text)));
@@ -65,11 +65,16 @@ class _AddNewTaskState extends State<AddNewTask> {
                             name: _nameController.text,
                             startTime: _date,
                             endTime: DateTime.now(),
-                            workHours: int.parse(_workHoursController.text),
+                            workHours: int.parse(_workHoursController.text == ''
+                                ? '0'
+                                : _workHoursController.text),
                             ach: _a,
                             type: _t,
                             notes: _notesController.text,
-                            percentage: int.parse(_percentageController.text),
+                            percentage: int.parse(
+                                _percentageController.text == ''
+                                    ? '0'
+                                    : _percentageController.text),
                             status: false,
                             teams: _teams,
                           );
@@ -79,15 +84,31 @@ class _AddNewTaskState extends State<AddNewTask> {
                           setState(() {
                             _isloading = false;
                           });
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text('تم'),
+                            backgroundColor: Colors.green,
+                          ));
+                          Navigator.of(context).pop();
                         }
                       } else {
                         print('cant add');
+                        setState(() {
+                          _isloading = false;
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text('تأكد من المعلومات المدخلة'),
+                          backgroundColor: Theme.of(context).errorColor,
+                        ));
                       }
                     } catch (eror) {
                       print(eror);
                       setState(() {
                         _isloading = false;
                       });
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text('$eror'),
+                        backgroundColor: Theme.of(context).errorColor,
+                      ));
                     }
                   },
                   icon: Icon(Icons.add_task_sharp))
@@ -111,7 +132,7 @@ class _AddNewTaskState extends State<AddNewTask> {
                       },
                       validator: (value) {
                         if (value!.isEmpty) {
-                          return 'أدخل اسم';
+                          return '';
                         }
                         return null;
                       },

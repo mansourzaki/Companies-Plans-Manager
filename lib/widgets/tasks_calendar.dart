@@ -7,6 +7,11 @@ class TasksCalendar extends StatefulWidget {
   const TasksCalendar({
     Key? key,
   }) : super(key: key);
+  void setDayForToday() {
+    
+    _focusedDay = DateTime.now();
+    _selectedDay = DateTime.now();
+  }
 
   @override
   _TasksCalendarState createState() => _TasksCalendarState();
@@ -16,7 +21,7 @@ class TasksCalendar extends StatefulWidget {
 // List<dynamic>? _selectedEvents;
 DateTime? _focusedDay;
 DateTime? _selectedDay;
-CalendarFormat _calendarFormat = CalendarFormat.month;
+CalendarFormat _calendarFormat = CalendarFormat.week;
 
 class _TasksCalendarState extends State<TasksCalendar> {
   GlobalKey myKey = GlobalKey();
@@ -35,7 +40,7 @@ class _TasksCalendarState extends State<TasksCalendar> {
       },
       onDaySelected: (selectedDay, focusedDay) {
         // if (!isSameDay(DateTime.now(), selectedDay)) {
-        // context.read<Plan>().setTasksBasedOnSelectedDay(selectedDay.day);
+        context.read<Plan>().setTasksBasedOnSelectedDay(selectedDay.day);
         print('selected day is $selectedDay');
         setState(() {
           _selectedDay = selectedDay;
@@ -45,8 +50,7 @@ class _TasksCalendarState extends State<TasksCalendar> {
         // }
       },
       onHeaderTapped: (date) {
-        
-        // context.read<Plan>().setTasksBasedOnSelectedMonth(date.month);
+        context.read<Plan>().setTasksBasedOnSelectedMonth(date.month);
         // print(date.month);
         //  context.read<Plan>().getPlans(month: date.month);
       },

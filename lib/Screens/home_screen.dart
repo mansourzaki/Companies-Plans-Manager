@@ -7,6 +7,7 @@ import 'package:intl/intl.dart' as intl;
 import 'package:plansmanager/Screens/add_new_task.dart';
 import 'package:plansmanager/Screens/login_screen.dart';
 import 'package:plansmanager/provider/plan.dart';
+import 'package:plansmanager/widgets/task_card.dart';
 import '../provider/task.dart';
 import 'package:plansmanager/widgets/tasks_calendar.dart';
 import 'package:provider/provider.dart';
@@ -29,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // context.read<Plan>().getCurrentDayTasks();
     // print('hi from init state');
     context.read<Plan>().getAllTasks(DateTime.now().month);
+    print('init ${FirebaseAuth.instance.currentUser!.uid}');
     //context.read<Plan>().setTasksBasedOnSelectedDay(DateTime.now().day);
     super.initState();
   }
@@ -44,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
               onPressed: () {
                 FirebaseAuth.instance.signOut();
+                context.read<Plan>().clearAllTasks();
                 Navigator.of(context).popAndPushNamed(LoginScreen.routeName);
               },
               icon: Icon(Icons.exit_to_app))
@@ -74,61 +77,40 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         child: Icon(Icons.add),
       ),
-      body: CustomScrollView(
-        slivers: [
-          SliverStickyHeader(
-            header: TasksCalendar(),
-            sticky: true,
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                Consumer<Plan>(
-                  builder: (context, plan, child) {
-                    return plan.tasks == null
-                        ? Center(
-                            child: CircularProgressIndicator(),
-                          )
-                        : ListView.builder(
-                            physics: NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: plan.tasks!.length,
-                            itemBuilder: (context, i) {
-                              // if (plan.tasks!.length == 0) {
-                              //   return Center(
-                              //     child: CircularProgressIndicator(),
-                              //   );
-                              // }
-
-                              return Directionality(
-                                  textDirection: TextDirection.rtl,
-                                  child: Container(
-                                    margin: EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: Colors.amber[400],
-                                    ),
-                                    child: ListTile(
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10)),
-                                      title: Text(plan.tasks![i].name ?? ''),
-                                      leading: Icon(Icons.task),
-
-                                      onTap: () {},
-                                      // data[i]['endDate'].to
-
-                                      subtitle: Text(intl.DateFormat.yMMMMd()
-                                          .format(plan.tasks![i].startTime!
-                                              .toDate())),
-                                    ),
-                                  ));
-                            },
-                          );
-                  },
-                ),
-              ]),
-            ),
-          )
-        ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          setState(() {
+            TasksCalendar().setDayForToday();
+          });
+          await context.read<Plan>().getAllTasks(7);
+        },
+        child: CustomScrollView(
+          slivers: [
+            SliverStickyHeader(
+              header: Container(color: Colors.white, child: TasksCalendar()),
+              sticky: true,
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  Consumer<Plan>(
+                    builder: (context, plan, child) {
+                      return plan.allTasks.isEmpty
+                          ? Center(child: Text('No Tasks Found'))
+                          : ListView.builder(
+                              physics: NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: plan.tasks!.length,
+                              itemBuilder: (context, i) {
+                                return TaskCard(plan.tasks![i].name ?? '',
+                                    plan.tasks![i].startTime!);
+                              },
+                            );
+                    },
+                  ),
+                ]),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

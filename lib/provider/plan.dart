@@ -22,29 +22,6 @@ class Plan with ChangeNotifier {
   String userId = FirebaseAuth.instance.currentUser!.uid;
   List<Plan> _plans = [];
 
-  Future addNewPlan(Plan plan) async {
-    try {
-      CollectionReference ref = FirebaseFirestore.instance.collection('plans');
-      // DocumentReference doc =
-      await ref.add({
-        'name': plan.name,
-        'startDate': plan.startDate,
-        'endDate': plan.endDate,
-        'teamName': plan.teamName,
-      }).then((value) {
-        value.collection('tasks').add({
-          'name': 'تاسك 2',
-          'startTime': Timestamp.now(),
-          'endTime': Timestamp.now()
-        });
-        notifyListeners();
-        return value;
-      });
-    } catch (e) {
-      print(e);
-    }
-  }
-
 //new add
   void addPlan(Plan plan, int month, BuildContext context) {
     try {
@@ -84,7 +61,14 @@ class Plan with ChangeNotifier {
       print(error);
     }
   }
+
   List<Task> allTasks = [];
+
+  void clearAllTasks() {
+    allTasks = [];
+    tasks = [];
+    notifyListeners();
+  }
 
   Future<void> getAllTasks(int month) async {
     print('cleared');
@@ -95,76 +79,99 @@ class Plan with ChangeNotifier {
         .where('month', isEqualTo: month)
         .get()
         .then((value) async {
-      value.docs.first.reference
-          .collection('tasks')
-          .get()
-          .then((value) => value.docs.forEach((element) {
+      await value.docs.first.reference.collection('tasks').get().then(
+            (value) => value.docs.forEach(
+              (element) {
                 Timestamp t = element['endTime'];
-                ts.add(Task(
-                    name: element['name'],
-                    startTime: element['startTime'],
-                    endTime: t.toDate(),
-                    status: element['status']));
-              }));
+                ts.add(
+                  Task(
+                      name: element['name'],
+                      startTime: element['startTime'],
+                      endTime: t.toDate(),
+                      status: element['status'],
+                      workHours: element['workHours'],
+                      teams: element['teams'],
+                      type: element['type'],
+                      ach: element['ach'],
+                      percentage: element['percentage'],
+                      notes: element['notes']),
+                );
+                notifyListeners();
+              },
+            ),
+          );
+
+      allTasks = ts;
+      notifyListeners();
+      print('leeeength ${allTasks.length}');
+      print('leeeength ${ts.length}');
     });
-    this.tasks = ts;
+
+    tasks = allTasks
+        .where(
+            (element) => element.startTime!.toDate().day == DateTime.now().day)
+        .toList();
   }
 
   Future<void> setTasksBasedOnSelectedDay(int day) async {
-    if (this.tasks == null) {
-      print('equal null');
-      await getAllTasks(DateTime.now().month);
-      notifyListeners();
-    } else if (this.tasks!.length == 0) {
+    if (allTasks.length == 0) {
       print('equal 0');
       await getAllTasks(DateTime.now().month);
       notifyListeners();
-    } else if (this.tasks!.length != 0) {
+    } else if (allTasks.length != 0) {
       print('have items');
       // List<Task> ts = this.tasks!;
-      tasks = tasks!
+      tasks = allTasks
           .where((element) => element.startTime!.toDate().day == day)
           .toList();
       print(tasks!.length);
       // this.tasks = ts;
       print('in today');
       notifyListeners();
+    } else if (allTasks.length == 0) {
+      print('equal 0');
+      await getAllTasks(DateTime.now().month);
+      notifyListeners();
     }
   }
 
-  void setTasksBasedOnSelectedMonth(int month) {
-    if (this.tasks!.length == 0) {
-      getAllTasks(DateTime.now().month);
+  Future<void> setTasksBasedOnSelectedMonth(int month) async {
+    if (allTasks.length == 0) {
+      print('no tasks');
+    } else if (this.tasks!.length == 0) {
+      await getAllTasks(DateTime.now().month);
+      notifyListeners();
     }
     if (this.tasks!.length != 0) {
       List<Task> ts = this.tasks!;
-      tasks = ts
+      print('hey ya');
+      tasks = allTasks
           .where((element) => element.startTime!.toDate().month == month)
           .toList();
-      print(ts.length);
+      print(tasks!.length);
       // this.tasks = ts;
       print('in monthhhh ${tasks!.length}');
+      notifyListeners();
     }
-    notifyListeners();
   }
 
-  List<Task> getTasks() {
-    notifyListeners();
-    return tasks!;
-  }
+  // List<Task> getTasks() {
+  //   notifyListeners();
+  //   return tasks!;
+  // }
 
 //new add task
-  void addTask(Task task, int month) async {
+  Future<void> addTask(Task task, int month) async {
     try {
       FirebaseFirestore.instance
           .collection('plans')
           .where('userId', isEqualTo: userId)
           .where('month', isEqualTo: month)
           .get()
-          .then((value) {
+          .then((value) async {
         print(value.docs.length);
         if (value.docs.length != 0) {
-          value.docs.first.reference.collection('tasks').add({
+          await value.docs.first.reference.collection('tasks').add({
             'name': task.name,
             'startTime': task.startTime,
             'endTime': task.endTime,
@@ -176,13 +183,29 @@ class Plan with ChangeNotifier {
             'percentage': task.percentage,
             'notes': task.notes
           });
+          allTasks.add(Task(
+              name: task.name,
+              startTime: task.startTime,
+              endTime: task.endTime,
+              status: task.status,
+              workHours: task.workHours,
+              teams: task.teams,
+              type: task.type,
+              ach: task.ach,
+              percentage: task.percentage,
+              notes: task.notes));
+          setTasksBasedOnSelectedDay(DateTime.now().day);
+          //  await getAllTasks(month);
           notifyListeners();
+          print('notified lintners');
         } else {
           print('else teeeeest');
+          notifyListeners();
         }
       });
     } catch (error) {
       print('error ${error.toString()}');
+      notifyListeners();
     }
     //CollectionReference ref = FirebaseFirestore.instance.collection('Plans');
     // ref.doc(id).collection('tasks').add({
@@ -235,22 +258,45 @@ class Plan with ChangeNotifier {
     }
   }
 
-  void getTodayTasks() {
-    if (this.tasks!.length != 0) {
-      List<Task> ts = this.tasks!;
-      ts.where(
-          (element) => element.startTime!.toDate().day == DateTime.now().day);
-      print(ts.length);
-      this.tasks = ts;
-      print('in today');
-    }
-    notifyListeners();
-  }
+  // void getTodayTasks() {
+  //   if (this.tasks!.length != 0) {
+  //     List<Task> ts = this.tasks!;
+  //     ts.where(
+  //         (element) => element.startTime!.toDate().day == DateTime.now().day);
+  //     print(ts.length);
+  //     this.tasks = ts;
+  //     print('in today');
+  //   }
+  //   notifyListeners();
+  // }
 
   //List<Task> get getTasks => [..._tasks];
 
   List<Plan> get plans {
     return [..._plans];
+  }
+
+  Future addNewPlan(Plan plan) async {
+    try {
+      CollectionReference ref = FirebaseFirestore.instance.collection('plans');
+      // DocumentReference doc =
+      await ref.add({
+        'name': plan.name,
+        'startDate': plan.startDate,
+        'endDate': plan.endDate,
+        'teamName': plan.teamName,
+      }).then((value) {
+        value.collection('tasks').add({
+          'name': 'تاسك 2',
+          'startTime': Timestamp.now(),
+          'endTime': Timestamp.now()
+        });
+        notifyListeners();
+        return value;
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 
   Plan get currentMonthPlan {
@@ -262,109 +308,109 @@ class Plan with ChangeNotifier {
 
   List<Task> todaysTasks = [];
   List<Task> monthTasks = [];
-  Future<List<Task>> getCurrentDayTasks() async {
-    try {
-      if (_plans.length == 0) {
-        List<Plan> plans = await getPlans(month: DateTime.now().month);
-        plans.forEach((element) {
-          print(
-              '${element.tasks} + this is task for plan ${element.name} from first if');
-          todaysTasks = element.tasks!.where((element) {
-            return element.startTime!.toDate().day == DateTime.now().day;
-          }).toList();
-        });
-        // print('$todaysTasks + this is today tasks from first if');
-        return todaysTasks;
-      } else {
-        print('in method');
-        // todaysTasks = tasks!.where((element) {
-        //   return element.startTime!.day == DateTime.now().day;
-        // }).toList();
-        _plans.forEach((element) {
-          todaysTasks = element.tasks!
-              .where((element) =>
-                  element.startTime!.toDate().day == DateTime.now().day)
-              .toList();
-        });
-        print('$todaysTasks + this is today tasks from second if');
-        //notifyListeners();
-        return todaysTasks;
-      }
-    } catch (error) {
-      print('$error + in catch');
-      return [];
-    }
-  }
+  // Future<List<Task>> getCurrentDayTasks() async {
+  //   try {
+  //     if (_plans.length == 0) {
+  //       List<Plan> plans = await getPlans(month: DateTime.now().month);
+  //       plans.forEach((element) {
+  //         print(
+  //             '${element.tasks} + this is task for plan ${element.name} from first if');
+  //         todaysTasks = element.tasks!.where((element) {
+  //           return element.startTime!.toDate().day == DateTime.now().day;
+  //         }).toList();
+  //       });
+  //       // print('$todaysTasks + this is today tasks from first if');
+  //       return todaysTasks;
+  //     } else {
+  //       print('in method');
+  //       // todaysTasks = tasks!.where((element) {
+  //       //   return element.startTime!.day == DateTime.now().day;
+  //       // }).toList();
+  //       _plans.forEach((element) {
+  //         todaysTasks = element.tasks!
+  //             .where((element) =>
+  //                 element.startTime!.toDate().day == DateTime.now().day)
+  //             .toList();
+  //       });
+  //       print('$todaysTasks + this is today tasks from second if');
+  //       //notifyListeners();
+  //       return todaysTasks;
+  //     }
+  //   } catch (error) {
+  //     print('$error + in catch');
+  //     return [];
+  //   }
+  // }
 
-  List<Task> getCurrentMonthTasks() {
-    monthTasks = [];
-    monthTasks = tasks!.where((element) {
-      return element.startTime!.toDate().month == DateTime.now().month;
-    }).toList();
-    return monthTasks;
-  }
+  // List<Task> getCurrentMonthTasks() {
+  //   monthTasks = [];
+  //   monthTasks = tasks!.where((element) {
+  //     return element.startTime!.toDate().month == DateTime.now().month;
+  //   }).toList();
+  //   return monthTasks;
+  // }
 
-  Future<List<Plan>> getPlans({int? month}) async {
-    // List<Plan> _plans = [];
-    //_tasks = [];
-    List<Task> _tasks = [];
-    try {
-      CollectionReference ref = FirebaseFirestore.instance.collection('plans');
-      // QuerySnapshot tasksSnapshot;
-      QuerySnapshot snapshot = await ref.get(); //get plans collection
-      snapshot.docs.toList();
+  // Future<List<Plan>> getPlans({int? month}) async {
+  //   // List<Plan> _plans = [];
+  //   //_tasks = [];
+  //   List<Task> _tasks = [];
+  //   try {
+  //     CollectionReference ref = FirebaseFirestore.instance.collection('plans');
+  //     // QuerySnapshot tasksSnapshot;
+  //     QuerySnapshot snapshot = await ref.get(); //get plans collection
+  //     snapshot.docs.toList();
 
-      if (month == null || month == 0) {
-        _plans = snapshot.docs.map((e) {
-          String id = e.id;
-          // tasksSnapshot = await ref.doc(id).collection('tasks').get();
-          ref.doc(id).collection('tasks').get().then((value) {
-            _tasks = value.docs
-                .map((e) => Task(name: e['name'], startTime: Timestamp.now()))
-                .toList();
-          });
-          return Plan(
-            name: e['name'],
-            startDate: e['startDate'],
-            endDate: e['endDate'],
-            teamName: e['teamName'],
-            tasks: _tasks,
-          );
-        }).toList();
-      } else if (month > 0 && month <= 12) {
-        _plans = snapshot.docs.where((e) {
-          Timestamp stDate = e['startDate'];
-          // Timestamp edDate = e['endDate'];
-          return month == stDate.toDate().month;
-          // return (start.isAfter(stDate.toDate()) &&
-          //     end.isBefore(edDate.toDate()));
-        }).map((e) {
-          String id = e.id;
-          // tasksSnapshot = await ref.doc(id).collection('tasks').get();
-          ref.doc(id).collection('tasks').get().then((value) {
-            print('inside get plans with month');
-            _tasks = value.docs
-                .map((e) => Task(name: e['name'], startTime: Timestamp.now()))
-                .toList();
-            print('${_tasks.first.name} Fiiiiirst of list');
-          });
-          return Plan(
-            name: e['name'],
-            startDate: e['startDate'],
-            endDate: e['endDate'],
-            teamName: e['teamName'],
-            tasks: _tasks,
-          );
-        }).toList();
-      }
-      notifyListeners();
-      return _plans;
-    } catch (e) {
-      print(e);
-      print('in error');
-      return [];
-    }
-  }
+  //     if (month == null || month == 0) {
+  //       _plans = snapshot.docs.map((e) {
+  //         String id = e.id;
+  //         // tasksSnapshot = await ref.doc(id).collection('tasks').get();
+  //         ref.doc(id).collection('tasks').get().then((value) {
+  //           _tasks = value.docs
+  //               .map((e) => Task(name: e['name'], startTime: Timestamp.now()))
+  //               .toList();
+  //         });
+  //         return Plan(
+  //           name: e['name'],
+  //           startDate: e['startDate'],
+  //           endDate: e['endDate'],
+  //           teamName: e['teamName'],
+  //           tasks: _tasks,
+  //         );
+  //       }).toList();
+  //     } else if (month > 0 && month <= 12) {
+  //       _plans = snapshot.docs.where((e) {
+  //         Timestamp stDate = e['startDate'];
+  //         // Timestamp edDate = e['endDate'];
+  //         return month == stDate.toDate().month;
+  //         // return (start.isAfter(stDate.toDate()) &&
+  //         //     end.isBefore(edDate.toDate()));
+  //       }).map((e) {
+  //         String id = e.id;
+  //         // tasksSnapshot = await ref.doc(id).collection('tasks').get();
+  //         ref.doc(id).collection('tasks').get().then((value) {
+  //           print('inside get plans with month');
+  //           _tasks = value.docs
+  //               .map((e) => Task(name: e['name'], startTime: Timestamp.now()))
+  //               .toList();
+  //           print('${_tasks.first.name} Fiiiiirst of list');
+  //         });
+  //         return Plan(
+  //           name: e['name'],
+  //           startDate: e['startDate'],
+  //           endDate: e['endDate'],
+  //           teamName: e['teamName'],
+  //           tasks: _tasks,
+  //         );
+  //       }).toList();
+  //     }
+  //     notifyListeners();
+  //     return _plans;
+  //   } catch (e) {
+  //     print(e);
+  //     print('in error');
+  //     return [];
+  //   }
+  // }
 
   // Future<List<Plan>> plansBasedOnMonth(int month) async {
   //   // List<Plan> _plans = [];

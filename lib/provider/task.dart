@@ -6,7 +6,7 @@ class Task {
   Timestamp? startTime;
   DateTime? endTime;
   int? workHours;
-  List<String>? teams;
+  List? teams;
   bool? status;
   String? type;
   String? ach;
