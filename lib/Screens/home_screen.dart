@@ -29,15 +29,19 @@ class _HomeScreenState extends State<HomeScreen> {
     // context.read<Plan>().getCurrentMonthTasks();
     // context.read<Plan>().getCurrentDayTasks();
     // print('hi from init state');
+    context.read<Plan>().getCurrentPlan();
     context.read<Plan>().getAllTasks(DateTime.now().month);
+
     print('init ${FirebaseAuth.instance.currentUser!.uid}');
     //context.read<Plan>().setTasksBasedOnSelectedDay(DateTime.now().day);
     super.initState();
   }
 
   TaskType taskType = TaskType.dev;
+
   @override
   Widget build(BuildContext context) {
+    String? current = Provider.of<Plan>(context, listen: true).current;
     return Scaffold(
       appBar: AppBar(
         title: Text('الرئيسية'),
@@ -47,6 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: () {
                 FirebaseAuth.instance.signOut();
                 context.read<Plan>().clearAllTasks();
+                context.read<Plan>().clearCurrent();
                 Navigator.of(context).popAndPushNamed(LoginScreen.routeName);
               },
               icon: Icon(Icons.exit_to_app))
@@ -54,6 +59,15 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
+          if (current == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content: Text('لا يوجد خطة حالية'),
+                  backgroundColor: Colors.red),
+            );
+          } else {
+            Navigator.pushNamed(context, AddNewTask.routeName);
+          }
           // context.read<Plan>().addPlan(
           //     Plan(
           //       name: 'خطة شهر 7',
@@ -72,8 +86,6 @@ class _HomeScreenState extends State<HomeScreen> {
           //           status: false),
           //       8,
           //     );
-
-          Navigator.pushNamed(context, AddNewTask.routeName);
         },
         child: Icon(Icons.add),
       ),
@@ -91,6 +103,16 @@ class _HomeScreenState extends State<HomeScreen> {
               sticky: true,
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
+                  Container(
+                      color: Colors.white,
+                      //margin: EdgeInsets.only(right: 20,bottom: 5),
+                      padding: EdgeInsets.only(bottom: 10, right: 10),
+                      child: Text(
+                        current == null ? 'لا يوجد خطة' : '',
+                        textAlign: TextAlign.end,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 20),
+                      )),
                   Consumer<Plan>(
                     builder: (context, plan, child) {
                       return plan.allTasks.isEmpty
@@ -100,8 +122,23 @@ class _HomeScreenState extends State<HomeScreen> {
                               shrinkWrap: true,
                               itemCount: plan.tasks!.length,
                               itemBuilder: (context, i) {
-                                return TaskCard(plan.tasks![i].name ?? '',
-                                    plan.tasks![i].startTime!);
+                                print('before build $current');
+                                Task task = Task(
+                                    id: plan.tasks![i].id,
+                                    name: plan.tasks![i].name,
+                                    startTime: plan.tasks![i].startTime,
+                                    endTime: plan.tasks![i].endTime,
+                                    status: plan.tasks![i].status,
+                                    workHours: plan.tasks![i].workHours,
+                                    teams: plan.tasks![i].teams,
+                                    type: plan.tasks![i].type,
+                                    ach: plan.tasks![i].ach,
+                                    percentage: plan.tasks![i].percentage,
+                                    notes: plan.tasks![i].notes);
+                                return TaskCard(
+                                  task: task,
+                                  id: current,
+                                );
                               },
                             );
                     },

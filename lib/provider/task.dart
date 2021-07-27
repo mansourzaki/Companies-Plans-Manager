@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class Task {
+class Task with ChangeNotifier {
+  String? id;
   String? name;
   Timestamp? startTime;
   DateTime? endTime;
@@ -14,7 +15,8 @@ class Task {
   String? notes;
 
   Task(
-      {this.name,
+      {this.id,
+      this.name,
       this.startTime,
       this.endTime,
       this.workHours,
@@ -24,4 +26,17 @@ class Task {
       this.notes,
       this.ach,
       this.type});
+
+  Future updateTaskSatus(String current, bool status) async {
+    await FirebaseFirestore.instance
+        .collection('plans')
+        .doc(current)
+        .collection('tasks')
+        .doc(this.id)
+        .update({
+      'status': status,
+    });
+
+    notifyListeners();
+  }
 }

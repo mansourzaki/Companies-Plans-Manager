@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:plansmanager/exceptions/custom_exception.dart';
 import 'package:plansmanager/provider/task.dart';
 
 class Plan with ChangeNotifier {
@@ -21,6 +22,30 @@ class Plan with ChangeNotifier {
   // List<Task> _tasks = [];
   String userId = FirebaseAuth.instance.currentUser!.uid;
   List<Plan> _plans = [];
+  String? current;
+  Future<void> getCurrentPlan() async {
+    try {
+      final ref = await FirebaseFirestore.instance
+          .collection('plans')
+          .where('userId', isEqualTo: userId)
+          .where('month', isEqualTo: DateTime.now().month)
+          .get();
+      if (ref.docs.length == 0) {
+        current = null;
+        notifyListeners();
+      } else {
+        current = ref.docs.first.id;
+        notifyListeners();
+      }
+
+      notifyListeners();
+    } catch (err) {}
+  }
+
+  void clearCurrent() {
+    current = null;
+    notifyListeners();
+  }
 
 //new add
   void addPlan(Plan plan, int month, BuildContext context) {
@@ -83,8 +108,10 @@ class Plan with ChangeNotifier {
             (value) => value.docs.forEach(
               (element) {
                 Timestamp t = element['endTime'];
+
                 ts.add(
                   Task(
+                      id: element.id,
                       name: element['name'],
                       startTime: element['startTime'],
                       endTime: t.toDate(),
@@ -102,6 +129,7 @@ class Plan with ChangeNotifier {
           );
 
       allTasks = ts;
+      // allTasks.sort();
       notifyListeners();
       print('leeeength ${allTasks.length}');
       print('leeeength ${ts.length}');
@@ -171,7 +199,7 @@ class Plan with ChangeNotifier {
           .then((value) async {
         print(value.docs.length);
         if (value.docs.length != 0) {
-          await value.docs.first.reference.collection('tasks').add({
+          final ref = await value.docs.first.reference.collection('tasks').add({
             'name': task.name,
             'startTime': task.startTime,
             'endTime': task.endTime,
@@ -183,7 +211,9 @@ class Plan with ChangeNotifier {
             'percentage': task.percentage,
             'notes': task.notes
           });
+          print(ref.id);
           allTasks.add(Task(
+              id: ref.id,
               name: task.name,
               startTime: task.startTime,
               endTime: task.endTime,
@@ -194,17 +224,18 @@ class Plan with ChangeNotifier {
               ach: task.ach,
               percentage: task.percentage,
               notes: task.notes));
+          print('added ${allTasks[allTasks.length - 1].id}');
           setTasksBasedOnSelectedDay(DateTime.now().day);
           //  await getAllTasks(month);
           notifyListeners();
           print('notified lintners');
         } else {
-          print('else teeeeest');
           notifyListeners();
+          print('in else');
         }
       });
     } catch (error) {
-      print('error ${error.toString()}');
+      print('error catch ${error.toString()}');
       notifyListeners();
     }
     //CollectionReference ref = FirebaseFirestore.instance.collection('Plans');
@@ -215,6 +246,49 @@ class Plan with ChangeNotifier {
     //   'team': ['sdf', 'dfdf', 'dfdf'],
     // });
     // List<Plan> plansList = await getPlans(month: DateTime.now().month);
+  }
+
+  Future<void> updateTask(Task task) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('plans')
+          .doc(current)
+          .collection('tasks')
+          .doc(task.id)
+          .set({
+        'name': task.name,
+        'startTime': task.startTime,
+        'endTime': task.endTime,
+        'status': task.status,
+        'workHours': task.workHours,
+        'teams': task.teams,
+        'type': task.type,
+        'ach': task.ach,
+        'percentage': task.percentage,
+        'notes': task.notes
+      });
+      print('done');
+      allTasks.removeWhere((element) => element.id == task.id);
+      allTasks.add(task);
+      setTasksBasedOnSelectedDay(DateTime.now().day);
+      notifyListeners();
+    } catch (error) {
+      print("error");
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateTaskSatus(Task task,bool status) async {
+    await FirebaseFirestore.instance
+        .collection('plans')
+        .doc(current)
+        .collection('tasks')
+        .doc(task.id)
+        .update({
+      'status': status,
+    });
+    tasks!.firstWhere((element) => element.id == task.id).status = status;
+    notifyListeners();
   }
 
   void getPlansNewVerison(int month) {

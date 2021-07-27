@@ -12,14 +12,31 @@ enum Type { dev, supp }
 enum Ach { inn, out }
 final List<String> labels = ['دعم فني', 'تصميم', 'برمجة'];
 
-class AddNewTask extends StatefulWidget {
-  const AddNewTask({Key? key}) : super(key: key);
+class EditTask extends StatefulWidget {
+  Task? task;
+  EditTask({Key? key, this.task}) : super(key: key);
+
   static final routeName = 'AddNewTaskScreen';
   @override
-  _AddNewTaskState createState() => _AddNewTaskState();
+  _EditTaskState createState() => _EditTaskState();
 }
 
-class _AddNewTaskState extends State<AddNewTask> {
+class _EditTaskState extends State<EditTask> {
+  @override
+  void initState() {
+    _nameController.text = widget.task!.name!;
+    _dateController.text =
+        intl.DateFormat.yMd().format(widget.task!.startTime!.toDate());
+    _date = widget.task!.startTime!;
+    _notesController.text = widget.task!.notes!;
+    _workHoursController.text = widget.task!.workHours.toString();
+    _percentageController.text = widget.task!.percentage.toString();
+    _type = widget.task!.type == 'تطوير' ? Type.dev : Type.supp;
+    _ach = widget.task!.ach == 'داخل' ? Ach.inn : Ach.out;
+    _teams = widget.task!.teams!.cast<String>();
+    super.initState();
+  }
+
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _dateController = TextEditingController();
@@ -29,9 +46,10 @@ class _AddNewTaskState extends State<AddNewTask> {
   String? _t = 'تطوير';
   String? _a = 'داخل';
   Timestamp? _date;
+  DateTime? date;
   bool _isloading = false;
   List<String> _teams = [];
-  Type? _type = Type.dev;
+  Type? _type;
   Ach? _ach = Ach.inn;
   Task? _myTask = Task(); //missing id
   @override
@@ -39,83 +57,68 @@ class _AddNewTaskState extends State<AddNewTask> {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          _isloading
-              ? Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircularProgressIndicator(
-                      color: Colors.orange,
-                    ),
-                  ],
-                )
-              : IconButton(
-                  onPressed: () async {
-                    String? current =
-                        Provider.of<Plan>(context, listen: false).current;
-                    setState(() {
-                      _isloading = true;
-                    });
-                    _formKey.currentState!.save();
-                    try {
-                      if (_formKey.currentState!.validate()) {
-                        print('$_t fiiirst');
+          IconButton(
+              onPressed: () async {
+                String? current =
+                    Provider.of<Plan>(context, listen: false).current;
+                // setState(() {
+                //   _isloading = true;
+                // });
+                _formKey.currentState!.save();
+                try {
+                  if (_formKey.currentState!.validate()) {
+                    if (_date != null) {
+                      print('pressed');
+                      //missing id
+                      _myTask = Task(
+                        id: widget.task!.id,
+                        name: _nameController.text,
+                        startTime: _date,
+                        endTime: DateTime.now(),
+                        workHours: int.parse(_workHoursController.text == ''
+                            ? '0'
+                            : _workHoursController.text),
+                        ach: _a,
+                        type: _t,
+                        notes: _notesController.text,
+                        percentage: int.parse(_percentageController.text == ''
+                            ? '0'
+                            : _percentageController.text),
+                        status: widget.task!.status,
+                        teams: _teams,
+                      );
 
-                        // print(Timestamp.fromDate(
-                        //          DateTime.parse(_dateController.text)));
-                        print(_dateController.text);
-                        print('${_teams.length} teeeest ');
-                        if (_date != null) {
-                          //missing id
-                          _myTask = Task(
-                            name: _nameController.text,
-                            startTime: _date,
-                            endTime: DateTime.now(),
-                            workHours: int.parse(_workHoursController.text == ''
-                                ? '0'
-                                : _workHoursController.text),
-                            ach: _a,
-                            type: _t,
-                            notes: _notesController.text,
-                            percentage: int.parse(
-                                _percentageController.text == ''
-                                    ? '0'
-                                    : _percentageController.text),
-                            status: false,
-                            teams: _teams,
+                      // await context.read<Plan>().addTask(
+                      //     _myTask!, _myTask!.startTime!.toDate().month);
+                      await context.read<Plan>().updateTask(
+                            _myTask!,
                           );
-
-                          await context
-                              .read<Plan>()
-                              .addTask(
-                                  _myTask!, _myTask!.startTime!.toDate().month)
-                              .onError((error, stackTrace) => print('aaa'));
-
-                          setState(() {
-                            _isloading = false;
-                          });
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text('تم'),
-                            backgroundColor: Colors.green,
-                          ));
-                          Navigator.of(context).pop();
-                        }
-                      } else {
-                        print('cant add $current');
-                        setState(() {
-                          _isloading = false;
-                        });
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text('لا توجد خطة حالية'),
-                          backgroundColor: Theme.of(context).errorColor,
-                        ));
-                      }
-                    } catch (e) {
-                      print('in exc');
+                      // setState(() {
+                      //   _isloading = false;
+                      // });
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text('تم'),
+                        backgroundColor: Colors.green,
+                      ));
+                      //  Navigator.of(context).pop();
                     }
-                  },
-                  icon: Icon(Icons.add_task_sharp))
+                  } else {
+                    print('cant add $current');
+                    // setState(() {
+                    //   _isloading = false;
+                    // });
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text('لا توجد خطة حالية'),
+                      backgroundColor: Theme.of(context).errorColor,
+                    ));
+                  }
+                } catch (e) {
+                  print('in exc');
+                }
+              },
+              icon: Icon(Icons.save))
         ],
-        title: Text('إضافة مهمة جديدة'),
+        title: Text('تعديل'),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -167,37 +170,6 @@ class _AddNewTaskState extends State<AddNewTask> {
                           child: Directionality(
                             textDirection: TextDirection.rtl,
                             child: TextFormField(
-                              // focusNode: AlwaysDisabledFocusNode(),
-                              // onTap: () {
-                              //   showModalBottomSheet(
-                              //       context: context,
-                              //       builder: (context) {
-                              //         return Container(
-                              //           height:
-                              //               MediaQuery.of(context).size.height *
-                              //                   0.25,
-                              //           child: CupertinoPicker(
-                              //             children: [
-                              //               Text('1'),
-                              //               Text('2'),
-                              //               Text('3'),
-                              //               Text('4'),
-                              //               Text('5'),
-                              //               Text('6'),
-                              //             ],
-                              //             itemExtent: 42,
-                              //             onSelectedItemChanged: (value) {
-                              //               setState(() {
-                              //                 _workHoursController.text =
-                              //                   value.toString();
-                              //               });
-
-                              //             },
-
-                              //           ),
-                              //         );
-                              //       });
-                              // },
                               keyboardType: TextInputType.number,
                               controller: _workHoursController,
                               decoration: InputDecoration(
@@ -236,18 +208,20 @@ class _AddNewTaskState extends State<AddNewTask> {
                                 }
                                 return null;
                               },
+                              // onSaved: (value) {
+                              //   if (date != null) {
+                              //     _dateController.text =
+                              //         intl.DateFormat.yMd().format(date!);
+                              //   }
+                              //   _date = Timestamp.fromDate(date!);
+                              // },
                               onTap: () async {
-                                DateTime? date = await showDatePicker(
+                                date = await showDatePicker(
                                   context: context,
                                   initialDate: DateTime.now(),
                                   firstDate: DateTime(DateTime.now().year),
                                   lastDate: DateTime(2030),
                                 );
-                                if (date != null) {
-                                  _dateController.text =
-                                      intl.DateFormat.yMd().format(date);
-                                }
-                                _date = Timestamp.fromDate(date!);
                               },
                               decoration: InputDecoration(
                                 labelText: 'التاريخ',
@@ -275,6 +249,7 @@ class _AddNewTaskState extends State<AddNewTask> {
                   Directionality(
                       textDirection: TextDirection.rtl,
                       child: ChipsInput<String>(
+                          initialValue: widget.task!.teams!.cast<String>(),
                           textCapitalization: TextCapitalization.words,
                           decoration: InputDecoration(
                             labelText: 'الفرق المساندة',

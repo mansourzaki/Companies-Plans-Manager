@@ -8,7 +8,6 @@ class TasksCalendar extends StatefulWidget {
     Key? key,
   }) : super(key: key);
   void setDayForToday() {
-    
     _focusedDay = DateTime.now();
     _selectedDay = DateTime.now();
   }
