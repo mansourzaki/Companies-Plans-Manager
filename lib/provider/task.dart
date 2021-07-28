@@ -27,16 +27,17 @@ class Task with ChangeNotifier {
       this.ach,
       this.type});
 
-  Future updateTaskSatus(String current, bool status) async {
-    await FirebaseFirestore.instance
-        .collection('plans')
-        .doc(current)
-        .collection('tasks')
-        .doc(this.id)
-        .update({
-      'status': status,
-    });
+  // Future updateTaskSatus(Task task,String current, bool status) async {
+  //   await FirebaseFirestore.instance
+  //       .collection('plans')
+  //       .doc(current)
+  //       .collection('tasks')
+  //       .doc(this.id)
+  //       .update({
+  //     'status': status,
+  //   });
 
-    notifyListeners();
-  }
+
+  //   notifyListeners();
+  // }
 }

@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:plansmanager/Screens/add_new_task.dart';
 import 'package:plansmanager/Screens/forgot_password_screen.dart';
@@ -67,6 +68,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final List<Widget> _screens = [
+    HomeScreen(),
+    PlansScreen(),
+  ];
+  int _currentIndex = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -101,6 +107,19 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: () {},
         tooltip: 'Increment',
         child: Icon(Icons.add),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        items: [
+          BottomNavigationBarItem(
+              icon: FaIcon(FontAwesomeIcons.projectDiagram), label: 'الخطط'),
+          BottomNavigationBarItem(icon: Icon(Icons.task), label: 'المهام'),
+        ],
       ),
     );
   }

@@ -18,8 +18,8 @@ class TasksCalendar extends StatefulWidget {
 
 // Map<DateTime, List<dynamic>>? _events;
 // List<dynamic>? _selectedEvents;
-DateTime? _focusedDay;
-DateTime? _selectedDay;
+DateTime? _focusedDay = DateTime.now();
+DateTime? _selectedDay = DateTime.now();
 CalendarFormat _calendarFormat = CalendarFormat.week;
 
 class _TasksCalendarState extends State<TasksCalendar> {
@@ -30,7 +30,7 @@ class _TasksCalendarState extends State<TasksCalendar> {
     return TableCalendar(
       firstDay: DateTime.utc(2010),
       lastDay: DateTime.utc(2050),
-      focusedDay: DateTime.now(),
+      focusedDay: _focusedDay!,
       calendarFormat: _calendarFormat,
       onFormatChanged: (format) {
         setState(() {
@@ -50,6 +50,13 @@ class _TasksCalendarState extends State<TasksCalendar> {
       },
       onHeaderTapped: (date) {
         context.read<Plan>().setTasksBasedOnSelectedMonth(date.month);
+        
+        // _focusedDay = date;
+        //  _selectedDay = date;
+
+        if (date.month != DateTime.now().month) {
+          // context.read<Plan>().clearCurrent();
+        }
         // print(date.month);
         //  context.read<Plan>().getPlans(month: date.month);
       },

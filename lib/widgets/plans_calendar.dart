@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:plansmanager/provider/plan.dart';
+
 import 'package:table_calendar/table_calendar.dart';
-import 'package:provider/provider.dart';
 
 class PlansCalendar extends StatefulWidget {
   const PlansCalendar({
@@ -16,7 +15,7 @@ class PlansCalendar extends StatefulWidget {
 // List<dynamic>? _selectedEvents;
 DateTime _focusedDay = DateTime.now();
 DateTime? _selectedDay;
-CalendarFormat _calendarFormat = CalendarFormat.month;
+CalendarFormat _calendarFormat = CalendarFormat.week;
 
 class _PlansCalendarState extends State<PlansCalendar> {
   GlobalKey myKey = GlobalKey();
@@ -26,7 +25,7 @@ class _PlansCalendarState extends State<PlansCalendar> {
     return TableCalendar(
       firstDay: DateTime.utc(2010),
       lastDay: DateTime.utc(2050),
-      focusedDay: DateTime.now(),
+      focusedDay: _focusedDay,
       calendarFormat: _calendarFormat,
       onFormatChanged: (format) {
         setState(() {
@@ -35,7 +34,7 @@ class _PlansCalendarState extends State<PlansCalendar> {
       },
       onDaySelected: (selectedDay, focusedDay) {
         // if (!isSameDay(DateTime.now(), selectedDay)) {
-         
+
         setState(() {
           _selectedDay = selectedDay;
           _focusedDay = focusedDay;

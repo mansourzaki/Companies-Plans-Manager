@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chips_input/flutter_chips_input.dart';
 import 'package:intl/intl.dart' as intl;
-import 'package:plansmanager/exceptions/custom_exception.dart';
+
 import 'package:plansmanager/provider/plan.dart';
 import 'package:plansmanager/provider/task.dart';
 import 'package:provider/provider.dart';

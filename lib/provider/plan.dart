@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:plansmanager/exceptions/custom_exception.dart';
 import 'package:plansmanager/provider/task.dart';
 
 class Plan with ChangeNotifier {
@@ -95,50 +94,65 @@ class Plan with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> getAllTasks(int month) async {
+  Future<void> getAllTasks(int month, {bool? stay}) async {
     print('cleared');
     List<Task> ts = [];
-    await FirebaseFirestore.instance
-        .collection('plans')
-        .where('userId', isEqualTo: userId)
-        .where('month', isEqualTo: month)
-        .get()
-        .then((value) async {
-      await value.docs.first.reference.collection('tasks').get().then(
-            (value) => value.docs.forEach(
-              (element) {
-                Timestamp t = element['endTime'];
+    allTasks = [];
+    try {
+      await FirebaseFirestore.instance
+          .collection('plans')
+          .where('userId', isEqualTo: userId)
+          .where('month', isEqualTo: month)
+          .get()
+          .then((value) async {
+        if (value.docs.length != 0) {
+          await value.docs.first.reference.collection('tasks').get().then(
+                (value) => value.docs.forEach(
+                  (element) {
+                    Timestamp t = element['endTime'];
 
-                ts.add(
-                  Task(
-                      id: element.id,
-                      name: element['name'],
-                      startTime: element['startTime'],
-                      endTime: t.toDate(),
-                      status: element['status'],
-                      workHours: element['workHours'],
-                      teams: element['teams'],
-                      type: element['type'],
-                      ach: element['ach'],
-                      percentage: element['percentage'],
-                      notes: element['notes']),
-                );
-                notifyListeners();
-              },
-            ),
-          );
+                    ts.add(
+                      Task(
+                          id: element.id,
+                          name: element['name'],
+                          startTime: element['startTime'],
+                          endTime: t.toDate(),
+                          status: element['status'],
+                          workHours: element['workHours'],
+                          teams: element['teams'],
+                          type: element['type'],
+                          ach: element['ach'],
+                          percentage: element['percentage'],
+                          notes: element['notes']),
+                    );
+                    notifyListeners();
+                  },
+                ),
+              );
+        } else {
+          return;
+        }
 
-      allTasks = ts;
-      // allTasks.sort();
-      notifyListeners();
-      print('leeeength ${allTasks.length}');
-      print('leeeength ${ts.length}');
-    });
-
-    tasks = allTasks
-        .where(
-            (element) => element.startTime!.toDate().day == DateTime.now().day)
-        .toList();
+        allTasks = ts;
+        // allTasks.sort();
+        notifyListeners();
+        print('leeeength ${allTasks.length}');
+        print('leeeength ${ts.length}');
+      });
+//  if (stay == true) {
+//           tasks = allTasks;
+//           print('in true');
+//           notifyListeners();
+//         } else {}
+      if (allTasks.length != 0) {
+        tasks = allTasks
+            .where((element) =>
+                element.startTime!.toDate().day == DateTime.now().day)
+            .toList();
+      }
+    } catch (error) {
+      print('$error in catchh');
+    }
   }
 
   Future<void> setTasksBasedOnSelectedDay(int day) async {
@@ -164,6 +178,7 @@ class Plan with ChangeNotifier {
   }
 
   Future<void> setTasksBasedOnSelectedMonth(int month) async {
+    getCurrentPlan();
     if (allTasks.length == 0) {
       print('no tasks');
     } else if (this.tasks!.length == 0) {
@@ -171,8 +186,6 @@ class Plan with ChangeNotifier {
       notifyListeners();
     }
     if (this.tasks!.length != 0) {
-      List<Task> ts = this.tasks!;
-      print('hey ya');
       tasks = allTasks
           .where((element) => element.startTime!.toDate().month == month)
           .toList();
@@ -278,7 +291,7 @@ class Plan with ChangeNotifier {
     }
   }
 
-  Future<void> updateTaskSatus(Task task,bool status) async {
+  Future<void> updateTaskSatus(Task task, bool status) async {
     await FirebaseFirestore.instance
         .collection('plans')
         .doc(current)
@@ -348,6 +361,23 @@ class Plan with ChangeNotifier {
 
   List<Plan> get plans {
     return [..._plans];
+  }
+
+//new add
+  Future<void> addPlanNewVersion(String name, int month) async {
+    CollectionReference ref = FirebaseFirestore.instance.collection('plans');
+    final docs = await ref
+        .where('userId', isEqualTo: userId)
+        .where('month', isEqualTo: month)
+        .get();
+
+    if (docs.docs.length == 0) {
+      print('${docs.docs.length} doocs');
+      print('adding');
+      ref.add({'name': name, 'month': month, 'userId': userId});
+    } else {
+      throw Exception('Already Exists Exception');
+    }
   }
 
   Future addNewPlan(Plan plan) async {

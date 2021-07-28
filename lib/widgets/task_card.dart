@@ -1,15 +1,15 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:plansmanager/Screens/edit_task.dart';
 import '../provider/task.dart';
 import 'package:provider/provider.dart';
 import '../provider/plan.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 
 class TaskCard extends StatefulWidget {
   TaskCard({@required this.task, @required this.id});
-  Task? task;
-  String? id;
+  final Task? task;
+  final String? id;
   // String id;
   // String name;
   // Timestamp date;
@@ -20,6 +20,7 @@ class TaskCard extends StatefulWidget {
 }
 
 class _TaskCardState extends State<TaskCard> {
+  bool _isLoading = false;
   @override
   Widget build(BuildContext context) {
     final pl = context.read<Plan>();
@@ -34,16 +35,44 @@ class _TaskCardState extends State<TaskCard> {
           child: ListTile(
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            title: Text(widget.task!.name!),
-            leading: Checkbox(
-                value: widget.task!.status,
-                onChanged: (value) async {
-                  await pl.updateTaskSatus(widget.task!, value!);
-                  setState(() {
-                    print('${widget.task!.id} task id');
-                    widget.task!.status = value;
-                  });
-                }),
+            title: Text(
+              widget.task!.name!,
+              style: TextStyle(
+                  decoration: widget.task!.status!
+                      ? TextDecoration.lineThrough
+                      : TextDecoration.none),
+            ),
+            leading: _isLoading
+                ? Container(
+                    width: 35,
+                    height: 40,
+                    child: Center(
+                      child: LoadingIndicator(
+                        indicatorType: Indicator.ballClipRotatePulse,
+                      ),
+                    ),
+                  )
+                : Checkbox(
+                    value: widget.task!.status,
+                    onChanged: (value) async {
+                      setState(() {
+                        _isLoading = true;
+                      });
+                      await pl.updateTaskSatus(widget.task!, value!);
+                      setState(() {
+                        print('${widget.task!.id} task id');
+                        widget.task!.status = value;
+                        _isLoading = false;
+                      });
+                      Future.delayed(Duration(seconds: 2), () async {});
+                    }),
+            trailing: IconButton(
+              // focusColor: Colors.red,
+              splashColor: Colors.red,
+              highlightColor: Colors.red,
+              icon: Icon(Icons.share),
+              onPressed: () {},
+            ),
             onTap: () {
               Navigator.push(
                   context,
@@ -52,8 +81,13 @@ class _TaskCardState extends State<TaskCard> {
                             task: widget.task,
                           )));
             },
-            subtitle: Text(intl.DateFormat.yMMMMd()
-                .format(widget.task!.startTime!.toDate())),
+            subtitle: Text(
+              intl.DateFormat.yMMMMd().format(widget.task!.startTime!.toDate()),
+              style: TextStyle(
+                  decoration: widget.task!.status!
+                      ? TextDecoration.lineThrough
+                      : TextDecoration.none),
+            ),
           ),
         ));
   }
