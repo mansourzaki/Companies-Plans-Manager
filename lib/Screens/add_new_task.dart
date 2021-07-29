@@ -11,7 +11,7 @@ import 'package:provider/provider.dart';
 
 enum Type { dev, supp }
 enum Ach { inn, out }
-final List<String> labels = ['دعم فني', 'تصميم', 'برمجة'];
+List<String> labels = ['دعم فني', 'تصميم', 'برمجة'];
 
 class AddNewTask extends StatefulWidget {
   const AddNewTask({Key? key}) : super(key: key);
@@ -361,47 +361,58 @@ class _AddNewTaskState extends State<AddNewTask> {
                   //teams
                   Directionality(
                       textDirection: TextDirection.rtl,
-                      child: FutureBuilder(
-                        builder: (context,snapshot){
-                          return Container();
-                        },
-                        child: ChipsInput<String>(
-                            textCapitalization: TextCapitalization.words,
-                            decoration: InputDecoration(
-                              labelText: 'الفرق المساندة',
-                              border: OutlineInputBorder(
+                      child: FutureBuilder<QuerySnapshot>(
+                        future: FirebaseFirestore.instance
+                            .collection('users')
+                            .get(),
+                        builder: (context, snapshot) {
+                          // QuerySnapshot<Map<String,dynamic>>
+                          labels = snapshot.data!.docs
+                              .map((e) => e['name'].toString())
+                              .toList();
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Text('Loading');
+                          }
+                          return ChipsInput<String>(
+                              textCapitalization: TextCapitalization.words,
+                              decoration: InputDecoration(
+                                labelText: 'الفرق المساندة',
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(
+                                      color: Colors.red,
+                                      width: 2.0,
+                                    )),
+                                focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
                                   borderSide: BorderSide(
-                                    color: Colors.red,
-                                    width: 2.0,
-                                  )),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(
-                                  width: 2,
-                                  color: Colors.amber[700] ?? Colors.black,
+                                    width: 2,
+                                    color: Colors.amber[700] ?? Colors.black,
+                                  ),
                                 ),
                               ),
-                            ),
-                            chipBuilder: (context, state, data) {
-                              return InputChip(
-                                key: ObjectKey(data),
-                                label: Text(data),
-                                onDeleted: () => state.deleteChip(data),
-                              );
-                            },
-                            suggestionBuilder: (context, state, data) {
-                              return ListTile(
-                                key: ObjectKey(data),
-                                title: Text(data),
-                                onTap: () => state.selectSuggestion(data),
-                              );
-                            },
-                            findSuggestions: _findSuggestions,
-                            onChanged: (input) {
-                              _teams = input;
-                              print('$input sddd teest');
-                            }),
+                              chipBuilder: (context, state, data) {
+                                return InputChip(
+                                  key: ObjectKey(data),
+                                  label: Text(data),
+                                  onDeleted: () => state.deleteChip(data),
+                                );
+                              },
+                              suggestionBuilder: (context, state, data) {
+                                return ListTile(
+                                  key: ObjectKey(data),
+                                  title: Text(data),
+                                  onTap: () => state.selectSuggestion(data),
+                                );
+                              },
+                              findSuggestions: _findSuggestions,
+                              onChanged: (input) {
+                                _teams = input;
+                                print('$input sddd teest');
+                                print(_teams);
+                              });
+                        },
                       )),
                   Divider(),
                   //notes
@@ -466,7 +477,6 @@ Future<List<String>> _findSuggestions(String input) async {
 
   if (input.length != 0) {
     list.addAll(labels.where((e) => e.contains(input)));
-    list.add(input);
     return list;
   } else {
     return [];
