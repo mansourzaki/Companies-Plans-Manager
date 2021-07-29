@@ -4,6 +4,7 @@ import 'package:plansmanager/Screens/forgot_password_screen.dart';
 import 'package:plansmanager/Screens/register_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:plansmanager/Screens/home_screen.dart';
+import 'package:plansmanager/main.dart';
 
 class LoginScreen extends StatefulWidget {
   static final routeName = 'LoginScreen';
@@ -240,7 +241,7 @@ class _LoginScreenState extends State<LoginScreen> {
         password: _passwordController.text.trim(),
       );
 
-      Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
+      Navigator.of(context).pushReplacementNamed(MyHomePage.routeName);
       print(_userCredential);
     } on FirebaseAuthException catch (e) {
       setState(() {

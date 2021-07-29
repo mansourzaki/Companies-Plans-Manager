@@ -13,7 +13,7 @@ enum Ach { inn, out }
 final List<String> labels = ['دعم فني', 'تصميم', 'برمجة'];
 
 class EditTask extends StatefulWidget {
-  Task? task;
+  final Task? task;
   EditTask({Key? key, this.task}) : super(key: key);
 
   static final routeName = 'AddNewTaskScreen';
@@ -145,13 +145,13 @@ class _EditTaskState extends State<EditTask> {
                         labelText: 'اسم المهمة',
                         labelStyle: TextStyle(color: Colors.black),
                         border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25.0),
+                            borderRadius: BorderRadius.circular(10),
                             borderSide: BorderSide(
                               color: Colors.red,
                               width: 2.0,
                             )),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25.0),
+                          borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
                             width: 2,
                             color: Colors.amber[700] ?? Colors.black,
@@ -176,13 +176,13 @@ class _EditTaskState extends State<EditTask> {
                                 labelText: 'ساعات العمل',
                                 labelStyle: TextStyle(color: Colors.black),
                                 border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(25.0),
+                                    borderRadius: BorderRadius.circular(10),
                                     borderSide: BorderSide(
                                       color: Colors.red,
                                       width: 2.0,
                                     )),
                                 focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(25.0),
+                                  borderRadius: BorderRadius.circular(10),
                                   borderSide: BorderSide(
                                     width: 2,
                                     color: Colors.amber[700] ?? Colors.black,
@@ -227,13 +227,13 @@ class _EditTaskState extends State<EditTask> {
                                 labelText: 'التاريخ',
                                 labelStyle: TextStyle(color: Colors.black),
                                 border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(25.0),
+                                    borderRadius: BorderRadius.circular(10),
                                     borderSide: BorderSide(
                                       color: Colors.red,
                                       width: 2.0,
                                     )),
                                 focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(25.0),
+                                  borderRadius: BorderRadius.circular(10),
                                   borderSide: BorderSide(
                                     width: 2,
                                     color: Colors.amber[700] ?? Colors.black,
@@ -254,13 +254,13 @@ class _EditTaskState extends State<EditTask> {
                           decoration: InputDecoration(
                             labelText: 'الفرق المساندة',
                             border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25.0),
+                                borderRadius: BorderRadius.circular(10),
                                 borderSide: BorderSide(
                                   color: Colors.red,
                                   width: 2.0,
                                 )),
                             focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25.0),
+                              borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
                                 width: 2,
                                 color: Colors.amber[700] ?? Colors.black,
@@ -354,13 +354,13 @@ class _EditTaskState extends State<EditTask> {
                                   color: Colors.black,
                                 ),
                                 border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(25.0),
+                                    borderRadius: BorderRadius.circular(10),
                                     borderSide: BorderSide(
                                       color: Colors.red,
                                       width: 2.0,
                                     )),
                                 focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(25.0),
+                                  borderRadius: BorderRadius.circular(10),
                                   borderSide: BorderSide(
                                     width: 2,
                                     color: Colors.amber[700] ?? Colors.black,
@@ -435,13 +435,13 @@ class _EditTaskState extends State<EditTask> {
                             color: Colors.black,
                           ),
                           border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25.0),
+                              borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
                                 color: Colors.red,
                                 width: 2.0,
                               )),
                           focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25.0),
+                            borderRadius: BorderRadius.circular(10),
                             borderSide: BorderSide(
                               width: 2,
                               color: Colors.amber[700] ?? Colors.black,

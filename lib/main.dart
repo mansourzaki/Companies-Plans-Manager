@@ -7,6 +7,7 @@ import 'package:plansmanager/Screens/forgot_password_screen.dart';
 import 'package:plansmanager/Screens/plans_screen.dart';
 import 'package:plansmanager/Screens/home_screen.dart';
 import 'package:plansmanager/provider/plan.dart';
+
 import 'package:provider/provider.dart';
 import 'Screens/login_screen.dart';
 import 'Screens/register_screen.dart';
@@ -41,13 +42,14 @@ class MyApp extends StatelessWidget {
           if (userSnashot.hasData) {
             print('hi');
 
-            return HomeScreen();
+            return MyHomePage();
           }
           print('hi');
           return LoginScreen();
         },
       ),
       routes: {
+        MyHomePage.routeName: (cts) => MyHomePage(),
         HomeScreen.routeName: (ctx) => HomeScreen(),
         RegisterScreen.routeName: (ctx) => RegisterScreen(),
         LoginScreen.routeName: (ctx) => LoginScreen(),
@@ -60,8 +62,8 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
-  final String title;
+  static final routeName = 'MyHomePage';
+  MyHomePage({Key? key}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -69,52 +71,47 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final List<Widget> _screens = [
-    HomeScreen(),
     PlansScreen(),
+    HomeScreen(),
   ];
   int _currentIndex = 0;
+  final pageController = PageController();
+  void onPageChanged(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
+
+  void onTap(int index) {
+    pageController.jumpToPage(index);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(_currentIndex == 0 ? 'الخطط' : 'المهام'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+              onPressed: () {
+                FirebaseAuth.instance.signOut();
+                context.read<Plan>().clearAllTasks();
+                context.read<Plan>().clearCurrent();
+                Navigator.of(context).popAndPushNamed(LoginScreen.routeName);
+              },
+              icon: Icon(Icons.exit_to_app))
+        ],
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Container(
-              color: Colors.green,
-              child: RichText(
-                text: TextSpan(text: 'TEST: ', children: [
-                  TextSpan(
-                    text: 'HELLO',
-                    style: TextStyle(
-                        background: Paint()
-                          ..color = Colors.red
-                          ..strokeWidth = 10
-                          ..style = PaintingStyle.fill,
-                        fontWeight: FontWeight.bold),
-                  )
-                ]),
-              ),
-            )
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
+      body: PageView(
+        controller: pageController,
+        onPageChanged: onPageChanged,
+        children: _screens,
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+        onTap: onTap,
         items: [
           BottomNavigationBarItem(
               icon: FaIcon(FontAwesomeIcons.projectDiagram), label: 'الخطط'),

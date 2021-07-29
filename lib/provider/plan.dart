@@ -19,7 +19,11 @@ class Plan with ChangeNotifier {
     this.tasks,
   });
   // List<Task> _tasks = [];
-  String userId = FirebaseAuth.instance.currentUser!.uid;
+  String get userId {
+    String user = FirebaseAuth.instance.currentUser!.uid;
+    return user;
+  }
+
   List<Plan> _plans = [];
   String? current;
   Future<void> getCurrentPlan() async {

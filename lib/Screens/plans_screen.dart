@@ -16,7 +16,8 @@ class PlansScreen extends StatefulWidget {
   _PlansScreenState createState() => _PlansScreenState();
 }
 
-class _PlansScreenState extends State<PlansScreen> {
+class _PlansScreenState extends State<PlansScreen>
+    with AutomaticKeepAliveClientMixin {
   // List _months = [
   //   'January',
   //   'February',
@@ -42,34 +43,34 @@ class _PlansScreenState extends State<PlansScreen> {
     //final user = FirebaseAuth.instance.currentUser;
     // const curveHeight = 50.0;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(' الخطط الشهرية'),
-        centerTitle: true,
-        actions: [
-          IconButton(
-              onPressed: () {
-                FirebaseAuth.instance.signOut();
-                context.read<Plan>().clearAllTasks();
-                context.read<Plan>().clearCurrent();
-                Navigator.of(context).popAndPushNamed(LoginScreen.routeName);
-              },
-              icon: Icon(Icons.exit_to_app))
-        ],
-        // shape: RoundedRectangleBorder(
-        //   borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
-        // )
-      ),
+      // appBar: AppBar(
+      //   title: Text(' الخطط الشهرية'),
+      //   centerTitle: true,
+      //   actions: [
+      //     IconButton(
+      //         onPressed: () {
+      //           FirebaseAuth.instance.signOut();
+      //           context.read<Plan>().clearAllTasks();
+      //           context.read<Plan>().clearCurrent();
+      //           Navigator.of(context).popAndPushNamed(LoginScreen.routeName);
+      //         },
+      //         icon: Icon(Icons.exit_to_app))
+      //   ],
+      //   // shape: RoundedRectangleBorder(
+      //   //   borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
+      //   // )
+      // ),
       drawer: Drawer(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          try {
-            await context.read<Plan>().addPlanNewVersion('شهر 7', 7);
-          } catch (error) {
-            print(error);
-          }
-        },
-        child: Icon(Icons.add),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () async {
+      //     try {
+      //       await context.read<Plan>().addPlanNewVersion('شهر 7', 7);
+      //     } catch (error) {
+      //       print(error);
+      //     }
+      //   },
+      //   child: Icon(Icons.add),
+      // ),
       body: CustomScrollView(
         slivers: [
           SliverStickyHeader(
@@ -162,6 +163,9 @@ class _PlansScreenState extends State<PlansScreen> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class MonthsListView extends StatelessWidget {

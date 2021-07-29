@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 
 import 'package:plansmanager/Screens/add_new_task.dart';
 import 'package:plansmanager/Screens/login_screen.dart';
+import 'package:plansmanager/Screens/plans_screen.dart';
 import 'package:plansmanager/provider/plan.dart';
 import 'package:plansmanager/widgets/task_card.dart';
 import '../provider/task.dart';
@@ -22,7 +24,8 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>
+    with AutomaticKeepAliveClientMixin {
   List _months = [
     'January',
     'February',
@@ -48,6 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
   //   8: 'August',
   //   9: 'September',
   // };
+  int? _selectedIndex = null;
   @override
   void initState() {
     // context.read<Plan>().getPlans(month: DateTime.now().month);
@@ -63,25 +67,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   TaskType taskType = TaskType.dev;
-  int _currentIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     String? current = Provider.of<Plan>(context, listen: true).current;
+    print('$current currrent');
+    bool _isSelected = false;
     return Scaffold(
-        appBar: AppBar(
-          title: Text('الرئيسية'),
-          centerTitle: true,
-          actions: [
-            IconButton(
-                onPressed: () {
-                  FirebaseAuth.instance.signOut();
-                  context.read<Plan>().clearAllTasks();
-                  context.read<Plan>().clearCurrent();
-                  Navigator.of(context).popAndPushNamed(LoginScreen.routeName);
-                },
-                icon: Icon(Icons.exit_to_app))
-          ],
-        ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
             if (current == null) {
@@ -113,11 +105,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     scrollDirection: Axis.horizontal,
                     itemCount: 12,
                     itemBuilder: (context, i) {
-                      return InkWell(
+                      return GestureDetector(
                         onTap: () {
                           // context
                           //     .read<Plan>()
                           //     .getAllTasks(_months[i], stay: true);
+                          setState(() {
+                            _selectedIndex = i;
+                            _isSelected = !_isSelected;
+                          });
                           print(i + 1);
                           context
                               .read<Plan>()
@@ -131,7 +127,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           margin: EdgeInsets.symmetric(
                               vertical: 10, horizontal: 15),
                           decoration: BoxDecoration(
-                              color: Colors.blue[300],
+                              color: (_selectedIndex == i &&
+                                      _selectedIndex != null)
+                                  ? Colors.amber
+                                  : Colors.blue[300],
                               borderRadius: BorderRadius.circular(10)),
                           child: Text(
                             _months[i],
@@ -153,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         //margin: EdgeInsets.only(right: 20,bottom: 5),
                         padding: EdgeInsets.only(bottom: 10, right: 10),
                         child: Text(
-                          current == null ? 'لا يوجد خطة' : '',
+                          current == null ? '' : '',
                           textAlign: TextAlign.end,
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 20),
@@ -161,13 +160,22 @@ class _HomeScreenState extends State<HomeScreen> {
                     Consumer<Plan>(
                       builder: (context, plan, child) {
                         return plan.allTasks.isEmpty
-                            ? Center(child: Text('No Tasks Found'))
+                            ? Center(
+                                child: LoadingIndicator(
+                                indicatorType: Indicator.ballGridPulse,
+                                colors: [
+                                  Colors.amber,
+                                  Colors.amber[300] ?? Colors.red,
+                                  Colors.blue,
+                                  Colors.blueGrey,
+                                  Colors.red
+                                ],
+                              ))
                             : ListView.builder(
                                 physics: NeverScrollableScrollPhysics(),
                                 shrinkWrap: true,
                                 itemCount: plan.tasks!.length,
                                 itemBuilder: (context, i) {
-                                  print('before build $current');
                                   Task task = Task(
                                       id: plan.tasks![i].id,
                                       name: plan.tasks![i].name,
@@ -194,20 +202,11 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
-          items: [
-            BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.projectDiagram), label: 'الخطط'),
-            BottomNavigationBarItem(icon: Icon(Icons.task), label: 'المهام'),
-          ],
-        ),
         backgroundColor: Colors.white);
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class PersistentHeader extends SliverPersistentHeaderDelegate {
