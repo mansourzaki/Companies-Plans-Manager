@@ -189,15 +189,15 @@ class Plan with ChangeNotifier {
       await getAllTasks(DateTime.now().month);
       notifyListeners();
     }
-    if (this.tasks!.length != 0) {
-      tasks = allTasks
-          .where((element) => element.startTime!.toDate().month == month)
-          .toList();
-      print(tasks!.length);
-      // this.tasks = ts;
-      print('in monthhhh ${tasks!.length}');
-      notifyListeners();
-    }
+    // if (this.tasks!.length != 0) {
+    tasks = allTasks
+        .where((element) => element.startTime!.toDate().month == month)
+        .toList();
+    print(tasks!.length);
+    // this.tasks = ts;
+    print('in monthhhh ${tasks!.length}');
+    notifyListeners();
+    // }
   }
 
   // List<Task> getTasks() {

@@ -1,13 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:loading_indicator/loading_indicator.dart';
-
 import 'package:plansmanager/Screens/add_new_task.dart';
-import 'package:plansmanager/Screens/login_screen.dart';
-import 'package:plansmanager/Screens/plans_screen.dart';
 import 'package:plansmanager/provider/plan.dart';
 import 'package:plansmanager/widgets/task_card.dart';
 import '../provider/task.dart';
@@ -83,7 +78,8 @@ class _HomeScreenState extends State<HomeScreen>
                     backgroundColor: Colors.red),
               );
             } else {
-              Navigator.pushNamed(context, AddNewTask.routeName);
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => AddNewTask()));
             }
           },
           child: Icon(Icons.add),

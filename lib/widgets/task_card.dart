@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:plansmanager/Screens/add_new_task.dart';
 import 'package:plansmanager/Screens/edit_task.dart';
 import '../provider/task.dart';
 import 'package:provider/provider.dart';

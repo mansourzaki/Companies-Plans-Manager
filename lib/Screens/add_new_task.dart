@@ -14,7 +14,9 @@ enum Ach { inn, out }
 List<String> labels = ['دعم فني', 'تصميم', 'برمجة'];
 
 class AddNewTask extends StatefulWidget {
-  const AddNewTask({Key? key}) : super(key: key);
+  const AddNewTask({
+    Key? key,
+  }) : super(key: key);
   static final routeName = 'AddNewTaskScreen';
   @override
   _AddNewTaskState createState() => _AddNewTaskState();
@@ -367,16 +369,21 @@ class _AddNewTaskState extends State<AddNewTask> {
                             .get(),
                         builder: (context, snapshot) {
                           // QuerySnapshot<Map<String,dynamic>>
-                          labels = snapshot.data!.docs
-                              .map((e) => e['name'].toString())
-                              .toList();
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
                             return Text('Loading');
                           }
+                          //after checking connectio state to avoid null check operation
+                          labels = snapshot.data!.docs
+                              .map((e) => e['name'].toString())
+                              .toList();
                           return ChipsInput<String>(
                               textCapitalization: TextCapitalization.words,
                               decoration: InputDecoration(
+                                prefixIcon: Icon(
+                                  Icons.people,
+                                  color: Colors.amber,
+                                ),
                                 labelText: 'الفرق المساندة',
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
@@ -415,6 +422,7 @@ class _AddNewTaskState extends State<AddNewTask> {
                         },
                       )),
                   Divider(),
+
                   //notes
                   Padding(
                     padding: const EdgeInsets.all(8.0),
