@@ -107,7 +107,7 @@ class _AddNewTaskState extends State<AddNewTask> {
                           _isloading = false;
                         });
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text('لا توجد خطة حالية'),
+                          content: Text('تأكد من البيانات'),
                           backgroundColor: Theme.of(context).errorColor,
                         ));
                       }

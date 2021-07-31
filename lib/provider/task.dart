@@ -13,19 +13,21 @@ class Task with ChangeNotifier {
   String? ach;
   int? percentage;
   String? notes;
-
-  Task(
-      {this.id,
-      this.name,
-      this.startTime,
-      this.endTime,
-      this.workHours,
-      this.status,
-      this.teams,
-      this.percentage,
-      this.notes,
-      this.ach,
-      this.type});
+  bool shared;
+  Task({
+    this.id,
+    this.name,
+    this.startTime,
+    this.endTime,
+    this.workHours,
+    this.status,
+    this.teams,
+    this.percentage,
+    this.notes,
+    this.ach,
+    this.type,
+    this.shared = false,
+  });
 
   // Future updateTaskSatus(Task task,String current, bool status) async {
   //   await FirebaseFirestore.instance
@@ -36,7 +38,6 @@ class Task with ChangeNotifier {
   //       .update({
   //     'status': status,
   //   });
-
 
   //   notifyListeners();
   // }
