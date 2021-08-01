@@ -33,6 +33,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         textTheme: GoogleFonts.almaraiTextTheme(),
+        primaryTextTheme: GoogleFonts.almaraiTextTheme(),
         primarySwatch: Colors.blue,
       ),
       //to get the cashed user token and sign in automatically

@@ -1,6 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
-import 'package:plansmanager/Screens/add_new_task.dart';
 import 'package:plansmanager/Screens/edit_task.dart';
 import '../provider/task.dart';
 import 'package:provider/provider.dart';
@@ -26,70 +26,71 @@ class _TaskCardState extends State<TaskCard> {
   Widget build(BuildContext context) {
     final pl = context.read<Plan>();
     return Directionality(
-        textDirection: TextDirection.rtl,
-        child: Container(
-          margin: EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: Colors.amber[400],
+      textDirection: TextDirection.rtl,
+      child: Container(
+        margin: EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.amber[400],
+        ),
+        child: ListTile(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          title: Text(
+            widget.task!.name!,
+            style: TextStyle(
+                decoration: widget.task!.status!
+                    ? TextDecoration.lineThrough
+                    : TextDecoration.none),
           ),
-          child: ListTile(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            title: Text(
-              widget.task!.name!,
-              style: TextStyle(
-                  decoration: widget.task!.status!
-                      ? TextDecoration.lineThrough
-                      : TextDecoration.none),
-            ),
-            leading: _isLoading
-                ? Container(
-                    width: 35,
-                    height: 40,
-                    child: Center(
-                      child: LoadingIndicator(
-                        indicatorType: Indicator.ballClipRotatePulse,
-                      ),
+          leading: _isLoading
+              ? Container(
+                  width: 35,
+                  height: 40,
+                  child: Center(
+                    child: LoadingIndicator(
+                      indicatorType: Indicator.ballClipRotatePulse,
                     ),
-                  )
-                : Checkbox(
-                    value: widget.task!.status,
-                    onChanged: (value) async {
-                      setState(() {
-                        _isLoading = true;
-                      });
-                      await pl.updateTaskSatus(widget.task!, value!);
-                      setState(() {
-                        print('${widget.task!.id} task id');
-                        widget.task!.status = value;
-                        _isLoading = false;
-                      });
-                      Future.delayed(Duration(seconds: 2), () async {});
-                    }),
-            trailing: IconButton(
-              // focusColor: Colors.red,
-              splashColor: Colors.red,
-              highlightColor: Colors.red,
-              icon: Icon(Icons.share),
-              onPressed: () {},
-            ),
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => EditTask(
-                            task: widget.task,
-                          )));
-            },
-            subtitle: Text(
-              intl.DateFormat.yMMMMd().format(widget.task!.startTime!.toDate()),
-              style: TextStyle(
-                  decoration: widget.task!.status!
-                      ? TextDecoration.lineThrough
-                      : TextDecoration.none),
-            ),
+                  ),
+                )
+              : Checkbox(
+                  value: widget.task!.status,
+                  onChanged: (value) async {
+                    setState(() {
+                      _isLoading = true;
+                    });
+                    await pl.updateTaskSatus(widget.task!, value!);
+                    setState(() {
+                      print('${widget.task!.id} task id');
+                      widget.task!.status = value;
+                      _isLoading = false;
+                    });
+                    Future.delayed(Duration(seconds: 2), () async {});
+                  }),
+          trailing: IconButton(
+            // focusColor: Colors.red,
+            splashColor: Colors.red,
+            highlightColor: Colors.red,
+            icon: Icon(Icons.share),
+            onPressed: () {},
           ),
-        ));
+          onTap: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => EditTask(
+                          task: widget.task,
+                        )));
+          },
+          subtitle: Text(
+            intl.DateFormat.yMMMMd().format(widget.task!.startTime!.toDate()),
+            style: TextStyle(
+                decoration: widget.task!.status!
+                    ? TextDecoration.lineThrough
+                    : TextDecoration.none),
+          ),
+        ),
+      ),
+    );
   }
 }

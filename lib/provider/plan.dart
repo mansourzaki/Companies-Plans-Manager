@@ -308,6 +308,23 @@ class Plan with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> deleteTask(Task task) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('plans')
+          .doc(current)
+          .collection('tasks')
+          .doc(task.id)
+          .delete();
+      allTasks.removeWhere((element) => element.id == task.id);
+      notifyListeners();
+    } catch (error) {
+      print(error.toString());
+      notifyListeners();
+    }
+    notifyListeners();
+  }
+
   void getPlansNewVerison(int month) {
     try {
       if (month > 0 && month <= 12) {

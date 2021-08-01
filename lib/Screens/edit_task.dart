@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chips_input/flutter_chips_input.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'package:plansmanager/provider/plan.dart';
@@ -251,10 +252,24 @@ class _EditTaskState extends State<EditTask> {
                               EdgeInsets.symmetric(vertical: 15, horizontal: 5),
                           child: Directionality(
                             textDirection: TextDirection.rtl,
-                            child: Text(
-                              'ساعات العمل',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 15),
+                            child: RichText(
+                              text: TextSpan(children: [
+                                WidgetSpan(
+                                    child: SizedBox(
+                                      width: 5,
+                                    ),
+                                    alignment: PlaceholderAlignment.middle),
+                                WidgetSpan(
+                                    child: Icon(Icons.timelapse),
+                                    alignment: PlaceholderAlignment.middle),
+                                TextSpan(
+                                  text: 'ساعات العمل',
+                                  style: GoogleFonts.almarai(
+                                      textStyle: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                              ]),
                             ),
                           ),
                         ),
@@ -264,10 +279,27 @@ class _EditTaskState extends State<EditTask> {
                   Divider(),
                   Container(
                     alignment: AlignmentDirectional.bottomEnd,
-                    child: Text(
-                      ':نوع المهمة',
-                      style:
-                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    child: RichText(
+                      text: TextSpan(children: [
+                        TextSpan(
+                          text: ':نوع المهمة',
+                          style: GoogleFonts.almarai(
+                              textStyle: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold)),
+                        ),
+                        WidgetSpan(
+                            child: SizedBox(
+                              width: 5,
+                            ),
+                            alignment: PlaceholderAlignment.middle),
+                        WidgetSpan(
+                            child: Icon(
+                              Icons.support_agent,
+                              color: Colors.amber,
+                            ),
+                            alignment: PlaceholderAlignment.middle),
+                      ]),
                     ),
                   ),
                   //radio supp or dev
@@ -429,18 +461,30 @@ class _EditTaskState extends State<EditTask> {
                         },
                       )),
                   //notes
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                            child: Text(
-                          ':الملاحظات',
-                          textAlign: TextAlign.right,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 15),
-                        )),
-                      ],
+                  Container(
+                    alignment: AlignmentDirectional.bottomEnd,
+                    margin: EdgeInsets.symmetric(horizontal: 13),
+                    child: RichText(
+                      text: TextSpan(children: [
+                        TextSpan(
+                          text: 'الملاحظات',
+                          style: GoogleFonts.almarai(
+                              textStyle: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold)),
+                        ),
+                        WidgetSpan(
+                            child: SizedBox(
+                              width: 5,
+                            ),
+                            alignment: PlaceholderAlignment.middle),
+                        WidgetSpan(
+                            child: Icon(
+                              Icons.notes,
+                              color: Colors.amber,
+                            ),
+                            alignment: PlaceholderAlignment.middle),
+                      ]),
                     ),
                   ),
                   SizedBox(

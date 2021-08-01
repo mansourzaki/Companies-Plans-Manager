@@ -143,16 +143,25 @@ class _HomeScreenState extends State<HomeScreen>
                 sticky: true,
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
-                    Container(
-                        color: Colors.white,
-                        //margin: EdgeInsets.only(right: 20,bottom: 5),
-                        padding: EdgeInsets.only(bottom: 10, right: 10),
-                        child: Text(
-                          current == null ? '' : '',
-                          textAlign: TextAlign.end,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 20),
-                        )),
+                    // TabBar(tabs: [
+                    //   Tab(
+                    //     text: 'المهام المُشاركة',
+                    //     icon: Icon(
+                    //       Icons.share_sharp,
+                    //       color: Colors.amber,
+                    //     ),
+                    //   ),
+                    //   Tab(
+                    //     child: Text(
+                    //       'مهام اليوم',
+                    //       style: TextStyle(color: Colors.black),
+                    //     ),
+                    //     icon: Icon(
+                    //       Icons.task,
+                    //       color: Colors.amber,
+                    //     ),
+                    //   ),
+                    // ]),
                     Consumer<Plan>(
                       builder: (context, plan, child) {
                         return plan.allTasks.isEmpty
