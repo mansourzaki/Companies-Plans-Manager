@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chips_input/flutter_chips_input.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'package:plansmanager/provider/plan.dart';
@@ -115,7 +116,10 @@ class _AddNewTaskState extends State<AddNewTask> {
                       print('in exc');
                     }
                   },
-                  icon: Icon(Icons.add_task_sharp))
+                  icon: Icon(
+                    Icons.add_task_sharp,
+                    size: 30,
+                  ))
         ],
         title: Text('إضافة مهمة جديدة'),
         centerTitle: true,
@@ -237,15 +241,29 @@ class _AddNewTaskState extends State<AddNewTask> {
                               value: _workhours)),
                       Expanded(
                         child: Container(
-                          margin:
-                              EdgeInsets.symmetric(vertical: 15, horizontal: 5),
-                          child: Directionality(
-                            textDirection: TextDirection.rtl,
-                            child: Text(
-                              'ساعات العمل',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 15),
-                            ),
+                          alignment: AlignmentDirectional.bottomEnd,
+                          margin: EdgeInsets.symmetric(horizontal: 13),
+                          child: RichText(
+                            text: TextSpan(children: [
+                              TextSpan(
+                                text: 'ساعات العمل',
+                                style: GoogleFonts.almarai(
+                                    textStyle: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold)),
+                              ),
+                              WidgetSpan(
+                                  child: SizedBox(
+                                    width: 5,
+                                  ),
+                                  alignment: PlaceholderAlignment.middle),
+                              WidgetSpan(
+                                  child: Icon(
+                                    Icons.timelapse,
+                                    color: Colors.amber,
+                                  ),
+                                  alignment: PlaceholderAlignment.middle),
+                            ]),
                           ),
                         ),
                       ),
@@ -255,10 +273,27 @@ class _AddNewTaskState extends State<AddNewTask> {
                   //radio supp or dev
                   Container(
                     alignment: AlignmentDirectional.bottomEnd,
-                    child: Text(
-                      ':نوع المهمة',
-                      style:
-                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    child: RichText(
+                      text: TextSpan(children: [
+                        TextSpan(
+                          text: 'نوع المهمة',
+                          style: GoogleFonts.almarai(
+                              textStyle: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold)),
+                        ),
+                        WidgetSpan(
+                            child: SizedBox(
+                              width: 5,
+                            ),
+                            alignment: PlaceholderAlignment.middle),
+                        WidgetSpan(
+                            child: Icon(
+                              Icons.support_agent,
+                              color: Colors.amber,
+                            ),
+                            alignment: PlaceholderAlignment.middle),
+                      ]),
                     ),
                   ),
                   Row(
@@ -424,23 +459,36 @@ class _AddNewTaskState extends State<AddNewTask> {
                   Divider(),
 
                   //notes
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                            child: Text(
-                          ':الملاحظات',
-                          textAlign: TextAlign.right,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 15),
-                        )),
-                      ],
+                  Container(
+                    alignment: AlignmentDirectional.bottomEnd,
+                    margin: EdgeInsets.symmetric(horizontal: 13),
+                    child: RichText(
+                      text: TextSpan(children: [
+                        TextSpan(
+                          text: 'الملاحظات',
+                          style: GoogleFonts.almarai(
+                              textStyle: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold)),
+                        ),
+                        WidgetSpan(
+                            child: SizedBox(
+                              width: 5,
+                            ),
+                            alignment: PlaceholderAlignment.middle),
+                        WidgetSpan(
+                            child: Icon(
+                              Icons.notes,
+                              color: Colors.amber,
+                            ),
+                            alignment: PlaceholderAlignment.middle),
+                      ]),
                     ),
                   ),
                   SizedBox(
                     height: 15,
                   ),
+
                   Directionality(
                       textDirection: TextDirection.rtl,
                       child: TextFormField(
