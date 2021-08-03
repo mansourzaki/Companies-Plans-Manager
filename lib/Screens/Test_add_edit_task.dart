@@ -284,6 +284,7 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                     leading: Container(
                         width: 100,
                         child: TextFormField(
+                          keyboardType: TextInputType.number,
                           controller: _percentageController,
                           decoration: InputDecoration(
                               prefixIcon: Icon(
@@ -447,7 +448,6 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                 elevation: 5,
               ),
               onPressed: () async {
-                print('${widget.task!.id} tassk');
                 Plan plan = context.read<Plan>();
                 _formKey.currentState!.save();
                 if (_formKey.currentState!.validate()) {
