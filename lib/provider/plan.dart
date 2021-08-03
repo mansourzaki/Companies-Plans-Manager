@@ -309,7 +309,7 @@ class Plan with ChangeNotifier {
         'notes': task.notes,
         'shared': task.shared
       });
-      print('done');
+      print('done ${task.id}');
       allTasks.removeWhere((element) => element.id == task.id);
       allTasks.add(task);
       setTasksBasedOnSelectedDay(DateTime.now().day);

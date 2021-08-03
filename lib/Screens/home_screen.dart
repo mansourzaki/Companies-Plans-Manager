@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:plansmanager/Screens/Test_add_edit_task.dart';
 import 'package:plansmanager/Screens/add_new_task.dart';
 import 'package:plansmanager/provider/plan.dart';
 import 'package:plansmanager/widgets/task_card.dart';
@@ -67,7 +68,6 @@ class _HomeScreenState extends State<HomeScreen>
   int? alert;
   @override
   Widget build(BuildContext context) {
-    
     String? current = Provider.of<Plan>(context, listen: true).current;
     print('$current currrent');
     bool _isSelected = false;
@@ -84,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen>
               );
             } else {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => AddNewTask()));
+                  MaterialPageRoute(builder: (context) => TestAddEditScreen()));
             }
           },
           child: Icon(Icons.add),

@@ -38,10 +38,12 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
   @override
   void initState() {
     Task? task = widget.task;
+
     if (task != null) {
       _nameController.text = task.name.toString();
       _dateController.text =
           intl.DateFormat('yyyy-MM-dd').format(task.startTime!.toDate());
+      _date = task.startTime!.toDate();
       _percentageController.text = task.percentage.toString();
       _notesController.text = task.notes!;
       _workhours = task.workHours!;
@@ -55,10 +57,22 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
   }
 
   @override
+  void dispose() {
+    // _nameController.dispose();
+    // _dateController.dispose();
+    // _percentageController.dispose();
+    // _notesController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
+          iconTheme: IconThemeData(
+            color: Colors.black, //change your color here
+          ),
           backgroundColor: Colors.white,
           title: Text('إضافة مهمة'),
           centerTitle: true,
@@ -346,6 +360,7 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                                 .toList();
                           }
                           return ChipsInput<String>(
+                              initialValue: _teams,
                               textCapitalization: TextCapitalization.words,
                               decoration: InputDecoration(
                                 prefixIcon: Icon(
@@ -432,6 +447,7 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                 elevation: 5,
               ),
               onPressed: () async {
+                print('${widget.task!.id} tassk');
                 Plan plan = context.read<Plan>();
                 _formKey.currentState!.save();
                 if (_formKey.currentState!.validate()) {
@@ -440,6 +456,7 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                   });
 
                   Task task = Task(
+                    id: widget.task == null ? null : widget.task!.id,
                     name: _nameController.text,
                     startTime: Timestamp.fromDate(_date!),
                     endTime: DateTime.now(),
@@ -454,17 +471,43 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                     teams: _teams,
                   );
 
-                  await plan
-                      .addTask(task, DateTime.now().month)
-                      .onError((error, stackTrace) {
-                    print('error catched');
-                  }).then((value) {
-                    setState(() {
-                      _isLoading = !_isLoading;
-                    });
-                  });
+                  try {
+                    widget.task == null
+                        ? await plan
+                            .addTask(task, DateTime.now().month)
+                            .then((value) {
+                            setState(() {
+                              _isLoading = !_isLoading;
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text('تم'),
+                              backgroundColor: Colors.green,
+                            ));
+                            Navigator.of(context).pop();
+                          }).onError((error, stackTrace) {
+                            print('error catched');
+                          })
+                        : await plan
+                            .updateTask(
+                            task,
+                          )
+                            .then((value) {
+                            setState(() {
+                              _isLoading = !_isLoading;
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: Text('تم'),
+                                backgroundColor: Colors.green,
+                              ));
+                              Navigator.of(context).pop();
+                            });
+                          }).onError((error, stackTrace) {
+                            print('error catched');
+                          });
+                  } catch (error) {
+                    print(error);
+                  }
 
-                  //   Navigator.of(context).pop();
                   // print(_date);
                   // print('${_ach.toString()} ach');
                   // print(_dateController.text);
@@ -480,10 +523,15 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                       indicatorType: Indicator.ballBeat,
                       colors: [Colors.black38, Colors.red],
                     )
-                  : Text(
-                      'إضافة',
-                      style: TextStyle(fontSize: 20),
-                    )),
+                  : widget.task == null
+                      ? Text(
+                          'إضافة',
+                          style: TextStyle(fontSize: 20),
+                        )
+                      : Text(
+                          'تعديل',
+                          style: TextStyle(fontSize: 20),
+                        )),
         ));
   }
 }

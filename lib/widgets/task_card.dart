@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:plansmanager/Screens/Test_add_edit_task.dart';
 import 'package:plansmanager/Screens/edit_task.dart';
 import '../provider/task.dart';
 import 'package:provider/provider.dart';
@@ -89,7 +90,7 @@ class _TaskCardState extends State<TaskCard> {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => EditTask(
+                    builder: (context) => TestAddEditScreen(
                           task: widget.task,
                         )));
           },

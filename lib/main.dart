@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
           if (userSnashot.hasData) {
             print('hi');
 
-            return TestAddEditScreen();
+            return MyHomePage();
           }
           print('hi');
           return LoginScreen();
