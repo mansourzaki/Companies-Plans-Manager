@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:plansmanager/Screens/Test_add_edit_task.dart';
 import 'package:plansmanager/Screens/add_new_task.dart';
 import 'package:plansmanager/Screens/forgot_password_screen.dart';
 import 'package:plansmanager/Screens/plans_screen.dart';
@@ -43,7 +44,7 @@ class MyApp extends StatelessWidget {
           if (userSnashot.hasData) {
             print('hi');
 
-            return MyHomePage();
+            return TestAddEditScreen();
           }
           print('hi');
           return LoginScreen();

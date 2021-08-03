@@ -40,6 +40,7 @@ dependencies:
   flutter_chips_input: ^1.10.0
   font_awesome_flutter: ^9.1.0
   loading_indicator: ^3.0.1
+  custom_radio_grouped_button: ^2.0.0
 
 dev_dependencies:
   flutter_test:

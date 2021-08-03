@@ -31,7 +31,18 @@ class _TaskCardState extends State<TaskCard> {
         margin: EdgeInsets.all(8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          color: Colors.amber[400],
+          gradient: widget.task!.shared
+              ? LinearGradient(colors: [
+                  Colors.purple[100]!,
+                  Colors.purple[200]!,
+                  Colors.purple[300]!
+                ], begin: Alignment.topLeft, end: Alignment.bottomRight)
+              : LinearGradient(colors: [
+                  Colors.amber[200]!,
+                  Colors.amber[300]!,
+                  Colors.amber[500]!
+                ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+          color: widget.task!.shared ? Colors.purple[300] : Colors.amber[400],
         ),
         child: ListTile(
           shape:

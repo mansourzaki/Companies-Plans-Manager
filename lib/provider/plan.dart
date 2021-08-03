@@ -10,14 +10,14 @@ class Plan with ChangeNotifier {
   String? teamName;
   bool status = false;
   List<Task>? tasks;
-
-  Plan({
-    this.name,
-    this.startDate,
-    this.endDate,
-    this.teamName,
-    this.tasks,
-  });
+  List<Task>? sharedTasks;
+  Plan(
+      {this.name,
+      this.startDate,
+      this.endDate,
+      this.teamName,
+      this.tasks,
+      this.sharedTasks});
   // List<Task> _tasks = [];
   String get userId {
     String user = FirebaseAuth.instance.currentUser!.uid;
@@ -117,17 +117,19 @@ class Plan with ChangeNotifier {
 
                     ts.add(
                       Task(
-                          id: element.id,
-                          name: element['name'],
-                          startTime: element['startTime'],
-                          endTime: t.toDate(),
-                          status: element['status'],
-                          workHours: element['workHours'],
-                          teams: element['teams'],
-                          type: element['type'],
-                          ach: element['ach'],
-                          percentage: element['percentage'],
-                          notes: element['notes']),
+                        id: element.id,
+                        name: element['name'],
+                        startTime: element['startTime'],
+                        endTime: t.toDate(),
+                        status: element['status'],
+                        workHours: element['workHours'],
+                        teams: element['teams'],
+                        type: element['type'],
+                        ach: element['ach'],
+                        percentage: element['percentage'],
+                        notes: element['notes'],
+                        shared: element['shared'],
+                      ),
                     );
                     notifyListeners();
                   },
@@ -151,7 +153,13 @@ class Plan with ChangeNotifier {
       if (allTasks.length != 0) {
         tasks = allTasks
             .where((element) =>
-                element.startTime!.toDate().day == DateTime.now().day)
+                element.startTime!.toDate().day == DateTime.now().day &&
+                element.shared == false)
+            .toList();
+        sharedTasks = allTasks
+            .where((element) =>
+                element.startTime!.toDate().day == DateTime.now().day &&
+                element.shared == true)
             .toList();
       }
     } catch (error) {
@@ -167,8 +175,16 @@ class Plan with ChangeNotifier {
     } else if (allTasks.length != 0) {
       print('have items');
       // List<Task> ts = this.tasks!;
+      // tasks = allTasks
+      //     .where((element) => element.startTime!.toDate().day == day)
+      //     .toList();
       tasks = allTasks
-          .where((element) => element.startTime!.toDate().day == day)
+          .where((element) =>
+              element.startTime!.toDate().day == day && element.shared == false)
+          .toList();
+      sharedTasks = allTasks
+          .where((element) =>
+              element.startTime!.toDate().day == day && element.shared == true)
           .toList();
       print(tasks!.length);
       // this.tasks = ts;
@@ -191,7 +207,14 @@ class Plan with ChangeNotifier {
     }
     // if (this.tasks!.length != 0) {
     tasks = allTasks
-        .where((element) => element.startTime!.toDate().month == month)
+        .where((element) =>
+            element.startTime!.toDate().month == month &&
+            element.shared == false)
+        .toList();
+    sharedTasks = allTasks
+        .where((element) =>
+            element.startTime!.toDate().month == month &&
+            element.shared == true)
         .toList();
     print(tasks!.length);
     // this.tasks = ts;
@@ -226,7 +249,8 @@ class Plan with ChangeNotifier {
             'type': task.type,
             'ach': task.ach,
             'percentage': task.percentage,
-            'notes': task.notes
+            'notes': task.notes,
+            'shared': task.teams!.isEmpty ? false : true
           });
           print(ref.id);
           allTasks.add(Task(
@@ -282,7 +306,8 @@ class Plan with ChangeNotifier {
         'type': task.type,
         'ach': task.ach,
         'percentage': task.percentage,
-        'notes': task.notes
+        'notes': task.notes,
+        'shared': task.shared
       });
       print('done');
       allTasks.removeWhere((element) => element.id == task.id);

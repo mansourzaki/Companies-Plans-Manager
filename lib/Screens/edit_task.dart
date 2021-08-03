@@ -461,6 +461,7 @@ class _EditTaskState extends State<EditTask> {
                         },
                       )),
                   //notes
+                  Divider(),
                   Container(
                     alignment: AlignmentDirectional.bottomEnd,
                     margin: EdgeInsets.symmetric(horizontal: 13),
