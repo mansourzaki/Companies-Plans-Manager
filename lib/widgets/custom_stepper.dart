@@ -6,14 +6,14 @@ class CustomStepper extends StatefulWidget {
     @required this.maxValue,
     @required this.stepValue,
     @required this.iconSize,
-    this.value = 0,
+    this.value,
     @required this.onChanged,
   });
   final int? minValue;
   final int? maxValue;
   final int? stepValue;
   final ValueChanged<int>? onChanged;
-  int value;
+  int? value;
   final double? iconSize;
 
   @override
@@ -32,9 +32,9 @@ class _CustomStepperState extends State<CustomStepper> {
             setState(() {
               widget.value = widget.value == widget.minValue
                   ? widget.minValue!
-                  : widget.value -= widget.stepValue!;
+                  : widget.value = widget.value! - widget.stepValue!;
               if (widget.onChanged != null) {
-                widget.onChanged!(widget.value);
+                widget.onChanged!(widget.value!);
               }
             });
           },
@@ -55,9 +55,9 @@ class _CustomStepperState extends State<CustomStepper> {
             setState(() {
               widget.value = widget.value == widget.maxValue
                   ? widget.maxValue!
-                  : widget.value += widget.stepValue!;
+                  : widget.value = widget.value! + widget.stepValue!;
               if (widget.onChanged != null) {
-                widget.onChanged!(widget.value);
+                widget.onChanged!(widget.value!);
               }
             });
           },

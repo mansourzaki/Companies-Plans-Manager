@@ -64,7 +64,22 @@ class _PlansScreenState extends State<PlansScreen>
       // floatingActionButton: FloatingActionButton(
       //   onPressed: () async {
       //     try {
-      //       await context.read<Plan>().addPlanNewVersion('شهر 7', 7);
+      //       await FirebaseFirestore.instance.collection('teams').add({
+      //         'A': 'A فريق برمجة',
+      //         'B': 'B فريق برمجة',
+      //         'C': 'C فريق برمجة',
+      //         'D': 'D فريق برمجة',
+      //         'E': 'E فريق برمجة',
+      //         'F': 'F فريق قواعد بيانات',
+      //         'G': 'G فريق أمن المواقع',
+      //         'H': 'H فريقأمن المواقع',
+      //         'I': 'I فريق أنظمة التشغيل',
+      //         'J': 'J فريق إدارة الشبكات',
+      //         'K': 'K فريق التصميم والمونتاج',
+      //         'L': 'L فريق تطبيقات الهواتف',
+      //         'M': 'M فريق الصيانة',
+      //       });
+      //       // await context.read<Plan>().addPlanNewVersion('شهر 7', 7);
       //     } catch (error) {
       //       print(error);
       //     }

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class Task with ChangeNotifier {
+  String? planId;
   String? id;
   String? name;
   Timestamp? startTime;
@@ -14,20 +15,22 @@ class Task with ChangeNotifier {
   int? percentage;
   String? notes;
   bool shared;
-  Task({
-    this.id,
-    this.name,
-    this.startTime,
-    this.endTime,
-    this.workHours,
-    this.status,
-    this.teams,
-    this.percentage,
-    this.notes,
-    this.ach,
-    this.type,
-    this.shared = false,
-  });
+  String? sharedBy;
+  Task(
+      {this.planId,
+      this.id,
+      this.name,
+      this.startTime,
+      this.endTime,
+      this.workHours,
+      this.status,
+      this.teams,
+      this.percentage,
+      this.notes,
+      this.ach,
+      this.type,
+      this.shared = false,
+      this.sharedBy});
 
   // Future updateTaskSatus(Task task,String current, bool status) async {
   //   await FirebaseFirestore.instance

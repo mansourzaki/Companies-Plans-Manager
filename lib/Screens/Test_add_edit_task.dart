@@ -27,7 +27,7 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
   final _dateController = TextEditingController();
   final _percentageController = TextEditingController();
   final _notesController = TextEditingController();
-  int _workhours = 0;
+  int? _workhours = 0;
   DateTime? _date;
   var _isLoading = false;
   Ach? _ach;
@@ -134,7 +134,8 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                               context: context,
                               initialDate: DateTime.now(),
                               firstDate: DateTime(2021),
-                              lastDate: DateTime(2022),
+                              lastDate:
+                                  DateTime(2021, DateTime.now().month + 1),
                             ).then((value) async {
                               TimeOfDay? time = await showTimePicker(
                                   context: context,
@@ -194,6 +195,7 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         child: CustomStepper(
+                            value: _workhours,
                             minValue: 0,
                             maxValue: 6,
                             stepValue: 1,
@@ -470,6 +472,13 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                     status: false,
                     teams: _teams,
                   );
+                  if (_teams.isNotEmpty) {
+                    FirebaseFirestore.instance
+                        .collection('users')
+                        .where('teamName', isEqualTo: _teams[0])
+                        .get()
+                        .then((value) => value.docs.first.id);
+                  }
 
                   try {
                     widget.task == null

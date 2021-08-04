@@ -79,13 +79,13 @@ class _TaskCardState extends State<TaskCard> {
                     });
                     Future.delayed(Duration(seconds: 2), () async {});
                   }),
-          trailing: IconButton(
-            // focusColor: Colors.red,
-            splashColor: Colors.red,
-            highlightColor: Colors.red,
-            icon: Icon(Icons.share),
-            onPressed: () {},
-          ),
+          // trailing: IconButton(
+          //   // focusColor: Colors.red,
+          //   splashColor: Colors.red,
+          //   highlightColor: Colors.red,
+          //   icon: Icon(Icons.share),
+          //   onPressed: () {},
+          // ),
           onTap: () {
             Navigator.push(
                 context,

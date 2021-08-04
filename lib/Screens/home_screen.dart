@@ -71,6 +71,7 @@ class _HomeScreenState extends State<HomeScreen>
     String? current = Provider.of<Plan>(context, listen: true).current;
     print('$current currrent');
     bool _isSelected = false;
+
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -108,38 +109,34 @@ class _HomeScreenState extends State<HomeScreen>
                         itemCount: 12,
                         itemBuilder: (context, i) {
                           return GestureDetector(
-                            onTap: () {
-                              // context
-                              //     .read<Plan>()
-                              //     .getAllTasks(_months[i], stay: true);
-                              setState(() {
-                                _selectedIndex = i;
-                                _isSelected = !_isSelected;
-                              });
-                              print(i + 1);
-                              context
-                                  .read<Plan>()
-                                  .setTasksBasedOnSelectedMonth(i + 1);
-                            },
-                            child: Container(
-                              width: 85,
-                              alignment: Alignment.topCenter,
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 5, horizontal: 10),
-                              margin: EdgeInsets.symmetric(
-                                  vertical: 10, horizontal: 15),
-                              decoration: BoxDecoration(
-                                  color: (_selectedIndex == i &&
-                                          _selectedIndex != null)
-                                      ? Colors.amber
-                                      : Colors.blue[300],
-                                  borderRadius: BorderRadius.circular(10)),
-                              child: Text(
-                                _months[i],
-                                style: const TextStyle(color: Colors.black),
-                              ),
-                            ),
-                          );
+                              onTap: () {
+                                setState(() {
+                                  _selectedIndex = i;
+                                  _isSelected = !_isSelected;
+                                });
+                                print(i + 1);
+                                context
+                                    .read<Plan>()
+                                    .setTasksBasedOnSelectedMonth(i + 1);
+                              },
+                              child: Container(
+                                width: 85,
+                                alignment: Alignment.topCenter,
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 5, horizontal: 10),
+                                margin: EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 15),
+                                decoration: BoxDecoration(
+                                    color: (_selectedIndex == i &&
+                                            _selectedIndex != null)
+                                        ? Colors.amber
+                                        : Colors.red[300],
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: Text(
+                                  _months[i],
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ));
                         },
                       ),
                     ),
@@ -155,16 +152,16 @@ class _HomeScreenState extends State<HomeScreen>
                           child: RichText(
                               text: TextSpan(
                             children: [
-                              WidgetSpan(
-                                  alignment: PlaceholderAlignment.middle,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10),
-                                    child: CircleAvatar(
-                                      radius: 10,
-                                      child: Text('$alert'),
-                                    ),
-                                  )),
+                              // WidgetSpan(
+                              //     alignment: PlaceholderAlignment.middle,
+                              //     child: Padding(
+                              //       padding: const EdgeInsets.symmetric(
+                              //           horizontal: 10),
+                              //       child: CircleAvatar(
+                              //         radius: 10,
+                              //         child: Text('$alert'),
+                              //       ),
+                              //     )),
                               TextSpan(
                                 text: 'المهام المُشتركة',
                                 style: GoogleFonts.almarai(
@@ -174,12 +171,12 @@ class _HomeScreenState extends State<HomeScreen>
                           )),
                           icon: Icon(
                             Icons.share_sharp,
-                            color: Colors.amber,
+                            color: Colors.purple[300],
                           ),
                         ),
                         Tab(
                           child: Text(
-                            'مهام اليوم',
+                            'المهام',
                             style: TextStyle(color: Colors.black),
                           ),
                           icon: Icon(
@@ -192,82 +189,112 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 ];
               },
-              body: Consumer<Plan>(
-                builder: (context, plan, child) {
-                  return plan.allTasks.isEmpty
-                      ? Center(
-                          child: LoadingIndicator(
-                          indicatorType: Indicator.ballGridPulse,
-                          colors: [
-                            Colors.amber,
-                            Colors.amber[300] ?? Colors.red,
-                            Colors.blue,
-                            Colors.blueGrey,
-                            Colors.red
-                          ],
-                        ))
-                      : TabBarView(children: [
-                          StreamBuilder(
-                            stream: FirebaseFirestore.instance
-                                .collection('plans')
-                                .doc(current)
-                                .collection('tasks')
-                                .where('shared', isEqualTo: true)
-                                .snapshots(),
-                            builder: (context,
-                                AsyncSnapshot<QuerySnapshot> snapshot) {
-                              if (snapshot.data == null ||
-                                  snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                return Text('loading');
-                              }
-                              alert = snapshot.data!.docs.length;
-                              print('alerts ${snapshot.data!.docs.length}');
+              body: RefreshIndicator(
+                onRefresh: () async {
+                  setState(() {
+                    TasksCalendar().setDayForToday();
+                  });
+                  await context.read<Plan>().getAllTasks(DateTime.now().month);
+                },
+                child: Consumer<Plan>(
+                  builder: (context, plan, child) {
+                    return TabBarView(children: [
+                      StreamBuilder(
+                        stream: FirebaseFirestore.instance
+                            .collection('plans')
+                            .doc(current)
+                            .collection('tasks')
+                            .where('shared', isEqualTo: true)
+                            .snapshots(),
+                        builder:
+                            (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                          if (snapshot.data == null ||
+                              snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                            return Center(
+                                child: LoadingIndicator(
+                              indicatorType: Indicator.ballGridPulse,
+                              colors: [
+                                Colors.amber,
+                                Colors.amber[300] ?? Colors.red,
+                                Colors.blue,
+                                Colors.blueGrey,
+                                Colors.red
+                              ],
+                            ));
+                          } else if (snapshot.data!.docs.isEmpty) {
+                            return Center(
+                              child: Text('No Shared Tasks found!'),
+                            );
+                          }
+                          List x = snapshot.data!.docs.where((element) {
+                            Timestamp t = element['startTime'];
+                            return t.toDate().day == TasksCalendar().day.day;
+                          }).toList();
+                          if (x.isEmpty) {
+                            return Center(
+                              child: Text('No Shared Tasks found for today!'),
+                            );
+                          }
 
-                              return ListView.builder(
-                                physics: NeverScrollableScrollPhysics(),
-                                shrinkWrap: true,
-                                itemCount: snapshot.data!.docs.length,
-                                itemBuilder: (context, i) {
-                                  Task task = Task(
-                                      id: snapshot.data!.docs[i].id,
-                                      name: snapshot.data!.docs[i]['name'],
-                                      startTime: snapshot.data!.docs[i]
-                                          ['startTime'],
-                                      endTime: DateTime.now(),
-                                      status: snapshot.data!.docs[i]['status'],
-                                      workHours: snapshot.data!.docs[i]
-                                          ['workHours'],
-                                      teams: snapshot.data!.docs[i]['teams'],
-                                      type: snapshot.data!.docs[i]['type'],
-                                      ach: snapshot.data!.docs[i]['ach'],
-                                      shared: snapshot.data!.docs[i]['shared'],
-                                      percentage: snapshot.data!.docs[i]
-                                          ['percentage'],
-                                      notes: snapshot.data!.docs[i]['notes']);
-                                  // Task task = Task(
-                                  //     id: plan.sharedTasks![i].id,
-                                  //     name: plan.sharedTasks![i].name,
-                                  //     startTime: plan.sharedTasks![i].startTime,
-                                  //     endTime: plan.sharedTasks![i].endTime,
-                                  //     status: plan.sharedTasks![i].status,
-                                  //     workHours: plan.sharedTasks![i].workHours,
-                                  //     teams: plan.sharedTasks![i].teams,
-                                  //     type: plan.sharedTasks![i].type,
-                                  //     ach: plan.sharedTasks![i].ach,
-                                  //     shared: plan.sharedTasks![i].shared,
-                                  //     percentage:
-                                  //         plan.sharedTasks![i].percentage,
-                                  //     notes: plan.sharedTasks![i].notes);
-                                  return TaskCard(
-                                    task: task,
-                                    id: current,
-                                  );
-                                },
-                              );
+                          // final x = snapshot.data!.docs.where((element) {
+                          //   Timestamp t = element['startTime'];
+                          //   return t.toDate().day == TasksCalendar().day.day;
+                          // }).toList();
+
+                          return ListView.builder(
+                            physics: NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: snapshot.data!.docs.length,
+                            itemBuilder: (context, i) {
+                              Timestamp t = snapshot.data!.docs[i]['startTime'];
+                              Task task = Task(
+                                  id: snapshot.data!.docs[i].id,
+                                  name: snapshot.data!.docs[i]['name'],
+                                  startTime: snapshot.data!.docs[i]
+                                      ['startTime'],
+                                  endTime: DateTime.now(),
+                                  status: snapshot.data!.docs[i]['status'],
+                                  workHours: snapshot.data!.docs[i]
+                                      ['workHours'],
+                                  teams: snapshot.data!.docs[i]['teams'],
+                                  type: snapshot.data!.docs[i]['type'],
+                                  ach: snapshot.data!.docs[i]['ach'],
+                                  shared: snapshot.data!.docs[i]['shared'],
+                                  percentage: snapshot.data!.docs[i]
+                                      ['percentage'],
+                                  notes: snapshot.data!.docs[i]['notes']);
+                              // Task task = Task(
+                              //     id: plan.sharedTasks![i].id,
+                              //     name: plan.sharedTasks![i].name,
+                              //     startTime: plan.sharedTasks![i].startTime,
+                              //     endTime: plan.sharedTasks![i].endTime,
+                              //     status: plan.sharedTasks![i].status,
+                              //     workHours: plan.sharedTasks![i].workHours,
+                              //     teams: plan.sharedTasks![i].teams,
+                              //     type: plan.sharedTasks![i].type,
+                              //     ach: plan.sharedTasks![i].ach,
+                              //     shared: plan.sharedTasks![i].shared,
+                              //     percentage:
+                              //         plan.sharedTasks![i].percentage,
+                              //     notes: plan.sharedTasks![i].notes);
+                              alert = i;
+                              return task.startTime!.toDate().day ==
+                                      TasksCalendar().day.day
+                                  ? TaskCard(
+                                      task: task,
+                                      id: current,
+                                    )
+                                  : Container();
                             },
-                          ),
-                          ListView.builder(
+                          );
+                        },
+                      ),
+                      plan.tasks!.isEmpty
+                          ? Center(
+                              child: Text('No Tasks Found'),
+                            )
+                          : ListView.builder(
                               physics: NeverScrollableScrollPhysics(),
                               shrinkWrap: true,
                               itemCount: plan.tasks!.length,
@@ -289,8 +316,9 @@ class _HomeScreenState extends State<HomeScreen>
                                   id: current,
                                 );
                               }),
-                        ]);
-                },
+                    ]);
+                  },
+                ),
               ),
 
               //slivers: [

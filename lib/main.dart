@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -8,6 +9,7 @@ import 'package:plansmanager/Screens/forgot_password_screen.dart';
 import 'package:plansmanager/Screens/plans_screen.dart';
 import 'package:plansmanager/Screens/home_screen.dart';
 import 'package:plansmanager/provider/plan.dart';
+import 'package:plansmanager/provider/task.dart';
 
 import 'package:provider/provider.dart';
 import 'Screens/login_screen.dart';
@@ -93,8 +95,12 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
+        iconTheme: IconThemeData(
+          color: Colors.black, //change your color here
+        ),
         title: Text(_currentIndex == 0 ? 'الخطط' : 'المهام'),
         centerTitle: true,
+        backgroundColor: Colors.white,
         actions: [
           IconButton(
               onPressed: () {
@@ -103,7 +109,26 @@ class _MyHomePageState extends State<MyHomePage> {
                 context.read<Plan>().clearCurrent();
                 Navigator.of(context).popAndPushNamed(LoginScreen.routeName);
               },
-              icon: Icon(Icons.exit_to_app))
+              icon: Icon(Icons.exit_to_app)),
+          IconButton(
+              onPressed: () async {
+                Task task =
+                    Task(startTime: Timestamp.now(), endTime: DateTime.now());
+                FirebaseFirestore.instance.collection('tasks').add({
+                  'name': task.name,
+                  'startTime': task.startTime,
+                  'endTime': task.endTime,
+                  'status': task.status,
+                  'workHours': task.workHours,
+                  'teams': task.teams,
+                  'type': task.type,
+                  'ach': task.ach,
+                  'percentage': task.percentage,
+                  'notes': task.notes,
+                  'shared': task.teams!.isEmpty ? false : true
+                });
+              },
+              icon: Icon(Icons.add))
         ],
       ),
       body: PageView(

@@ -12,6 +12,14 @@ class TasksCalendar extends StatefulWidget {
     _selectedDay = DateTime.now();
   }
 
+  DateTime get day {
+    if (_selectedDay == null) {
+      return DateTime.now();
+    } else {
+      return _selectedDay!;
+    }
+  }
+
   @override
   _TasksCalendarState createState() => _TasksCalendarState();
 }
@@ -80,7 +88,7 @@ class _TasksCalendarState extends State<TasksCalendar> {
       headerStyle: HeaderStyle(
         titleCentered: true,
         formatButtonDecoration: BoxDecoration(
-          color: Colors.orange,
+          color: Colors.red[700],
           borderRadius: BorderRadius.circular(20),
         ),
         formatButtonShowsNext: false,
@@ -101,7 +109,7 @@ class _TasksCalendarState extends State<TasksCalendar> {
             margin: const EdgeInsets.all(4.0),
             alignment: Alignment.center,
             decoration: BoxDecoration(
-                color: Colors.orange,
+                color: Colors.red[500],
                 borderRadius: BorderRadius.circular(10.0)),
             child: Text(
               date.day.toString(),

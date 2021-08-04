@@ -102,6 +102,7 @@ class Plan with ChangeNotifier {
     print('cleared');
     List<Task> ts = [];
     allTasks = [];
+    this.tasks = [];
     try {
       await FirebaseFirestore.instance
           .collection('plans')
