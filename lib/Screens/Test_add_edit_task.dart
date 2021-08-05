@@ -7,12 +7,14 @@ import 'package:loading_indicator/loading_indicator.dart';
 import 'package:plansmanager/provider/plan.dart';
 import 'package:plansmanager/provider/task.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:plansmanager/provider/user.dart';
 import 'package:plansmanager/widgets/custom_stepper.dart';
 import 'package:provider/provider.dart';
 
 enum Type { dev, supp }
 enum Ach { inn, out }
-List<String> labels = ['دعم فني', 'تصميم', 'برمجة'];
+//List<String> labels = ['دعم فني', 'تصميم', 'برمجة'];
+List<User> users = [];
 
 class TestAddEditScreen extends StatefulWidget {
   TestAddEditScreen({this.task});
@@ -32,7 +34,9 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
   var _isLoading = false;
   Ach? _ach;
   Type? _type;
+  //List<String> _teams = [];
   List<String> _teams = [];
+  List<User> _users = [];
   String? _t = 'تطوير';
   String? _a = 'داخل';
   @override
@@ -49,7 +53,10 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
       _workhours = task.workHours!;
       _ach = task.ach == 'داخل' ? Ach.inn : Ach.out;
       _type = task.type == 'تطوير' ? Type.dev : Type.supp;
-      _teams = widget.task!.teams!.cast<String>();
+      //  _teams = widget.task!.teams!.cast<String>();
+      _users = widget.task!.users!;
+      print(_users.length);
+      //  print('${widget.task!.users} hiiii');
     } else {
       print('task is null so switch to addMode');
     }
@@ -357,13 +364,17 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                         builder: (context, snapshot) {
                           // to avoid null check operation
                           if (snapshot.hasData) {
-                            labels = snapshot.data!.docs
-                                .map((e) =>
-                                    '${e['name'].toString()} - ${e['teamName'].toString()}')
+                            // labels = snapshot.data!.docs
+                            //     .map((e) =>
+                            //         '${e['name'].toString()} - ${e['teamName'].toString()}')
+                            //     .toList();
+                            users = snapshot.data!.docs
+                                .map((e) => User(e['id'], e['name'],
+                                    email: e['email'], team: e['teamName']))
                                 .toList();
                           }
-                          return ChipsInput<String>(
-                              initialValue: _teams,
+                          return ChipsInput<User>(
+                              initialValue: _users,
                               textCapitalization: TextCapitalization.words,
                               decoration: InputDecoration(
                                 prefixIcon: Icon(
@@ -387,20 +398,20 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                               chipBuilder: (context, state, data) {
                                 return InputChip(
                                   key: ObjectKey(data),
-                                  label: Text(data),
+                                  label: Text(data.name),
                                   onDeleted: () => state.deleteChip(data),
                                 );
                               },
                               suggestionBuilder: (context, state, data) {
                                 return ListTile(
                                   key: ObjectKey(data),
-                                  title: Text(data),
+                                  title: Text('${data.name} - ${data.team}'),
                                   onTap: () => state.selectSuggestion(data),
                                 );
                               },
                               findSuggestions: _findSuggestions,
                               onChanged: (input) {
-                                _teams = input;
+                                _users = input;
                                 print('$input sddd teest');
                                 print(_teams);
                               });
@@ -471,15 +482,17 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                         : _percentageController.text),
                     status: false,
                     teams: _teams,
+                    shared: _users.isEmpty ? false : true,
+                    users: _users,
                   );
-                  if (_teams.isNotEmpty) {
-                    FirebaseFirestore.instance
-                        .collection('users')
-                        .where('teamName', isEqualTo: _teams[0])
-                        .get()
-                        .then((value) => value.docs.first.id);
+                  print('out fooor ');
+                  if (_users.isNotEmpty && widget.task == null) {
+                    for (User user in _users) {
+                      context.read<Plan>().addTaskWithCustomId(
+                          task, DateTime.now().month, user.id);
+                      print('in fooor ${user.id}');
+                    }
                   }
-
                   try {
                     widget.task == null
                         ? await plan
@@ -550,12 +563,11 @@ class AlwaysDisabledFocusNode extends FocusNode {
   bool get hasFocus => false;
 }
 
-Future<List<String>> _findSuggestions(String input) async {
-  List<String> list = [];
-
+Future<List<User>> _findSuggestions(String input) async {
   if (input.length != 0) {
-    list.addAll(labels.where((e) => e.contains(input)));
-    return list;
+    List<User> labels = users.where((e) => e.name.contains(input)).toList();
+    //list.addAll(labels.where((e) => e.contains(input)));
+    return labels;
   } else {
     return [];
   }

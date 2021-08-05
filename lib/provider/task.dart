@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:plansmanager/provider/user.dart';
 
 class Task with ChangeNotifier {
   String? planId;
@@ -16,6 +17,7 @@ class Task with ChangeNotifier {
   String? notes;
   bool shared;
   String? sharedBy;
+  List<User>? users;
   Task(
       {this.planId,
       this.id,
@@ -30,7 +32,8 @@ class Task with ChangeNotifier {
       this.ach,
       this.type,
       this.shared = false,
-      this.sharedBy});
+      this.sharedBy,
+      this.users = const []});
 
   // Future updateTaskSatus(Task task,String current, bool status) async {
   //   await FirebaseFirestore.instance

@@ -43,7 +43,7 @@ class _TaskCardState extends State<TaskCard> {
                   Colors.amber[300]!,
                   Colors.amber[500]!
                 ], begin: Alignment.topLeft, end: Alignment.bottomRight),
-          color: widget.task!.shared ? Colors.purple[300] : Colors.amber[400],
+        //  color: widget.task!.shared ? Colors.purple[300] : Colors.amber[400],
         ),
         child: ListTile(
           shape:

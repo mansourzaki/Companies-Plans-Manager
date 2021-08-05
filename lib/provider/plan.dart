@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:plansmanager/Screens/Test_add_edit_task.dart';
 import 'package:plansmanager/provider/task.dart';
+import 'package:plansmanager/provider/user.dart' as user;
 
 class Plan with ChangeNotifier {
   String? name;
@@ -115,7 +117,7 @@ class Plan with ChangeNotifier {
                 (value) => value.docs.forEach(
                   (element) {
                     Timestamp t = element['endTime'];
-
+                    Map<String, dynamic> map = element['users'];
                     ts.add(
                       Task(
                         id: element.id,
@@ -130,6 +132,9 @@ class Plan with ChangeNotifier {
                         percentage: element['percentage'],
                         notes: element['notes'],
                         shared: element['shared'],
+                        users: map.entries
+                            .map((e) => user.User(e.key, e.value))
+                            .toList(),
                       ),
                     );
                     notifyListeners();
@@ -239,6 +244,135 @@ class Plan with ChangeNotifier {
           .get()
           .then((value) async {
         print(value.docs.length);
+
+        Map f = Map<String, String>.fromIterable(task.users!,
+            key: (item) => item.id, value: (item) => item.name);
+        if (value.docs.length != 0) {
+          print('${task.shared} + ${task.users!.length} hjj');
+          final ref = await value.docs.first.reference.collection('tasks').add({
+            'name': task.name,
+            'startTime': task.startTime,
+            'endTime': task.endTime,
+            'status': task.status,
+            'workHours': task.workHours,
+            'teams': task.teams,
+            'type': task.type,
+            'ach': task.ach,
+            'percentage': task.percentage,
+            'notes': task.notes,
+            'shared': task.shared,
+            'users': f,
+          });
+          print(ref.id);
+          allTasks.add(Task(
+              id: ref.id,
+              name: task.name,
+              startTime: task.startTime,
+              endTime: task.endTime,
+              status: task.status,
+              workHours: task.workHours,
+              teams: task.teams,
+              type: task.type,
+              ach: task.ach,
+              percentage: task.percentage,
+              notes: task.notes,
+              sharedBy: task.sharedBy,
+              shared: task.shared,
+              users: task.users));
+          print('added ${allTasks[allTasks.length - 1].id}');
+          setTasksBasedOnSelectedDay(DateTime.now().day);
+          //  await getAllTasks(month);
+          notifyListeners();
+          print('notified lintners');
+        } else {
+          notifyListeners();
+          print('in else');
+        }
+      });
+    } catch (error) {
+      print('error catch ${error.toString()}');
+      notifyListeners();
+    }
+    //CollectionReference ref = FirebaseFirestore.instance.collection('Plans');
+    // ref.doc(id).collection('tasks').add({
+    //   'name': task.name,
+    //   'startTime': task.startTime,
+    //   'workHours': task.workHours,
+    //   'team': ['sdf', 'dfdf', 'dfdf'],
+    // });
+    // List<Plan> plansList = await getPlans(month: DateTime.now().month);
+  }
+
+  // Future<void> addTaskSingleCollection(Task task, int month) async {
+  //   try {
+  //     FirebaseFirestore.instance.collection('tasks').get().then((value) async {
+  //       Map f = Map<String, String>.fromIterable(task.users!,
+  //           key: (item) => item.id, value: (item) => item.name);
+  //       if (value.docs.length != 0) {
+  //         print('${task.shared} + ${task.users!.length} hjj');
+  //         final ref = await value.add({
+  //           'name': task.name,
+  //           'startTime': task.startTime,
+  //           'endTime': task.endTime,
+  //           'status': task.status,
+  //           'workHours': task.workHours,
+  //           'teams': task.teams,
+  //           'type': task.type,
+  //           'ach': task.ach,
+  //           'percentage': task.percentage,
+  //           'notes': task.notes,
+  //           'shared': task.shared,
+  //           'users': f,
+  //         });
+  //         print(ref.id);
+  //         allTasks.add(Task(
+  //             id: ref.id,
+  //             name: task.name,
+  //             startTime: task.startTime,
+  //             endTime: task.endTime,
+  //             status: task.status,
+  //             workHours: task.workHours,
+  //             teams: task.teams,
+  //             type: task.type,
+  //             ach: task.ach,
+  //             percentage: task.percentage,
+  //             notes: task.notes,
+  //             sharedBy: task.sharedBy,
+  //             shared: task.shared,
+  //             users: task.users));
+  //         print('added ${allTasks[allTasks.length - 1].id}');
+  //         setTasksBasedOnSelectedDay(DateTime.now().day);
+  //         //  await getAllTasks(month);
+  //         notifyListeners();
+  //         print('notified lintners');
+  //       } else {
+  //         notifyListeners();
+  //         print('in else');
+  //       }
+  //     });
+  //   } catch (error) {
+  //     print('error catch ${error.toString()}');
+  //     notifyListeners();
+  //   }
+  //   //CollectionReference ref = FirebaseFirestore.instance.collection('Plans');
+  //   // ref.doc(id).collection('tasks').add({
+  //   //   'name': task.name,
+  //   //   'startTime': task.startTime,
+  //   //   'workHours': task.workHours,
+  //   //   'team': ['sdf', 'dfdf', 'dfdf'],
+  //   // });
+  //   // List<Plan> plansList = await getPlans(month: DateTime.now().month);
+  // }
+
+  Future<void> addTaskWithCustomId(Task task, int month, String userId) async {
+    try {
+      FirebaseFirestore.instance
+          .collection('plans')
+          .where('userId', isEqualTo: userId)
+          .where('month', isEqualTo: month)
+          .get()
+          .then((value) async {
+        print(value.docs.length);
         if (value.docs.length != 0) {
           final ref = await value.docs.first.reference.collection('tasks').add({
             'name': task.name,
@@ -251,7 +385,7 @@ class Plan with ChangeNotifier {
             'ach': task.ach,
             'percentage': task.percentage,
             'notes': task.notes,
-            'shared': task.teams!.isEmpty ? false : true
+            'shared': task.users!.isEmpty ? false : true
           });
           print(ref.id);
           allTasks.add(Task(
@@ -308,7 +442,9 @@ class Plan with ChangeNotifier {
         'ach': task.ach,
         'percentage': task.percentage,
         'notes': task.notes,
-        'shared': task.shared
+        'shared': task.shared,
+        'users': Map<String, String>.fromIterable(task.users!,
+            key: (item) => item.id, value: (item) => item.name)
       });
       print('done ${task.id}');
       allTasks.removeWhere((element) => element.id == task.id);

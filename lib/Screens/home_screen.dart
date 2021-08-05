@@ -7,10 +7,12 @@ import 'package:loading_indicator/loading_indicator.dart';
 import 'package:plansmanager/Screens/Test_add_edit_task.dart';
 import 'package:plansmanager/Screens/add_new_task.dart';
 import 'package:plansmanager/provider/plan.dart';
+import 'package:plansmanager/provider/user.dart';
 import 'package:plansmanager/widgets/task_card.dart';
 import '../provider/task.dart';
 import 'package:plansmanager/widgets/tasks_calendar.dart';
 import 'package:provider/provider.dart';
+import '../provider/user.dart' as user;
 
 final List<String> labels = ['موبايل', 'انظمة'];
 enum TaskType { support, dev }
@@ -248,22 +250,29 @@ class _HomeScreenState extends State<HomeScreen>
                             itemCount: snapshot.data!.docs.length,
                             itemBuilder: (context, i) {
                               Timestamp t = snapshot.data!.docs[i]['startTime'];
+                              Map<String, dynamic> map =
+                                  snapshot.data!.docs[i]['users'];
+                              // users: map.entries
+                              //       .map((e) => user.User(e.key, e.value))
+                              //       .toList()
                               Task task = Task(
-                                  id: snapshot.data!.docs[i].id,
-                                  name: snapshot.data!.docs[i]['name'],
-                                  startTime: snapshot.data!.docs[i]
-                                      ['startTime'],
-                                  endTime: DateTime.now(),
-                                  status: snapshot.data!.docs[i]['status'],
-                                  workHours: snapshot.data!.docs[i]
-                                      ['workHours'],
-                                  teams: snapshot.data!.docs[i]['teams'],
-                                  type: snapshot.data!.docs[i]['type'],
-                                  ach: snapshot.data!.docs[i]['ach'],
-                                  shared: snapshot.data!.docs[i]['shared'],
-                                  percentage: snapshot.data!.docs[i]
-                                      ['percentage'],
-                                  notes: snapshot.data!.docs[i]['notes']);
+                                id: snapshot.data!.docs[i].id,
+                                name: snapshot.data!.docs[i]['name'],
+                                startTime: snapshot.data!.docs[i]['startTime'],
+                                endTime: DateTime.now(),
+                                status: snapshot.data!.docs[i]['status'],
+                                workHours: snapshot.data!.docs[i]['workHours'],
+                                teams: snapshot.data!.docs[i]['teams'],
+                                type: snapshot.data!.docs[i]['type'],
+                                ach: snapshot.data!.docs[i]['ach'],
+                                shared: snapshot.data!.docs[i]['shared'],
+                                percentage: snapshot.data!.docs[i]
+                                    ['percentage'],
+                                notes: snapshot.data!.docs[i]['notes'],
+                                users: map.entries
+                                    .map((e) => user.User(e.key, e.value))
+                                    .toList(),
+                              );
                               // Task task = Task(
                               //     id: plan.sharedTasks![i].id,
                               //     name: plan.sharedTasks![i].name,
@@ -310,7 +319,8 @@ class _HomeScreenState extends State<HomeScreen>
                                     type: plan.tasks![i].type,
                                     ach: plan.tasks![i].ach,
                                     percentage: plan.tasks![i].percentage,
-                                    notes: plan.tasks![i].notes);
+                                    notes: plan.tasks![i].notes,
+                                    users: plan.tasks![i].users);
                                 return TaskCard(
                                   task: task,
                                   id: current,

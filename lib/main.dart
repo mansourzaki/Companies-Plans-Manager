@@ -59,7 +59,7 @@ class MyApp extends StatelessWidget {
         LoginScreen.routeName: (ctx) => LoginScreen(),
         ForgotPasswordScreen.routeName: (ctx) => ForgotPasswordScreen(),
         PlansScreen.routeName: (ctx) => PlansScreen(),
-        AddNewTask.routeName: (ctx) => AddNewTask()
+        // AddNewTask.routeName: (ctx) => AddNewTask()
       },
     );
   }
@@ -110,25 +110,26 @@ class _MyHomePageState extends State<MyHomePage> {
                 Navigator.of(context).popAndPushNamed(LoginScreen.routeName);
               },
               icon: Icon(Icons.exit_to_app)),
-          IconButton(
-              onPressed: () async {
-                Task task =
-                    Task(startTime: Timestamp.now(), endTime: DateTime.now());
-                FirebaseFirestore.instance.collection('tasks').add({
-                  'name': task.name,
-                  'startTime': task.startTime,
-                  'endTime': task.endTime,
-                  'status': task.status,
-                  'workHours': task.workHours,
-                  'teams': task.teams,
-                  'type': task.type,
-                  'ach': task.ach,
-                  'percentage': task.percentage,
-                  'notes': task.notes,
-                  'shared': task.teams!.isEmpty ? false : true
-                });
-              },
-              icon: Icon(Icons.add))
+          // IconButton(
+          //     onPressed: () async {
+          //       Task task =
+          //           Task(startTime: Timestamp.now(), endTime: DateTime.now());
+          //       FirebaseFirestore.instance.collection('tasks').add({
+          //         'planId': context.read<Plan>().getCurrentPlan(),
+          //         'name': task.name,
+          //         'startTime': task.startTime,
+          //         'endTime': task.endTime,
+          //         'status': task.status,
+          //         'workHours': task.workHours,
+          //         'teams': task.teams,
+          //         'type': task.type,
+          //         'ach': task.ach,
+          //         'percentage': task.percentage,
+          //         'notes': task.notes,
+          //         'shared': task.teams!.isEmpty ? false : true
+          //       });
+          //     },
+          //     icon: Icon(Icons.add))
         ],
       ),
       body: PageView(

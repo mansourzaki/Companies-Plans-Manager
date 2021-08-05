@@ -6,10 +6,9 @@ import 'package:plansmanager/provider/task.dart';
 class User with ChangeNotifier {
   final String id;
   final String name;
-  final String email;
-  List<Task>? tasksList;
+  String? email;
   String? team = 'Undefined';
-  User(this.id, this.name, this.email, {this.team});
+  User(this.id, this.name, {this.team, this.email});
 
   Future<void> addUser(User user) async {
     await FirebaseFirestore.instance.collection('Users').add({
