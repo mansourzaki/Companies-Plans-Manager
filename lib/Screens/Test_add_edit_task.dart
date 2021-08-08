@@ -486,13 +486,7 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                     users: _users,
                   );
                   print('out fooor ');
-                  if (_users.isNotEmpty && widget.task == null) {
-                    for (User user in _users) {
-                      context.read<Plan>().addTaskWithCustomId(
-                          task, DateTime.now().month, user.id);
-                      print('in fooor ${user.id}');
-                    }
-                  }
+
                   try {
                     widget.task == null
                         ? await plan
@@ -521,8 +515,8 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                                 content: Text('تم'),
                                 backgroundColor: Colors.green,
                               ));
-                              Navigator.of(context).pop();
                             });
+                            Navigator.of(context).pop();
                           }).onError((error, stackTrace) {
                             print('error catched');
                           });

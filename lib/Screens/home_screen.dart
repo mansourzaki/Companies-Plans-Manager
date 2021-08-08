@@ -200,105 +200,25 @@ class _HomeScreenState extends State<HomeScreen>
                 },
                 child: Consumer<Plan>(
                   builder: (context, plan, child) {
+                    plan.getSharedTasks();
                     return TabBarView(children: [
-                      StreamBuilder(
-                        stream: FirebaseFirestore.instance
-                            .collection('plans')
-                            .doc(current)
-                            .collection('tasks')
-                            .where('shared', isEqualTo: true)
-                            .snapshots(),
-                        builder:
-                            (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                          if (snapshot.data == null ||
-                              snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                            return Center(
-                                child: LoadingIndicator(
-                              indicatorType: Indicator.ballGridPulse,
-                              colors: [
-                                Colors.amber,
-                                Colors.amber[300] ?? Colors.red,
-                                Colors.blue,
-                                Colors.blueGrey,
-                                Colors.red
-                              ],
-                            ));
-                          } else if (snapshot.data!.docs.isEmpty) {
-                            return Center(
-                              child: Text('No Shared Tasks found!'),
-                            );
-                          }
-                          List x = snapshot.data!.docs.where((element) {
-                            Timestamp t = element['startTime'];
-                            return t.toDate().day == TasksCalendar().day.day;
-                          }).toList();
-                          if (x.isEmpty) {
-                            return Center(
-                              child: Text('No Shared Tasks found for today!'),
-                            );
-                          }
-
-                          // final x = snapshot.data!.docs.where((element) {
-                          //   Timestamp t = element['startTime'];
-                          //   return t.toDate().day == TasksCalendar().day.day;
-                          // }).toList();
-
-                          return ListView.builder(
-                            physics: NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: snapshot.data!.docs.length,
-                            itemBuilder: (context, i) {
-                              Timestamp t = snapshot.data!.docs[i]['startTime'];
-                              Map<String, dynamic> map =
-                                  snapshot.data!.docs[i]['users'];
-                              // users: map.entries
-                              //       .map((e) => user.User(e.key, e.value))
-                              //       .toList()
-                              Task task = Task(
-                                id: snapshot.data!.docs[i].id,
-                                name: snapshot.data!.docs[i]['name'],
-                                startTime: snapshot.data!.docs[i]['startTime'],
-                                endTime: DateTime.now(),
-                                status: snapshot.data!.docs[i]['status'],
-                                workHours: snapshot.data!.docs[i]['workHours'],
-                                teams: snapshot.data!.docs[i]['teams'],
-                                type: snapshot.data!.docs[i]['type'],
-                                ach: snapshot.data!.docs[i]['ach'],
-                                shared: snapshot.data!.docs[i]['shared'],
-                                percentage: snapshot.data!.docs[i]
-                                    ['percentage'],
-                                notes: snapshot.data!.docs[i]['notes'],
-                                users: map.entries
-                                    .map((e) => user.User(e.key, e.value))
-                                    .toList(),
-                              );
-                              // Task task = Task(
-                              //     id: plan.sharedTasks![i].id,
-                              //     name: plan.sharedTasks![i].name,
-                              //     startTime: plan.sharedTasks![i].startTime,
-                              //     endTime: plan.sharedTasks![i].endTime,
-                              //     status: plan.sharedTasks![i].status,
-                              //     workHours: plan.sharedTasks![i].workHours,
-                              //     teams: plan.sharedTasks![i].teams,
-                              //     type: plan.sharedTasks![i].type,
-                              //     ach: plan.sharedTasks![i].ach,
-                              //     shared: plan.sharedTasks![i].shared,
-                              //     percentage:
-                              //         plan.sharedTasks![i].percentage,
-                              //     notes: plan.sharedTasks![i].notes);
-                              alert = i;
-                              return task.startTime!.toDate().day ==
-                                      TasksCalendar().day.day
-                                  ? TaskCard(
-                                      task: task,
-                                      id: current,
-                                    )
-                                  : Container();
-                            },
-                          );
-                        },
-                      ),
+                      FutureBuilder(
+                          future: plan.getSharedTasks(),
+                          builder: (context, AsyncSnapshot snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Text('conne');
+                            }
+                            return snapshot.hasData
+                                ? Text('no data')
+                                : ListView.builder(
+                                    itemCount: 1,
+                                    itemBuilder: (context, i) {
+                                      return TaskCard(
+                                          task: plan.sharedTasks![0],
+                                          id: plan.sharedTasks![0].id!);
+                                    });
+                          }),
                       plan.tasks!.isEmpty
                           ? Center(
                               child: Text('No Tasks Found'),
@@ -318,6 +238,7 @@ class _HomeScreenState extends State<HomeScreen>
                                     teams: plan.tasks![i].teams,
                                     type: plan.tasks![i].type,
                                     ach: plan.tasks![i].ach,
+                                    shared: plan.tasks![i].shared,
                                     percentage: plan.tasks![i].percentage,
                                     notes: plan.tasks![i].notes,
                                     users: plan.tasks![i].users);
