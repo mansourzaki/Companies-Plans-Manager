@@ -93,7 +93,7 @@ class Plan with ChangeNotifier {
   }
 
   List<Task> allTasks = [];
-
+  List<Task> allSharedTasks = [];
   void clearAllTasks() {
     allTasks = [];
     tasks = [];
@@ -105,6 +105,7 @@ class Plan with ChangeNotifier {
     List<Task> ts = [];
     allTasks = [];
     this.tasks = [];
+    sharedTasks = [];
     try {
       await FirebaseFirestore.instance
           .collection('plans')
@@ -118,8 +119,11 @@ class Plan with ChangeNotifier {
                   (element) {
                     Timestamp t = element['endTime'];
                     Map<String, dynamic> map = element['users'];
+
                     ts.add(
                       Task(
+                        sharedBy: element['sharedBy'],
+                        planId: element.reference.parent.parent!.id,
                         id: element.id,
                         name: element['name'],
                         startTime: element['startTime'],
@@ -150,6 +154,7 @@ class Plan with ChangeNotifier {
         notifyListeners();
         print('leeeength ${allTasks.length}');
         print('leeeength ${ts.length}');
+        print('leeeength shared ${sharedTasks!.length}');
       });
 //  if (stay == true) {
 //           tasks = allTasks;
@@ -161,11 +166,6 @@ class Plan with ChangeNotifier {
             .where((element) =>
                 element.startTime!.toDate().day == DateTime.now().day)
             .toList();
-        sharedTasks = allTasks
-            .where((element) =>
-                element.startTime!.toDate().day == DateTime.now().day &&
-                element.shared == true)
-            .toList();
       }
     } catch (error) {
       print('$error in catchh');
@@ -173,11 +173,11 @@ class Plan with ChangeNotifier {
   }
 
   Future<void> setTasksBasedOnSelectedDay(int day) async {
-    if (allTasks.length == 0) {
+    if (allTasks.length == 0 && allSharedTasks.length == 0) {
       print('equal 0');
-      await getAllTasks(DateTime.now().month);
+      //await getAllTasks(DateTime.now().month);
       notifyListeners();
-    } else if (allTasks.length != 0) {
+    } else if (allTasks.length != 0 || allSharedTasks.length != 0) {
       print('have items');
       // List<Task> ts = this.tasks!;
       // tasks = allTasks
@@ -186,9 +186,8 @@ class Plan with ChangeNotifier {
       tasks = allTasks
           .where((element) => element.startTime!.toDate().day == day)
           .toList();
-      sharedTasks = allTasks
-          .where((element) =>
-              element.startTime!.toDate().day == day && element.shared == true)
+      sharedTasks = allSharedTasks
+          .where((element) => element.startTime!.toDate().day == day)
           .toList();
       print(tasks!.length);
       // this.tasks = ts;
@@ -203,20 +202,21 @@ class Plan with ChangeNotifier {
 
   Future<void> setTasksBasedOnSelectedMonth(int month) async {
     getCurrentPlan();
-    if (allTasks.length == 0) {
+    if (allTasks.length == 0 || allSharedTasks.length == 0) {
       print('no tasks');
     } else if (this.tasks!.length == 0) {
       await getAllTasks(DateTime.now().month);
+      notifyListeners();
+    } else if (this.sharedTasks!.length == 0) {
+      await getSharedTasks(DateTime.now().month);
       notifyListeners();
     }
     // if (this.tasks!.length != 0) {
     tasks = allTasks
         .where((element) => element.startTime!.toDate().month == month)
         .toList();
-    sharedTasks = allTasks
-        .where((element) =>
-            element.startTime!.toDate().month == month &&
-            element.shared == true)
+    sharedTasks = allSharedTasks
+        .where((element) => element.startTime!.toDate().month == month)
         .toList();
     print(tasks!.length);
     // this.tasks = ts;
@@ -230,10 +230,10 @@ class Plan with ChangeNotifier {
   //   return tasks!;
   // }
 
-  Future<void> getSharedTasks() async {
+  Future<void> getSharedTasks(int month) async {
     try {
       List<Task> mySharedTask = [];
-
+      allSharedTasks = [];
       int count = 0;
       var snapshot = await FirebaseFirestore.instance
           .collection('sharedTasks')
@@ -242,41 +242,62 @@ class Plan with ChangeNotifier {
       for (QueryDocumentSnapshot docs in snapshot.docs) {
         var t = await FirebaseFirestore.instance
             .collection('plans')
-            .where('month', isEqualTo: DateTime.now().month)
+            .where('month', isEqualTo: month)
             .where('userId', isEqualTo: docs['ownerId'])
             .get();
         print('count ${count++}');
-        var d = await t.docs.first.reference
-            .collection('tasks')
-            .doc(docs['taskId'])
-            .get();
-        var x = d.data();
 
-        if (x != null) {
-          Timestamp t = x['endTime'];
-          //Map<String, dynamic> map = x['users'];
-          Task ts = Task(
-            id: docs['taskId'],
-            name: x['name'],
-            startTime: x['startTime'],
-            endTime: t.toDate(),
-            status: x['status'],
-            workHours: x['workHours'],
-            teams: x['teams'],
-            type: x['type'],
-            ach: x['ach'],
-            shared: x['shared'],
-            percentage: x['percentage'],
-            notes: x['notes'],
-            //users: map.entries.map((e) => user.User(e.key, e.value)).toList(),
-          );
-          mySharedTask.add(ts);
-          this.sharedTasks = mySharedTask;
-          print('len ${sharedTasks![0].name}');
-        }
+        t.docs.forEach((element) async {
+          var d = await element.reference
+              .collection('tasks')
+              .doc(docs['taskId'])
+              .get();
+
+          var x = d.data();
+
+          if (x != null) {
+            Timestamp t = x['endTime'];
+            Map<String, dynamic> map = x['users'];
+
+            Task ts = Task(
+              sharedBy: x['sharedBy'],
+              planId: docs['planId'],
+              id: docs['taskId'],
+              name: x['name'],
+              startTime: x['startTime'],
+              endTime: t.toDate(),
+              status: x['status'],
+              workHours: x['workHours'],
+              teams: x['teams'],
+              type: x['type'],
+              ach: x['ach'],
+              shared: x['shared'],
+              percentage: x['percentage'],
+              notes: x['notes'],
+              users: map.entries.map((e) => user.User(e.key, e.value)).toList(),
+            );
+
+            mySharedTask.add(ts);
+            allSharedTasks = mySharedTask;
+            sharedTasks = allSharedTasks
+                .where((element) =>
+                    element.startTime!.toDate().day == DateTime.now().day)
+                .toList();
+            print('leen ${allSharedTasks.length}');
+            notifyListeners();
+          }
+        });
+
+        //   var d = await t.docs.first.reference
+        // .collection('tasks')
+        // .doc(docs['taskId'])
+        // .get();
+
       }
+      notifyListeners();
     } catch (error) {
       print('in getSharedTasks $error');
+      notifyListeners();
     }
   }
 
@@ -297,6 +318,7 @@ class Plan with ChangeNotifier {
           print('${task.shared} + ${task.users!.length} hjj');
           final ref = await value.docs.first.reference.collection('tasks').add({
             'name': task.name,
+            'sharedBy': userId,
             'startTime': task.startTime,
             'endTime': task.endTime,
             'status': task.status,
@@ -311,6 +333,7 @@ class Plan with ChangeNotifier {
           });
           print(ref.id);
           allTasks.add(Task(
+              planId: ref.parent.parent!.id,
               id: ref.id,
               name: task.name,
               startTime: task.startTime,
@@ -322,12 +345,13 @@ class Plan with ChangeNotifier {
               ach: task.ach,
               percentage: task.percentage,
               notes: task.notes,
-              sharedBy: task.sharedBy,
+              sharedBy: userId,
               shared: task.shared,
               users: task.users));
           if (task.shared == true) {
             print('foooo');
             FirebaseFirestore.instance.collection('sharedTasks').add({
+              'planId': ref.parent.parent!.id,
               'taskId': ref.id,
               'ownerId': userId,
               'recieversId': f.keys.toList()
@@ -440,11 +464,11 @@ class Plan with ChangeNotifier {
     // List<Plan> plansList = await getPlans(month: DateTime.now().month);
   }
 
-  Future<void> updateTask(Task task) async {
+  Future<void> updateTask(Task task, String planId) async {
     try {
       await FirebaseFirestore.instance
           .collection('plans')
-          .doc(current)
+          .doc(planId)
           .collection('tasks')
           .doc(task.id)
           .set({
@@ -482,7 +506,9 @@ class Plan with ChangeNotifier {
         .update({
       'status': status,
     });
-    tasks!.firstWhere((element) => element.id == task.id).status = status;
+
+    allTasks.firstWhere((element) => element.id == task.id).status = status;
+
     notifyListeners();
   }
 

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:plansmanager/Screens/Test_add_edit_task.dart';
@@ -67,18 +68,21 @@ class _TaskCardState extends State<TaskCard> {
                 )
               : Checkbox(
                   value: widget.task!.status,
-                  onChanged: (value) async {
-                    setState(() {
-                      _isLoading = true;
-                    });
-                    await pl.updateTaskSatus(widget.task!, value!);
-                    setState(() {
-                      print('${widget.task!.id} task id');
-                      widget.task!.status = value;
-                      _isLoading = false;
-                    });
-                    Future.delayed(Duration(seconds: 2), () async {});
-                  }),
+                  onChanged: widget.task!.sharedBy ==
+                          FirebaseAuth.instance.currentUser!.uid
+                      ? (value) async {
+                          setState(() {
+                            _isLoading = true;
+                          });
+                          await pl.updateTaskSatus(widget.task!, value!);
+                          setState(() {
+                            print('${widget.task!.id} task id');
+                            widget.task!.status = value;
+                            _isLoading = false;
+                          });
+                          Future.delayed(Duration(seconds: 2), () async {});
+                        }
+                      : null),
           // trailing: IconButton(
           //   // focusColor: Colors.red,
           //   splashColor: Colors.red,

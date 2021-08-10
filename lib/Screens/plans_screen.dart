@@ -86,95 +86,74 @@ class _PlansScreenState extends State<PlansScreen>
       //   },
       //   child: Icon(Icons.add),
       // ),
-      body: CustomScrollView(
-        slivers: [
-          SliverStickyHeader(
-            header: Container(
-              child: PlansCalendar(),
-              color: Colors.white,
-            ),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                StreamBuilder(
-                  stream: FirebaseFirestore.instance
-                      .collection('plans')
-                      .where('userId',
-                          isEqualTo: FirebaseAuth.instance.currentUser!.uid)
-                      .snapshots(),
-                  builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(
-                        child: LoadingIndicator(
-                            indicatorType: Indicator.circleStrokeSpin),
-                      );
-                    }
-                    if (snapshot.hasError) {
-                      return Text('Something went wrong');
-                    }
-                    return ListView.builder(
-                      physics: NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: snapshot.data!.docs.length,
-                      itemBuilder: (context, i) {
-                        return Directionality(
-                          textDirection: TextDirection.rtl,
-                          child: Dismissible(
-                            key: Key(snapshot.data!.docs[i]['name']),
-                            onDismissed: (direction) {
-                              setState(() {
-                                snapshot.data!.docs[i].reference.delete();
-                              });
-                            },
-                            background: Card(
-                              color: Colors.red,
-                            ),
-                            child: Container(
-                              margin: EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: Colors.amber[400],
-                              ),
-                              child: ListTile(
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10)),
-                                title: Text(snapshot.data!.docs[i]['name']),
-                                leading: Icon(Icons.task),
-
-                                onTap: () {},
-                                // data[i]['endDate'].to
-
-                                // subtitle: Text(
-                                //     'خطة شهر ${snapshot.data!.docs[i]['month']}'),
-                              ),
-                            ),
-                          ),
-                        );
+      body: StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection('plans')
+            .where('userId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+            .snapshots(),
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child:
+                  LoadingIndicator(indicatorType: Indicator.circleStrokeSpin),
+            );
+          }
+          if (snapshot.hasError) {
+            return Text('Something went wrong');
+          }
+          return snapshot.data!.docs.isEmpty
+              ? Center(
+                  child: ElevatedButton(
+                      onPressed: () {
+                        FirebaseFirestore.instance.collection('plans').add({
+                          'month': DateTime.now().month,
+                          'userId': FirebaseAuth.instance.currentUser!.uid,
+                          'name': '${DateTime.now().month} خطة شهر'
+                        });
                       },
+                      child: Text('Add this month plan')),
+                )
+              : ListView.builder(
+                  physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: snapshot.data!.docs.length,
+                  itemBuilder: (context, i) {
+                    return Directionality(
+                      textDirection: TextDirection.rtl,
+                      child: Dismissible(
+                        key: Key(snapshot.data!.docs[i]['name']),
+                        onDismissed: (direction) {
+                          setState(() {
+                            snapshot.data!.docs[i].reference.delete();
+                          });
+                        },
+                        background: Card(
+                          color: Colors.red,
+                        ),
+                        child: Container(
+                          margin: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: Colors.amber[400],
+                          ),
+                          child: ListTile(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                            title: Text(snapshot.data!.docs[i]['name']),
+                            leading: Icon(Icons.task),
+
+                            onTap: () {},
+                            // data[i]['endDate'].to
+
+                            // subtitle: Text(
+                            //     'خطة شهر ${snapshot.data!.docs[i]['month']}'),
+                          ),
+                        ),
+                      ),
                     );
                   },
-                )
-                //   },
-                //  ),
-                // )
-                // },
-                // ),
-              ]),
-            ),
-          ),
-          // SliverAppBar(
-          //   pinned: true,
-          //   expandedHeight: 200,
-          //   leading: Container(),
-          //   backgroundColor: Colors.white,
-          //   flexibleSpace: Calendar(),
-          //   collapsedHeight: 150,
-          // ),
-          // SliverPersistentHeader(
-          //   delegate: PersistentHeader(
-          //     MonthsListView(months: _months),
-          //   ),
-          // ),
-        ],
+                );
+        },
       ),
     );
   }

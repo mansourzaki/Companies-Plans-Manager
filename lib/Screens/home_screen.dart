@@ -59,6 +59,7 @@ class _HomeScreenState extends State<HomeScreen>
     // context.read<Plan>().getCurrentDayTasks();
     // print('hi from init state');
     context.read<Plan>().getCurrentPlan();
+    context.read<Plan>().getSharedTasks(DateTime.now().month);
     context.read<Plan>().getAllTasks(DateTime.now().month);
 
     print('init ${FirebaseAuth.instance.currentUser!.uid}');
@@ -95,6 +96,8 @@ class _HomeScreenState extends State<HomeScreen>
         body: RefreshIndicator(
             onRefresh: () async {
               setState(() {
+                print('in ref');
+                context.read<Plan>().getCurrentPlan();
                 TasksCalendar().setDayForToday();
               });
               await context.read<Plan>().getAllTasks(7);
@@ -142,6 +145,10 @@ class _HomeScreenState extends State<HomeScreen>
                         },
                       ),
                     ),
+                  ),
+                  SliverStickyHeader(
+                    header:
+                        Text(FirebaseAuth.instance.currentUser!.displayName!),
                   ),
                   SliverStickyHeader(
                     header:
@@ -200,25 +207,18 @@ class _HomeScreenState extends State<HomeScreen>
                 },
                 child: Consumer<Plan>(
                   builder: (context, plan, child) {
-                    plan.getSharedTasks();
                     return TabBarView(children: [
-                      FutureBuilder(
-                          future: plan.getSharedTasks(),
-                          builder: (context, AsyncSnapshot snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return Text('conne');
-                            }
-                            return snapshot.hasData
-                                ? Text('no data')
-                                : ListView.builder(
-                                    itemCount: 1,
-                                    itemBuilder: (context, i) {
-                                      return TaskCard(
-                                          task: plan.sharedTasks![0],
-                                          id: plan.sharedTasks![0].id!);
-                                    });
-                          }),
+                      plan.sharedTasks!.isEmpty
+                          ? Center(
+                              child: Text('No Tasks Found'),
+                            )
+                          : ListView.builder(
+                              itemCount: plan.sharedTasks!.length,
+                              itemBuilder: (context, i) {
+                                return TaskCard(
+                                    task: plan.sharedTasks![i],
+                                    id: plan.sharedTasks![i].id!);
+                              }),
                       plan.tasks!.isEmpty
                           ? Center(
                               child: Text('No Tasks Found'),
@@ -228,22 +228,23 @@ class _HomeScreenState extends State<HomeScreen>
                               shrinkWrap: true,
                               itemCount: plan.tasks!.length,
                               itemBuilder: (context, i) {
-                                Task task = Task(
-                                    id: plan.tasks![i].id,
-                                    name: plan.tasks![i].name,
-                                    startTime: plan.tasks![i].startTime,
-                                    endTime: plan.tasks![i].endTime,
-                                    status: plan.tasks![i].status,
-                                    workHours: plan.tasks![i].workHours,
-                                    teams: plan.tasks![i].teams,
-                                    type: plan.tasks![i].type,
-                                    ach: plan.tasks![i].ach,
-                                    shared: plan.tasks![i].shared,
-                                    percentage: plan.tasks![i].percentage,
-                                    notes: plan.tasks![i].notes,
-                                    users: plan.tasks![i].users);
+                                // Task task = Task(
+                                //   sharedBy: plan.tasks![i].sharedBy,
+                                //     id: plan.tasks![i].id,
+                                //     name: plan.tasks![i].name,
+                                //     startTime: plan.tasks![i].startTime,
+                                //     endTime: plan.tasks![i].endTime,
+                                //     status: plan.tasks![i].status,
+                                //     workHours: plan.tasks![i].workHours,
+                                //     teams: plan.tasks![i].teams,
+                                //     type: plan.tasks![i].type,
+                                //     ach: plan.tasks![i].ach,
+                                //     shared: plan.tasks![i].shared,
+                                //     percentage: plan.tasks![i].percentage,
+                                //     notes: plan.tasks![i].notes,
+                                //     users: plan.tasks![i].users);
                                 return TaskCard(
-                                  task: task,
+                                  task: plan.tasks![i],
                                   id: current,
                                 );
                               }),

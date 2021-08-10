@@ -58,7 +58,6 @@ class _TasksCalendarState extends State<TasksCalendar> {
       },
       onHeaderTapped: (date) {
         context.read<Plan>().setTasksBasedOnSelectedMonth(date.month);
-
         // _focusedDay = date;
         //  _selectedDay = date;
 
