@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_material_pickers/flutter_material_pickers.dart';
 import 'package:plansmanager/Screens/login_screen.dart';
 import 'package:plansmanager/Screens/home_screen.dart';
 
@@ -238,6 +240,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   return null;
                                 },
                                 controller: _teamNameController,
+                                onTap: () async {
+                                  List teams = await FirebaseFirestore.instance
+                                      .collection('teams')
+                                      .get()
+                                      .then((value) => value.docs.first
+                                          .data()
+                                          .entries
+                                          .map((e) => e.value)
+                                          .toList());
+                                  showMaterialScrollPicker(
+                                      title: 'اختر الفريق',
+                                      headerTextColor: Colors.white,
+                                      onChanged: (selectedTeam) {
+                                        _teamNameController.text =
+                                            selectedTeam.toString();
+                                      },
+                                      context: context,
+                                      items: teams,
+                                      selectedItem: 's');
+                                },
+                                focusNode: AlwaysDisabledFocusNode(),
                                 decoration: InputDecoration(
                                   prefixIcon: Icon(
                                     Icons.people,
@@ -360,4 +383,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       print(err);
     }
   }
+}
+
+class AlwaysDisabledFocusNode extends FocusNode {
+  @override
+  bool get hasFocus => false;
 }
