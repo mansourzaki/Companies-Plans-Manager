@@ -28,16 +28,18 @@ class _CustomStepperState extends State<CustomStepper> {
         IconButton(
           splashRadius: 10,
           splashColor: Colors.red,
-          onPressed: () {
-            setState(() {
-              widget.value = widget.value == widget.minValue
-                  ? widget.minValue!
-                  : widget.value = widget.value! - widget.stepValue!;
-              if (widget.onChanged != null) {
-                widget.onChanged!(widget.value!);
-              }
-            });
-          },
+          onPressed: widget.onChanged == null
+              ? null
+              : () {
+                  setState(() {
+                    widget.value = widget.value == widget.minValue
+                        ? widget.minValue!
+                        : widget.value = widget.value! - widget.stepValue!;
+                    if (widget.onChanged != null) {
+                      widget.onChanged!(widget.value!);
+                    }
+                  });
+                },
           icon: Icon(Icons.remove),
           iconSize: widget.iconSize!,
         ),
@@ -51,16 +53,18 @@ class _CustomStepperState extends State<CustomStepper> {
         IconButton(
           splashRadius: 10,
           splashColor: Colors.green,
-          onPressed: () {
-            setState(() {
-              widget.value = widget.value == widget.maxValue
-                  ? widget.maxValue!
-                  : widget.value = widget.value! + widget.stepValue!;
-              if (widget.onChanged != null) {
-                widget.onChanged!(widget.value!);
-              }
-            });
-          },
+          onPressed: widget.onChanged == null
+              ? null
+              : () {
+                  setState(() {
+                    widget.value = widget.value == widget.maxValue
+                        ? widget.maxValue!
+                        : widget.value = widget.value! + widget.stepValue!;
+                    if (widget.onChanged != null) {
+                      widget.onChanged!(widget.value!);
+                    }
+                  });
+                },
           icon: Icon(Icons.add),
           iconSize: widget.iconSize! * 0.8,
         ),

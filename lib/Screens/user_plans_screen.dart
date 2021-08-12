@@ -10,6 +10,8 @@ class UserPlansScreen extends StatefulWidget {
   _UserPlansScreenState createState() => _UserPlansScreenState();
 }
 
+bool? _isLoading;
+
 class _UserPlansScreenState extends State<UserPlansScreen> {
   @override
   Widget build(BuildContext context) {
@@ -52,6 +54,9 @@ class _UserPlansScreenState extends State<UserPlansScreen> {
                             var t = await snapshot.data!.docs[i].reference
                                 .collection('tasks')
                                 .get();
+                            setState(() {
+                              _isLoading = true;
+                            });
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -67,8 +72,7 @@ class _UserPlansScreenState extends State<UserPlansScreen> {
                         );
                       },
                       separatorBuilder: (context, i) => Divider(),
-                      itemCount: snapshot.data!.docs.length),
-                );
+                      itemCount: snapshot.data!.docs.length));
         },
       ),
     );

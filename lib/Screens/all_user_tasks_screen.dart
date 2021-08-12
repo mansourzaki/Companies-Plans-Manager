@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:plansmanager/Screens/Test_add_edit_task.dart';
 import 'package:plansmanager/provider/task.dart';
-import 'package:plansmanager/widgets/task_card.dart';
+import 'package:plansmanager/provider/user.dart';
 
 class AllUsersTasks extends StatefulWidget {
   const AllUsersTasks({Key? key, this.doc}) : super(key: key);
@@ -52,21 +53,26 @@ class _AllUsersTasksState extends State<AllUsersTasks> {
                         Timestamp t = snapshot.data!.docs[i]['endTime'];
                         DateTime d = t.toDate();
                         String date = intl.DateFormat('y/M/dd').format(d);
-                        // Task task = Task(
-                        //   sharedBy: snapshot.data!.docs[i]['sharedBy'],
-                        //   id: snapshot.data!.docs[i].id,
-                        //   name: snapshot.data!.docs[i]['name'],
-                        //   startTime: snapshot.data!.docs[i]['startTime'],
-                        //   endTime: date,
-                        //   status: snapshot.data!.docs[i]['status'],
-                        //   workHours: snapshot.data!.docs[i]['workHours'],
-                        //   teams: snapshot.data!.docs[i]['teams'],
-                        //   type: snapshot.data!.docs[i]['type'],
-                        //   ach: snapshot.data!.docs[i]['ach'],
-                        //   shared: snapshot.data!.docs[i]['shared'],
-                        //   percentage: snapshot.data!.docs[i]['percentage'],
-                        //   notes: snapshot.data!.docs[i]['notes'],
-                        // );
+                        Map<String, dynamic> map =
+                            snapshot.data!.docs[i]['users'];
+                        Task task = Task(
+                         // sharedBy: snapshot.data!.docs[i]['sharedBy'],
+                          id: snapshot.data!.docs[i].id,
+                          name: snapshot.data!.docs[i]['name'],
+                          startTime: snapshot.data!.docs[i]['startTime'],
+                          endTime: d,
+                          status: snapshot.data!.docs[i]['status'],
+                          workHours: snapshot.data!.docs[i]['workHours'],
+                          teams: snapshot.data!.docs[i]['teams'],
+                          type: snapshot.data!.docs[i]['type'],
+                          ach: snapshot.data!.docs[i]['ach'],
+                          shared: snapshot.data!.docs[i]['shared'],
+                          percentage: snapshot.data!.docs[i]['percentage'],
+                          notes: snapshot.data!.docs[i]['notes'],
+                          users: map.entries
+                              .map((e) => User(e.key, e.value))
+                              .toList(),
+                        );
                         return ListTile(
                           trailing: Icon(Icons.task),
                           title: Text(
@@ -77,6 +83,15 @@ class _AllUsersTasksState extends State<AllUsersTasks> {
                             date,
                             textAlign: TextAlign.right,
                           ),
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => TestAddEditScreen(
+                                          task: task,
+                                          isAdmin: true,
+                                        )));
+                          },
                         );
                       },
                       separatorBuilder: (context, i) {

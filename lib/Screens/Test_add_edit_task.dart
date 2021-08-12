@@ -17,8 +17,9 @@ enum Ach { inn, out }
 List<User> users = [];
 
 class TestAddEditScreen extends StatefulWidget {
-  TestAddEditScreen({this.task});
+  TestAddEditScreen({this.task, this.isAdmin = false});
   final Task? task;
+  bool isAdmin;
   @override
   _TestAddEditScreenState createState() => _TestAddEditScreenState();
 }
@@ -96,6 +97,7 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                   Directionality(
                     textDirection: TextDirection.rtl,
                     child: TextFormField(
+                      enabled: !widget.isAdmin,
                       validator: (value) {
                         if (value!.isEmpty) {
                           return 'أدخل اسم';
@@ -135,6 +137,7 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                       child: Directionality(
                         textDirection: TextDirection.rtl,
                         child: TextFormField(
+                          enabled: !widget.isAdmin,
                           onTap: () async {
                             DateTime? date;
                             await showDatePicker(
@@ -207,9 +210,11 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                             maxValue: 6,
                             stepValue: 1,
                             iconSize: 20,
-                            onChanged: (value) {
-                              _workhours = value;
-                            }),
+                            onChanged: !widget.isAdmin
+                                ? (value) {
+                                    _workhours = value;
+                                  }
+                                : null),
                       ),
                       Align(
                         alignment: Alignment.centerRight,
@@ -258,12 +263,14 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                               secondary: Icon(Icons.support_agent_sharp),
                               value: Type.supp,
                               groupValue: _type,
-                              onChanged: (value) {
-                                setState(() {
-                                  _type = value;
-                                  _t = 'دعم';
-                                });
-                              }),
+                              onChanged: !widget.isAdmin
+                                  ? (value) {
+                                      setState(() {
+                                        _type = value;
+                                        _t = 'دعم';
+                                      });
+                                    }
+                                  : null),
                         ),
                         Expanded(
                           child: RadioListTile<Type>(
@@ -278,12 +285,14 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                               ),
                               value: Type.dev,
                               groupValue: _type,
-                              onChanged: (value) {
-                                setState(() {
-                                  _type = value;
-                                  _t = 'تطوير';
-                                });
-                              }),
+                              onChanged: !widget.isAdmin
+                                  ? (value) {
+                                      setState(() {
+                                        _type = value;
+                                        _t = 'تطوير';
+                                      });
+                                    }
+                                  : null),
                         ),
                       ],
                     ),
@@ -293,6 +302,7 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                     leading: Container(
                         width: 100,
                         child: TextFormField(
+                          enabled: !widget.isAdmin,
                           keyboardType: TextInputType.number,
                           controller: _percentageController,
                           decoration: InputDecoration(
@@ -324,12 +334,14 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                               secondary: Icon(Icons.arrow_downward_outlined),
                               value: Ach.inn,
                               groupValue: _ach,
-                              onChanged: (value) {
-                                setState(() {
-                                  _ach = value;
-                                  _a = 'داخل';
-                                });
-                              }),
+                              onChanged: !widget.isAdmin
+                                  ? (value) {
+                                      setState(() {
+                                        _ach = value;
+                                        _a = 'داخل';
+                                      });
+                                    }
+                                  : null),
                         ),
                         Expanded(
                           child: RadioListTile<Ach>(
@@ -344,12 +356,14 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                               ),
                               value: Ach.out,
                               groupValue: _ach,
-                              onChanged: (value) {
-                                setState(() {
-                                  _ach = value;
-                                  _a = 'خارج';
-                                });
-                              }),
+                              onChanged: !widget.isAdmin
+                                  ? (value) {
+                                      setState(() {
+                                        _ach = value;
+                                        _a = 'خارج';
+                                      });
+                                    }
+                                  : null),
                         ),
                       ],
                     ),
@@ -374,6 +388,9 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                                 .toList();
                           }
                           return ChipsInput<User>(
+                              focusNode: !widget.isAdmin
+                                  ? null
+                                  : AlwaysDisabledFocusNode(),
                               initialValue: _users,
                               textCapitalization: TextCapitalization.words,
                               decoration: InputDecoration(
@@ -399,7 +416,9 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                                 return InputChip(
                                   key: ObjectKey(data),
                                   label: Text(data.name),
-                                  onDeleted: () => state.deleteChip(data),
+                                  onDeleted: !widget.isAdmin
+                                      ? () => state.deleteChip(data)
+                                      : null,
                                 );
                               },
                               suggestionBuilder: (context, state, data) {

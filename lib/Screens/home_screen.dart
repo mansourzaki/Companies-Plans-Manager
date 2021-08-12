@@ -1,18 +1,16 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:loading_indicator/loading_indicator.dart';
+
 import 'package:plansmanager/Screens/Test_add_edit_task.dart';
-import 'package:plansmanager/Screens/add_new_task.dart';
+
 import 'package:plansmanager/provider/plan.dart';
-import 'package:plansmanager/provider/user.dart';
+
 import 'package:plansmanager/widgets/task_card.dart';
-import '../provider/task.dart';
+
 import 'package:plansmanager/widgets/tasks_calendar.dart';
 import 'package:provider/provider.dart';
-import '../provider/user.dart' as user;
 
 final List<String> labels = ['موبايل', 'انظمة'];
 enum TaskType { support, dev }
@@ -51,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen>
   //   8: 'August',
   //   9: 'September',
   // };
-  int? _selectedIndex = null;
+  int? _selectedIndex;
   @override
   void initState() {
     // context.read<Plan>().getPlans(month: DateTime.now().month);
@@ -146,10 +144,10 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                     ),
                   ),
-                  SliverStickyHeader(
-                    header:
-                        Text(FirebaseAuth.instance.currentUser!.displayName!),
-                  ),
+                  // SliverStickyHeader(
+                  //   header:
+                  //       Text(FirebaseAuth.instance.currentUser!.displayName!),
+                  // ),
                   SliverStickyHeader(
                     header:
                         Container(color: Colors.white, child: TasksCalendar()),

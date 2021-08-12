@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:plansmanager/Screens/forgot_password_screen.dart';
 import 'package:plansmanager/Screens/register_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:plansmanager/Screens/home_screen.dart';
+
 import 'package:plansmanager/main.dart';
 
 class LoginScreen extends StatefulWidget {
