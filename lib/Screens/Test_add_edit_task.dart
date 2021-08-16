@@ -523,7 +523,7 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                             print('error catched');
                           })
                         : await plan
-                            .updateTask(task, 'hY2ggqS45iLa0UXOa0jM')
+                            .updateTask(task, plan.current!)
                             .then((value) {
                             setState(() {
                               _isLoading = !_isLoading;

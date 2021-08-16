@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 class User with ChangeNotifier {
   final String id;
   final String name;
+  // bool isLeader;
   String? email;
   String? team = 'Undefined';
   User(this.id, this.name, {this.team, this.email});
