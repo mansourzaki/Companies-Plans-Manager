@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_material_pickers/flutter_material_pickers.dart';
 import 'package:plansmanager/Screens/login_screen.dart';
-import 'package:plansmanager/Screens/home_screen.dart';
 import 'package:plansmanager/main.dart';
 
 class RegisterScreen extends StatefulWidget {

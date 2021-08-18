@@ -3,13 +3,10 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:plansmanager/Screens/admin_screen.dart';
-
 import 'package:plansmanager/Screens/forgot_password_screen.dart';
 import 'package:plansmanager/Screens/plans_screen.dart';
 import 'package:plansmanager/Screens/home_screen.dart';
 import 'package:plansmanager/provider/plan.dart';
-
 import 'package:provider/provider.dart';
 import 'Screens/login_screen.dart';
 import 'Screens/register_screen.dart';
