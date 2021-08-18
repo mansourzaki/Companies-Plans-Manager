@@ -20,6 +20,14 @@ class TasksCalendar extends StatefulWidget {
     }
   }
 
+  DateTime get month {
+    if (_selectedMonth == null) {
+      return DateTime.now();
+    } else {
+      return _selectedMonth!;
+    }
+  }
+
   @override
   _TasksCalendarState createState() => _TasksCalendarState();
 }
@@ -28,6 +36,7 @@ class TasksCalendar extends StatefulWidget {
 // List<dynamic>? _selectedEvents;
 DateTime? _focusedDay = DateTime.now();
 DateTime? _selectedDay = DateTime.now();
+DateTime? _selectedMonth = DateTime.now();
 CalendarFormat _calendarFormat = CalendarFormat.week;
 
 class _TasksCalendarState extends State<TasksCalendar> {
@@ -39,6 +48,7 @@ class _TasksCalendarState extends State<TasksCalendar> {
       firstDay: DateTime.utc(2010),
       lastDay: DateTime.utc(2050),
       focusedDay: _focusedDay!,
+
       calendarFormat: _calendarFormat,
       onFormatChanged: (format) {
         setState(() {
@@ -56,11 +66,14 @@ class _TasksCalendarState extends State<TasksCalendar> {
 
         // }
       },
+      onPageChanged: (date) {
+        _selectedMonth = date;
+      },
       onHeaderTapped: (date) {
         context.read<Plan>().setTasksBasedOnSelectedMonth(date.month);
         // _focusedDay = date;
         //  _selectedDay = date;
-
+      
         if (date.month != DateTime.now().month) {
           // context.read<Plan>().clearCurrent();
         }

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:plansmanager/provider/task.dart';
 import 'package:plansmanager/provider/user.dart' as user;
+import 'package:plansmanager/widgets/tasks_calendar.dart';
 
 class Plan with ChangeNotifier {
   String? name;
@@ -27,18 +28,39 @@ class Plan with ChangeNotifier {
 
   List<Plan> _plans = [];
   String? current;
-  Future<void> getCurrentPlan() async {
+  Future<void> getCustomPlan(int month) async {
     try {
       final ref = await FirebaseFirestore.instance
           .collection('plans')
           .where('userId', isEqualTo: userId)
-          .where('month', isEqualTo: DateTime.now().month)
+          .where('month', isEqualTo: month)
           .get();
       if (ref.docs.length == 0) {
         current = null;
         notifyListeners();
       } else {
         current = ref.docs.first.id;
+        print('hiiii ${TasksCalendar().month}');
+        notifyListeners();
+      }
+
+      notifyListeners();
+    } catch (err) {}
+  }
+
+  Future<void> getCurrentPlan() async {
+    try {
+      final ref = await FirebaseFirestore.instance
+          .collection('plans')
+          .where('userId', isEqualTo: userId)
+          .where('month', isEqualTo: TasksCalendar().month.month)
+          .get();
+      if (ref.docs.length == 0) {
+        current = null;
+        notifyListeners();
+      } else {
+        current = ref.docs.first.id;
+        print('hiiii ${TasksCalendar().month}');
         notifyListeners();
       }
 
@@ -172,6 +194,13 @@ class Plan with ChangeNotifier {
   }
 
   Future<void> setTasksBasedOnSelectedDay(int day) async {
+    // await getAllTasks(DateTime.now().month);
+    // tasks = allTasks
+    //     .where((element) => element.startTime!.toDate().day == day)
+    //     .toList();
+    // sharedTasks = allSharedTasks
+    //     .where((element) => element.startTime!.toDate().day == day)
+    //     .toList();
     if (allTasks.length == 0 && allSharedTasks.length == 0) {
       print('equal 0');
       //await getAllTasks(DateTime.now().month);
@@ -298,6 +327,27 @@ class Plan with ChangeNotifier {
       print('in getSharedTasks $error');
       notifyListeners();
     }
+  }
+
+  Stream sharedTasksSnapshot() {
+    Stream d = FirebaseFirestore.instance
+        .collection('sharedTasks')
+        .where('recieversId', arrayContains: userId)
+        .snapshots();
+    print('dffff');
+
+    d.forEach((element) {
+      return element.docs.forEach((e) {
+        return FirebaseFirestore.instance
+            .collection('plans')
+            .doc(e.data()['planId'])
+            .collection('tasks')
+            .doc(e.data()['taskId'])
+            .snapshots();
+      });
+    });
+
+    return d;
   }
 
 //new add task
@@ -482,12 +532,18 @@ class Plan with ChangeNotifier {
         'percentage': task.percentage,
         'notes': task.notes,
         'shared': task.shared,
+        'sharedBy': task.sharedBy,
         'users': Map<String, String>.fromIterable(task.users!,
             key: (item) => item.id, value: (item) => item.name)
       });
       print('done ${task.id}');
-      allTasks.removeWhere((element) => element.id == task.id);
-      allTasks.add(task);
+      if (task.shared == true && sharedTasks != null) {
+        sharedTasks!.removeWhere((element) => element.id == task.id);
+        sharedTasks!.add(task);
+      } else {
+        allTasks.removeWhere((element) => element.id == task.id);
+        allTasks.add(task);
+      }
       setTasksBasedOnSelectedDay(DateTime.now().day);
       notifyListeners();
     } catch (error) {

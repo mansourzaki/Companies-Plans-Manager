@@ -85,7 +85,12 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     messaging = FirebaseMessaging.instance;
     messaging.requestPermission(
-        alert: true, badge: true, provisional: true, sound: true);
+        alert: true,
+        badge: true,
+        provisional: true,
+        sound: true,
+        announcement: true,
+        criticalAlert: true);
     messaging.getToken().then((value) {
       print('token = $value');
     });
@@ -182,7 +187,7 @@ class _MyHomePageState extends State<MyHomePage> {
         iconTheme: IconThemeData(
           color: Colors.black, //change your color here
         ),
-       
+
         title: Text(_currentIndex == 0 ? 'الخطط' : 'المهام'),
         centerTitle: true,
         backgroundColor: Colors.white,

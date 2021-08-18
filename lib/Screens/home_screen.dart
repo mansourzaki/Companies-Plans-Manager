@@ -1,4 +1,8 @@
+import 'package:async/async.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:loading_indicator/loading_indicator.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -6,7 +10,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:plansmanager/Screens/Test_add_edit_task.dart';
 
 import 'package:plansmanager/provider/plan.dart';
-
+import 'package:plansmanager/provider/task.dart';
+import '../provider/user.dart' as user;
 import 'package:plansmanager/widgets/task_card.dart';
 
 import 'package:plansmanager/widgets/tasks_calendar.dart';
@@ -38,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen>
     'November',
     'December'
   ];
+  List<Stream> streams = [];
   // Map _mon = {
   //   1: 'January',
   //   2: 'February',
@@ -71,8 +77,9 @@ class _HomeScreenState extends State<HomeScreen>
   Widget build(BuildContext context) {
     String? current = Provider.of<Plan>(context, listen: true).current;
     print('$current currrent');
-    bool _isSelected = false;
 
+    bool _isSelected = false;
+    // List<DocumentSnapshot>? _docs = [];
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -118,9 +125,10 @@ class _HomeScreenState extends State<HomeScreen>
                                   _isSelected = !_isSelected;
                                 });
                                 print(i + 1);
-                                context
-                                    .read<Plan>()
-                                    .setTasksBasedOnSelectedMonth(i + 1);
+                                context.read<Plan>().getCustomPlan(i + 1);
+                                // context
+                                //     .read<Plan>()
+                                //     .setTasksBasedOnSelectedMonth(i + 1);
                               },
                               child: Container(
                                 width: 85,
@@ -196,59 +204,174 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 ];
               },
-              body: RefreshIndicator(
-                onRefresh: () async {
-                  setState(() {
-                    TasksCalendar().setDayForToday();
-                  });
-                  await context.read<Plan>().getAllTasks(DateTime.now().month);
-                },
-                child: Consumer<Plan>(
-                  builder: (context, plan, child) {
-                    return TabBarView(children: [
-                      plan.sharedTasks!.isEmpty
-                          ? Center(
-                              child: Text('No Tasks Found'),
-                            )
-                          : ListView.builder(
-                              itemCount: plan.sharedTasks!.length,
-                              itemBuilder: (context, i) {
-                                return TaskCard(
-                                    task: plan.sharedTasks![i],
-                                    id: plan.sharedTasks![i].id!);
-                              }),
-                      plan.tasks!.isEmpty
-                          ? Center(
-                              child: Text('No Tasks Found'),
-                            )
-                          : ListView.builder(
-                              physics: NeverScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              itemCount: plan.tasks!.length,
-                              itemBuilder: (context, i) {
-                                // Task task = Task(
-                                //   sharedBy: plan.tasks![i].sharedBy,
-                                //     id: plan.tasks![i].id,
-                                //     name: plan.tasks![i].name,
-                                //     startTime: plan.tasks![i].startTime,
-                                //     endTime: plan.tasks![i].endTime,
-                                //     status: plan.tasks![i].status,
-                                //     workHours: plan.tasks![i].workHours,
-                                //     teams: plan.tasks![i].teams,
-                                //     type: plan.tasks![i].type,
-                                //     ach: plan.tasks![i].ach,
-                                //     shared: plan.tasks![i].shared,
-                                //     percentage: plan.tasks![i].percentage,
-                                //     notes: plan.tasks![i].notes,
-                                //     users: plan.tasks![i].users);
-                                return TaskCard(
-                                  task: plan.tasks![i],
-                                  id: current,
-                                );
-                              }),
-                    ]);
-                  },
-                ),
+              body: TabBarView(
+                children: [
+                  StreamBuilder(
+                      stream: FirebaseFirestore.instance
+                          .collection('sharedTasks')
+                          .where('recieversId',
+                              arrayContains:
+                                  FirebaseAuth.instance.currentUser!.uid)
+                          .snapshots(),
+                      builder:
+                          (context, AsyncSnapshot<QuerySnapshot> snapshot1) {
+                        // if (snapshot1.connectionState ==
+                        //     ConnectionState.waiting) {
+                        //   return Center(
+                        //       child: LoadingIndicator(
+                        //           indicatorType: Indicator.ballGridPulse));
+                        // }
+                        if (snapshot1.data == null) {
+                          return Center();
+                        }
+                        return StreamBuilder(builder:
+                            (context, AsyncSnapshot<QuerySnapshot> snapshot2) {
+                          if (snapshot2.hasError) {
+                            return Text('Something went wrong');
+                          }
+
+                          if (snapshot2.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(
+                                child: LoadingIndicator(
+                                    indicatorType: Indicator.ballGridPulse));
+                          }
+                          List<Stream<QuerySnapshot>> s =
+                              snapshot1.data!.docs.map((e) {
+                            print('looop ${e['planId']}');
+                            return FirebaseFirestore.instance
+                                .collection('plans')
+                                .doc(e['planId'])
+                                .collection('tasks')
+                                .snapshots();
+                          }).toList();
+                          Stream<QuerySnapshot> stream = StreamGroup.merge(s);
+                          // s.forEach((element) {
+                          //   element.concatWith(s);
+                          // });
+                          return StreamBuilder(
+                            stream: stream,
+                            builder: (context,
+                                AsyncSnapshot<QuerySnapshot> snapshot) {
+                              List<Task> tasks = [];
+                              List<Task> selectedDayTasks = [];
+                              if (snapshot.data == null) {
+                                return Center();
+                              }
+                              if (current != null &&
+                                  snapshot.data!.docs.isNotEmpty) {
+                                tasks = snapshot.data!.docs.map((e) {
+                                  Timestamp t = e['endTime'];
+                                  Map<String, dynamic> map = e['users'];
+                                  return Task(
+                                    sharedBy: e['sharedBy'],
+                                    planId: e.reference.parent.toString(),
+                                    id: e.id,
+                                    name: e['name'],
+                                    startTime: e['startTime'],
+                                    endTime: t.toDate(),
+                                    status: e['status'],
+                                    workHours: e['workHours'],
+                                    teams: e['teams'],
+                                    type: e['type'],
+                                    ach: e['ach'],
+                                    shared: e['shared'],
+                                    percentage: e['percentage'],
+                                    notes: e['notes'],
+                                    users: map.entries
+                                        .map((e) => user.User(e.key, e.value))
+                                        .toList(),
+                                  );
+                                }).toList();
+                                selectedDayTasks = tasks
+                                    .where((element) =>
+                                        element.startTime!.toDate().day ==
+                                        TasksCalendar().day.day)
+                                    .toList();
+                              }
+
+                              return tasks.isEmpty
+                                  ? Center(child: Text('No Tasks Found'))
+                                  : ListView.builder(
+                                      itemCount: selectedDayTasks.length,
+                                      itemBuilder: (context, i) {
+                                        return selectedDayTasks.length == 0
+                                            ? Text('No Tasks For Today')
+                                            : TaskCard(
+                                                task: selectedDayTasks[i],
+                                                id: selectedDayTasks[i].id);
+                                      });
+                            },
+                          );
+                        });
+                      }),
+                  StreamBuilder(
+                      stream: FirebaseFirestore.instance
+                          .collection('plans')
+                          .doc(current)
+                          .collection('tasks')
+                          .snapshots(),
+                      builder:
+                          (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                        if (snapshot.hasError) {
+                          return Text('Something went wrong');
+                        }
+
+                        // if (snapshot.connectionState ==
+                        //     ConnectionState.waiting) {
+                        //   return Center(
+                        //       child: LoadingIndicator(
+                        //           indicatorType: Indicator.ballGridPulse));
+                        // }
+                        List<Task> tasks = [];
+                        List<Task> selectedDayTasks = [];
+                        if (snapshot.data == null) {
+                          return Center();
+                        }
+                        if (current != null && snapshot.data!.docs.isNotEmpty) {
+                          tasks = snapshot.data!.docs.map((e) {
+                            Timestamp t = e['endTime'];
+                            Map<String, dynamic> map = e['users'];
+                            return Task(
+                              sharedBy: e['sharedBy'],
+                              planId: e.reference.parent.toString(),
+                              id: e.id,
+                              name: e['name'],
+                              startTime: e['startTime'],
+                              endTime: t.toDate(),
+                              status: e['status'],
+                              workHours: e['workHours'],
+                              teams: e['teams'],
+                              type: e['type'],
+                              ach: e['ach'],
+                              shared: e['shared'],
+                              percentage: e['percentage'],
+                              notes: e['notes'],
+                              users: map.entries
+                                  .map((e) => user.User(e.key, e.value))
+                                  .toList(),
+                            );
+                          }).toList();
+                          selectedDayTasks = tasks
+                              .where((element) =>
+                                  element.startTime!.toDate().day ==
+                                  TasksCalendar().day.day)
+                              .toList();
+                        }
+
+                        return tasks.isEmpty
+                            ? Center(child: Text('No Tasks Found'))
+                            : ListView.builder(
+                                itemCount: selectedDayTasks.length,
+                                itemBuilder: (context, i) {
+                                  return selectedDayTasks.length == 0
+                                      ? Text('No Tasks For Today')
+                                      : TaskCard(
+                                          task: selectedDayTasks[i],
+                                          id: selectedDayTasks[i].id);
+                                });
+                      })
+                ],
               ),
 
               //slivers: [
