@@ -123,8 +123,8 @@ class _HomeScreenState extends State<HomeScreen>
                                 setState(() {
                                   _selectedIndex = i;
                                   _isSelected = !_isSelected;
-                                  HomeScreen.allmonth = true;
                                 });
+                                HomeScreen.allmonth = true;
                                 print(i + 1);
                                 context.read<Plan>().getCustomPlan(i + 1);
                                 // context
@@ -175,7 +175,8 @@ class _HomeScreenState extends State<HomeScreen>
                               //           horizontal: 10),
                               //       child: CircleAvatar(
                               //         radius: 10,
-                              //         child: Text('$alert'),
+                              //         child: Text(
+                              //             '${context.read<Plan>().getTasksLength(current!)}'),
                               //       ),
                               //     )),
                               TextSpan(
@@ -358,9 +359,9 @@ class _HomeScreenState extends State<HomeScreen>
                             ConnectionState.waiting) {
                           return Center(
                             child: LoadingIndicator(
-                                indicatorType: Indicator.ballGridPulse,colors: [
-                                  Colors.amber,Colors.red,Colors.blue
-                                ],),
+                              indicatorType: Indicator.ballGridPulse,
+                              colors: [Colors.amber, Colors.red, Colors.blue],
+                            ),
                           );
                         }
                         List<Task> tasks = [];

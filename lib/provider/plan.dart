@@ -13,6 +13,7 @@ class Plan with ChangeNotifier {
   bool status = false;
   List<Task>? tasks;
   List<Task>? sharedTasks;
+  int totalTasks = 0;
   Plan(
       {this.name,
       this.startDate,
@@ -571,21 +572,36 @@ class Plan with ChangeNotifier {
     }
   }
 
+  Future<int> getTasksLength(String planId) async {
+    var ref = await FirebaseFirestore.instance
+        .collection('plans')
+        .doc(planId)
+        .collection('tasks')
+        .get();
+    this.totalTasks = ref.docs.length;
+    notifyListeners();
+    return this.totalTasks;
+  }
+
   Future<void> updateTaskSatus(Task task, bool status) async {
-    await FirebaseFirestore.instance
+    CollectionReference ref = FirebaseFirestore.instance
         .collection('plans')
         .doc(task.planId)
-        .collection('tasks')
-        .doc(task.id)
-        .update({
+        .collection('tasks');
+    await ref.doc(task.id).update({
       'status': status,
     });
+    var trueDocs = await ref.where('status', isEqualTo: true).get();
+    var allDocs = await ref.get();
+    int trueLength = trueDocs.docs.length;
+    int allLength = allDocs.docs.length;
+    double perc = double.parse((trueLength / allLength).toStringAsFixed(2));
     await FirebaseFirestore.instance
         .collection('plans')
         .doc(task.planId)
         .update({
       'status': status,
-      'percentage': 0.9,
+      'percentage': perc,
     });
 
     allTasks.firstWhere((element) => element.id == task.id).status = status;
