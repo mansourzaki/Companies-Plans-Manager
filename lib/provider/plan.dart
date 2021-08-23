@@ -363,6 +363,7 @@ class Plan with ChangeNotifier {
 
         Map f = Map<String, String>.fromIterable(task.users!,
             key: (item) => item.id, value: (item) => item.name);
+
         if (value.docs.length != 0) {
           print('${task.shared} + ${task.users!.length} hjj');
           final ref = await value.docs.first.reference.collection('tasks').add({
@@ -517,10 +518,10 @@ class Plan with ChangeNotifier {
     try {
       await FirebaseFirestore.instance
           .collection('plans')
-          .doc(planId)
+          .doc(task.planId)
           .collection('tasks')
           .doc(task.id)
-          .set({
+          .update({
         'name': task.name,
         'startTime': task.startTime,
         'endTime': task.endTime,
@@ -532,11 +533,29 @@ class Plan with ChangeNotifier {
         'percentage': task.percentage,
         'notes': task.notes,
         'shared': task.shared,
-        'sharedBy': task.sharedBy,
         'users': Map<String, String>.fromIterable(task.users!,
             key: (item) => item.id, value: (item) => item.name)
       });
+      print('done plan $planId}');
       print('done ${task.id}');
+      if (task.users!.isNotEmpty) {
+        var docRef =
+            FirebaseFirestore.instance.collection('sharedTasks').doc(task.id);
+        docRef.get().then((value) {
+          if (value.exists) {
+            value.reference.update({'users': task.users});
+          } else {
+            Map f = Map<String, String>.fromIterable(task.users!,
+                key: (item) => item.id, value: (item) => item.name);
+            FirebaseFirestore.instance.collection('sharedTasks').add({
+              'planId': task.planId,
+              'taskId': task.id,
+              'ownerId': userId,
+              'recieversId': f.keys.toList()
+            });
+          }
+        });
+      }
       if (task.shared == true && sharedTasks != null) {
         sharedTasks!.removeWhere((element) => element.id == task.id);
         sharedTasks!.add(task);
@@ -547,7 +566,7 @@ class Plan with ChangeNotifier {
       setTasksBasedOnSelectedDay(DateTime.now().day);
       notifyListeners();
     } catch (error) {
-      print("error");
+      print(error);
       notifyListeners();
     }
   }
@@ -555,11 +574,18 @@ class Plan with ChangeNotifier {
   Future<void> updateTaskSatus(Task task, bool status) async {
     await FirebaseFirestore.instance
         .collection('plans')
-        .doc(current)
+        .doc(task.planId)
         .collection('tasks')
         .doc(task.id)
         .update({
       'status': status,
+    });
+    await FirebaseFirestore.instance
+        .collection('plans')
+        .doc(task.planId)
+        .update({
+      'status': status,
+      'percentage': 0.9,
     });
 
     allTasks.firstWhere((element) => element.id == task.id).status = status;

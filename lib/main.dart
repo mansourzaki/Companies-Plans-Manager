@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -6,10 +7,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:plansmanager/Screens/forgot_password_screen.dart';
 import 'package:plansmanager/Screens/plans_screen.dart';
 import 'package:plansmanager/Screens/home_screen.dart';
+import 'package:plansmanager/Screens/teamLeaderScreen/allmember.dart';
 import 'package:plansmanager/provider/plan.dart';
 import 'package:provider/provider.dart';
 import 'Screens/login_screen.dart';
 import 'Screens/register_screen.dart';
+import './provider/user.dart' as usser;
 import 'package:firebase_core/firebase_core.dart';
 
 Future<void> _messageHandler(RemoteMessage message) async {
@@ -20,7 +23,6 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   FirebaseMessaging.onBackgroundMessage(_messageHandler);
-
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(
@@ -42,16 +44,35 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       //to get the cashed user token and sign in automatically
-      home: StreamBuilder(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, userSnashot) {
-          if (userSnashot.hasData) {
-            print('hi');
-
-            return MyHomePage();
+      home: FutureBuilder(
+        future: FirebaseFirestore.instance
+            .collection('users')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .get(),
+        builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot1) {
+          if (snapshot1.connectionState == ConnectionState.waiting) {}
+          if (snapshot1.data == null) {
+            return Center();
           }
-          print('hi');
-          return LoginScreen();
+          usser.User user = usser.User(
+            snapshot1.data!['id'],
+            snapshot1.data!['name'],
+            email: snapshot1.data!['email'],
+            isLeader: snapshot1.data!['isLeader'],
+            team: snapshot1.data!['teamName'],
+          );
+          return StreamBuilder(
+            stream: FirebaseAuth.instance.authStateChanges(),
+            builder: (context, userSnashot) {
+              if (userSnashot.hasData) {
+                print('hi');
+                print(userSnashot.data);
+                return MyHomePage(user: user);
+              }
+              print('hi');
+              return LoginScreen();
+            },
+          );
         },
       ),
       routes: {
@@ -69,18 +90,23 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   static final routeName = 'MyHomePage';
-  MyHomePage({Key? key}) : super(key: key);
-
+  MyHomePage({Key? key, this.user}) : super(key: key);
+  final usser.User? user;
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
   late FirebaseMessaging messaging;
-
   @override
   void initState() {
     messaging = FirebaseMessaging.instance;
+    // FirebaseFirestore.instance
+    //     .collection('users')
+    //     .doc(FirebaseAuth.instance.currentUser!.uid)
+    //     .get()
+    //     .then((value) => isAdmin = value.get('isLeader'));
+
     messaging.requestPermission(
         alert: true,
         badge: true,
@@ -111,6 +137,7 @@ class _MyHomePageState extends State<MyHomePage> {
             );
           });
     });
+
     FirebaseMessaging.onMessageOpenedApp.listen((event) {
       print('message Clicked');
     });
@@ -121,6 +148,7 @@ class _MyHomePageState extends State<MyHomePage> {
     PlansScreen(),
     HomeScreen(),
   ];
+
   int _currentIndex = 0;
   final pageController = PageController();
   void onPageChanged(int index) {
@@ -177,6 +205,24 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             Divider(),
+            widget.user!.isLeader!
+                ? ListTile(
+                    trailing: Icon(Icons.task),
+                    title: Text(
+                      'خطط الفريق',
+                      textDirection: TextDirection.rtl,
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => AllTeamMemmbers(
+                                    user: widget.user,
+                                  )));
+                    },
+                  )
+                : SizedBox(),
           ],
         ),
       ),

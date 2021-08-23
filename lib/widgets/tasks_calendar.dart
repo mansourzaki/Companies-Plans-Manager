@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:plansmanager/Screens/home_screen.dart';
 import 'package:plansmanager/provider/plan.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:provider/provider.dart';
@@ -62,6 +63,7 @@ class _TasksCalendarState extends State<TasksCalendar> {
         setState(() {
           _selectedDay = selectedDay;
           _focusedDay = focusedDay;
+          HomeScreen.allmonth = false;
         });
 
         // }
@@ -73,7 +75,7 @@ class _TasksCalendarState extends State<TasksCalendar> {
         context.read<Plan>().setTasksBasedOnSelectedMonth(date.month);
         // _focusedDay = date;
         //  _selectedDay = date;
-      
+
         if (date.month != DateTime.now().month) {
           // context.read<Plan>().clearCurrent();
         }

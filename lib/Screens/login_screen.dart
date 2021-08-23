@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:plansmanager/Screens/forgot_password_screen.dart';
 import 'package:plansmanager/Screens/register_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:provider/provider.dart';
 import 'package:plansmanager/main.dart';
+import '../provider/user.dart' as user;
 
 class LoginScreen extends StatefulWidget {
   static final routeName = 'LoginScreen';

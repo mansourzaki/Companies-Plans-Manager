@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
+import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:plansmanager/provider/plan.dart';
+import 'package:provider/provider.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 
 class PlansScreen extends StatefulWidget {
@@ -30,6 +32,7 @@ class _PlansScreenState extends State<PlansScreen>
   @override
   void initState() {
     print('hi from planss');
+    context.read<Plan>().getCurrentPlan();
     super.initState();
   }
 
@@ -37,6 +40,7 @@ class _PlansScreenState extends State<PlansScreen>
   Widget build(BuildContext context) {
     //final user = FirebaseAuth.instance.currentUser;
     // const curveHeight = 50.0;
+
     return Scaffold(
       // appBar: AppBar(
       //   title: Text(' الخطط الشهرية'),
@@ -96,19 +100,8 @@ class _PlansScreenState extends State<PlansScreen>
           if (snapshot.hasError) {
             return Text('Something went wrong');
           }
-          return snapshot.data!.docs.isEmpty
-              ? Center(
-                  child: ElevatedButton(
-                      onPressed: () {
-                        FirebaseFirestore.instance.collection('plans').add({
-                          'month': DateTime.now().month,
-                          'userId': FirebaseAuth.instance.currentUser!.uid,
-                          'name': '${DateTime.now().month} خطة شهر'
-                        });
-                      },
-                      child: Text('Add this month plan')),
-                )
-              : ListView.builder(
+          return snapshot.data!.docs.isNotEmpty
+              ? ListView.builder(
                   physics: NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   itemCount: snapshot.data!.docs.length,
@@ -134,10 +127,23 @@ class _PlansScreenState extends State<PlansScreen>
                           child: ListTile(
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10)),
-                            title: Text(snapshot.data!.docs[i]['name']),
-                            leading: Icon(Icons.task),
+                            title: Text(
+                              snapshot.data!.docs[i]['name'],
+                              style: TextStyle(
+                                  textBaseline: TextBaseline.ideographic),
+                            ),
+                            trailing: CircularPercentIndicator(
+                                radius: 50,
+                                lineWidth: 5.0,
+                                percent: snapshot.data!.docs[i]['percentage'],
+                                center: Text(
+                                    "${(snapshot.data!.docs[i]['percentage'] * 100).toInt()} %"),
+                                progressColor: Colors.green),
+                            subtitle: Text(
+                                '01/${snapshot.data!.docs[i]['month']}/2021'),
 
                             onTap: () {},
+
                             // data[i]['endDate'].to
 
                             // subtitle: Text(
@@ -146,7 +152,26 @@ class _PlansScreenState extends State<PlansScreen>
                         ),
                       ),
                     );
-                  },
+                  })
+              : Center(
+                  child: Container(
+                    margin: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+                    height: 50,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        elevation: 5,
+                      ),
+                      onPressed: () {
+                        FirebaseFirestore.instance.collection('plans').add({
+                          'month': DateTime.now().month,
+                          'userId': FirebaseAuth.instance.currentUser!.uid,
+                          'name': 'شهر ${DateTime.now().month}'
+                        });
+                        context.read()<Plan>().getCurrentPlan();
+                      },
+                      child: Text('إضافة خطة هذا الشهر'),
+                    ),
+                  ),
                 );
         },
       ),

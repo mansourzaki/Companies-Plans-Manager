@@ -73,7 +73,7 @@ class _TaskCardState extends State<TaskCard> {
                             _isLoading = true;
                           });
                           await pl.updateTaskSatus(widget.task!, value!);
-                          setState(() {
+                          setState(() async {
                             print('${widget.task!.id} task id');
                             widget.task!.status = value;
                             _isLoading = false;

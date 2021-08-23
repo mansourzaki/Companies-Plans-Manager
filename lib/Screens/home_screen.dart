@@ -22,6 +22,7 @@ enum TaskType { support, dev }
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
   static final routeName = 'HomeScreen';
+  static bool allmonth = false;
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -122,6 +123,7 @@ class _HomeScreenState extends State<HomeScreen>
                                 setState(() {
                                   _selectedIndex = i;
                                   _isSelected = !_isSelected;
+                                  HomeScreen.allmonth = true;
                                 });
                                 print(i + 1);
                                 context.read<Plan>().getCustomPlan(i + 1);
@@ -223,86 +225,119 @@ class _HomeScreenState extends State<HomeScreen>
                         if (snapshot1.data == null) {
                           return Center();
                         }
-                        return StreamBuilder(builder:
-                            (context, AsyncSnapshot<QuerySnapshot> snapshot2) {
-                          if (snapshot2.hasError) {
-                            return Text('Something went wrong');
-                          }
 
-                          if (snapshot2.connectionState ==
-                              ConnectionState.waiting) {
-                            return Center(
-                                child: LoadingIndicator(
-                                    indicatorType: Indicator.ballGridPulse));
-                          }
-                          List<Stream<QuerySnapshot>> s =
-                              snapshot1.data!.docs.map((e) {
-                            print('looop ${e['planId']}');
-                            return FirebaseFirestore.instance
-                                .collection('plans')
-                                .doc(e['planId'])
-                                .collection('tasks')
-                                .snapshots();
-                          }).toList();
-                          Stream<QuerySnapshot> stream = StreamGroup.merge(s);
-                          // s.forEach((element) {
-                          //   element.concatWith(s);
-                          // });
-                          return StreamBuilder(
-                            stream: stream,
-                            builder: (context,
-                                AsyncSnapshot<QuerySnapshot> snapshot) {
-                              List<Task> tasks = [];
-                              List<Task> selectedDayTasks = [];
-                              if (snapshot.data == null) {
-                                return Center();
-                              }
-                              if (current != null &&
-                                  snapshot.data!.docs.isNotEmpty) {
-                                tasks = snapshot.data!.docs.map((e) {
-                                  Timestamp t = e['endTime'];
-                                  Map<String, dynamic> map = e['users'];
-                                  return Task(
-                                    sharedBy: e['sharedBy'],
-                                    planId: e.reference.parent.toString(),
-                                    id: e.id,
-                                    name: e['name'],
-                                    startTime: e['startTime'],
-                                    endTime: t.toDate(),
-                                    status: e['status'],
-                                    workHours: e['workHours'],
-                                    teams: e['teams'],
-                                    type: e['type'],
-                                    ach: e['ach'],
-                                    shared: e['shared'],
-                                    percentage: e['percentage'],
-                                    notes: e['notes'],
-                                    users: map.entries
-                                        .map((e) => user.User(e.key, e.value))
-                                        .toList(),
-                                  );
+                        return snapshot1.data!.docs.isEmpty
+                            ? Center(child: Text('No shared tasks'))
+                            : StreamBuilder(builder: (context,
+                                AsyncSnapshot<QuerySnapshot> snapshot2) {
+                                if (snapshot2.hasError) {
+                                  return Text('Something went wrong');
+                                }
+
+                                // if (snapshot2.connectionState ==
+                                //     ConnectionState.waiting) {
+                                //   return Center(
+                                //       child: LoadingIndicator(
+                                //           indicatorType:
+                                //               Indicator.ballGridPulse));
+                                // }
+                                Set ids = {};
+
+                                /// Set planIds = {};
+                                List<Stream<QuerySnapshot>> s =
+                                    snapshot1.data!.docs.map((e) {
+                                  print('looop ${e['planId']}');
+                                  ids.add(e['taskId']);
+                                  // planIds.add(e['planId']);
+                                  return FirebaseFirestore.instance
+                                      .collection('plans')
+                                      .doc(e['planId'])
+                                      .collection('tasks')
+                                      .snapshots();
                                 }).toList();
-                                selectedDayTasks = tasks
-                                    .where((element) =>
-                                        element.startTime!.toDate().day ==
-                                        TasksCalendar().day.day)
-                                    .toList();
-                              }
+                                Stream<QuerySnapshot> stream =
+                                    StreamGroup.merge(s);
+                                // s.forEach((element) {
+                                //   element.concatWith(s);
+                                // });
+                                return StreamBuilder(
+                                  stream: stream,
+                                  builder: (context,
+                                      AsyncSnapshot<QuerySnapshot> snapshot) {
+                                    List<Task> tasks = [];
+                                    List<Task> selectedDayTasks = [];
+                                    if (snapshot.data == null) {
+                                      return Center();
+                                    }
 
-                              return tasks.isEmpty
-                                  ? Center(child: Text('No Tasks Found'))
-                                  : ListView.builder(
-                                      itemCount: selectedDayTasks.length,
-                                      itemBuilder: (context, i) {
-                                        return selectedDayTasks.length == 0
-                                            ? Text('No Tasks For Today')
-                                            : TaskCard(
-                                                task: selectedDayTasks[i],
-                                                id: selectedDayTasks[i].id);
-                                      });
-                            },
-                          );
-                        });
+                                    if (current != null &&
+                                        snapshot.data!.docs.isNotEmpty) {
+                                      tasks = snapshot.data!.docs
+                                          .where((element) =>
+                                              ids.contains(element.id))
+                                          .map((e) {
+                                        Timestamp t = e['endTime'];
+                                        Map<String, dynamic> map = e['users'];
+                                        //  print('lala ${e.reference.parent.parent!.id}');
+                                        return Task(
+                                          sharedBy: e['sharedBy'],
+                                          planId: e.reference.parent.parent!.id,
+                                          id: e.id,
+                                          name: e['name'],
+                                          startTime: e['startTime'],
+                                          endTime: t.toDate(),
+                                          status: e['status'],
+                                          workHours: e['workHours'],
+                                          teams: e['teams'],
+                                          type: e['type'],
+                                          ach: e['ach'],
+                                          shared: e['shared'],
+                                          percentage: e['percentage'],
+                                          notes: e['notes'],
+                                          users: map.entries
+                                              .map((e) =>
+                                                  user.User(e.key, e.value))
+                                              .toList(),
+                                        );
+                                      }).toList();
+                                      selectedDayTasks = tasks
+                                          .where((element) => (element
+                                                      .startTime!
+                                                      .toDate()
+                                                      .year ==
+                                                  TasksCalendar().day.year &&
+                                              element.startTime!
+                                                      .toDate()
+                                                      .month ==
+                                                  TasksCalendar().day.month &&
+                                              element.startTime!.toDate().day ==
+                                                  TasksCalendar().day.day))
+                                          .toList();
+                                    }
+                                    return HomeScreen.allmonth
+                                        ? ListView.builder(
+                                            itemCount: tasks.length,
+                                            itemBuilder: (context, i) {
+                                              return tasks.length == 0
+                                                  ? Text('No Tasks For Today')
+                                                  : TaskCard(
+                                                      task: tasks[i],
+                                                      id: tasks[i].id);
+                                            })
+                                        : ListView.builder(
+                                            itemCount: selectedDayTasks.length,
+                                            itemBuilder: (context, i) {
+                                              return selectedDayTasks.length ==
+                                                      0
+                                                  ? Text('No Tasks For Today')
+                                                  : TaskCard(
+                                                      task: selectedDayTasks[i],
+                                                      id: selectedDayTasks[i]
+                                                          .id);
+                                            });
+                                  },
+                                );
+                              });
                       }),
                   StreamBuilder(
                       stream: FirebaseFirestore.instance
@@ -315,25 +350,31 @@ class _HomeScreenState extends State<HomeScreen>
                         if (snapshot.hasError) {
                           return Text('Something went wrong');
                         }
-
-                        // if (snapshot.connectionState ==
-                        //     ConnectionState.waiting) {
-                        //   return Center(
-                        //       child: LoadingIndicator(
-                        //           indicatorType: Indicator.ballGridPulse));
-                        // }
-                        List<Task> tasks = [];
-                        List<Task> selectedDayTasks = [];
                         if (snapshot.data == null) {
                           return Center();
                         }
+
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(
+                            child: LoadingIndicator(
+                                indicatorType: Indicator.ballGridPulse,colors: [
+                                  Colors.amber,Colors.red,Colors.blue
+                                ],),
+                          );
+                        }
+                        List<Task> tasks = [];
+                        List<Task> selectedDayTasks = [];
+                        // if (snapshot.data == null) {
+                        //   return Center();
+                        // }
                         if (current != null && snapshot.data!.docs.isNotEmpty) {
                           tasks = snapshot.data!.docs.map((e) {
                             Timestamp t = e['endTime'];
                             Map<String, dynamic> map = e['users'];
                             return Task(
                               sharedBy: e['sharedBy'],
-                              planId: e.reference.parent.toString(),
+                              planId: e.reference.parent.parent!.id,
                               id: e.id,
                               name: e['name'],
                               startTime: e['startTime'],
@@ -353,13 +394,33 @@ class _HomeScreenState extends State<HomeScreen>
                           }).toList();
                           selectedDayTasks = tasks
                               .where((element) =>
-                                  element.startTime!.toDate().day ==
-                                  TasksCalendar().day.day)
+                                  (element.startTime!.toDate().year ==
+                                          TasksCalendar().day.year &&
+                                      element.startTime!.toDate().month ==
+                                          TasksCalendar().day.month &&
+                                      element.startTime!.toDate().day ==
+                                          TasksCalendar().day.day))
                               .toList();
                         }
+                        // if (HomeScreen.allmonth = true) {
+                        //   return ListView.builder(
+                        //       itemCount: tasks.length,
+                        //       itemBuilder: (context, i) {
+                        //         return tasks.length == 0
+                        //             ? Text('No Tasks For Today')
+                        //             : TaskCard(task: tasks[i], id: tasks[i].id);
+                        //       });
+                        // }
 
-                        return tasks.isEmpty
-                            ? Center(child: Text('No Tasks Found'))
+                        return HomeScreen.allmonth
+                            ? ListView.builder(
+                                itemCount: tasks.length,
+                                itemBuilder: (context, i) {
+                                  return tasks.length == 0
+                                      ? Text('No Tasks For Today')
+                                      : TaskCard(
+                                          task: tasks[i], id: tasks[i].id);
+                                })
                             : ListView.builder(
                                 itemCount: selectedDayTasks.length,
                                 itemBuilder: (context, i) {

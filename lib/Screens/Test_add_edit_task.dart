@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chips_input/flutter_chips_input.dart';
@@ -35,11 +36,13 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
   var _isLoading = false;
   Ach? _ach;
   Type? _type;
+  String? _sharedBy;
   //List<String> _teams = [];
   List<String> _teams = [];
   List<User> _users = [];
   String? _t = 'تطوير';
   String? _a = 'داخل';
+  String? _planId;
   @override
   void initState() {
     Task? task = widget.task;
@@ -54,8 +57,10 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
       _workhours = task.workHours!;
       _ach = task.ach == 'داخل' ? Ach.inn : Ach.out;
       _type = task.type == 'تطوير' ? Type.dev : Type.supp;
+      _sharedBy = task.sharedBy;
+      _planId = task.planId;
       //  _teams = widget.task!.teams!.cast<String>();
-      _users = widget.task!.users!;
+      _users = task.users!;
       print(_users.length);
       //  print('${widget.task!.users} hiiii');
     } else {
@@ -259,6 +264,7 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                                   EdgeInsets.symmetric(horizontal: 5),
                               activeColor: Colors.red,
                               toggleable: true,
+                              autofocus: true,
                               title: Text('دعم فني'),
                               secondary: Icon(Icons.support_agent_sharp),
                               value: Type.supp,
@@ -330,6 +336,7 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                                   EdgeInsets.symmetric(horizontal: 5),
                               activeColor: Colors.red,
                               toggleable: true,
+                              autofocus: true,
                               title: Text('داخل الخطة'),
                               secondary: Icon(Icons.arrow_downward_outlined),
                               value: Ach.inn,
@@ -415,7 +422,7 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                               chipBuilder: (context, state, data) {
                                 return InputChip(
                                   key: ObjectKey(data),
-                                  label: Text(data.name),
+                                  label: Text(data.name!),
                                   onDeleted: !widget.isAdmin
                                       ? () => state.deleteChip(data)
                                       : null,
@@ -490,11 +497,13 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                   Task task = Task(
                     id: widget.task == null ? null : widget.task!.id,
                     name: _nameController.text,
+                    planId: _planId,
                     startTime: Timestamp.fromDate(_date!),
                     endTime: DateTime.now(),
                     workHours: _workhours,
                     ach: _a,
                     type: _t,
+                    sharedBy: _sharedBy,
                     notes: _notesController.text,
                     percentage: int.parse(_percentageController.text == ''
                         ? '0'
@@ -576,7 +585,11 @@ class AlwaysDisabledFocusNode extends FocusNode {
 
 Future<List<User>> _findSuggestions(String input) async {
   if (input.length != 0) {
-    List<User> labels = users.where((e) => e.name.contains(input)).toList();
+    List<User> labels = users
+        .where((e) =>
+            e.name!.contains(input) &&
+            e.id != auth.FirebaseAuth.instance.currentUser!.uid)
+        .toList();
     //list.addAll(labels.where((e) => e.contains(input)));
     return labels;
   } else {

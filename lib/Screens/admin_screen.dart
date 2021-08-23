@@ -26,8 +26,13 @@ class _AdminScreenState extends State<AdminScreen> {
               return CircularProgressIndicator();
             }
             List<User> users = snapshot.data!.docs
-                .map((e) => User(e['id'], e['name'],
-                    email: e['email'], team: e['teamName']))
+                .map((e) => User(
+                      e['id'],
+                      e['name'],
+                      isLeader: e['isLeader'],
+                      email: e['email'],
+                      team: e['teamName'],
+                    ))
                 .toList();
             return Padding(
               padding: const EdgeInsets.all(8.0),
