@@ -8,9 +8,10 @@ import '../provider/plan.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 
 class TaskCard extends StatefulWidget {
-  TaskCard({@required this.task, @required this.id});
+  TaskCard({@required this.task, @required this.id, this.name = ''});
   final Task? task;
   final String? id;
+  final String name;
   // String id;
   // String name;
   // Timestamp date;
@@ -48,7 +49,7 @@ class _TaskCardState extends State<TaskCard> {
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           title: Text(
-            widget.task!.name!,
+            '${widget.task!.name!}  ${widget.name}',
             style: TextStyle(
                 decoration: widget.task!.status!
                     ? TextDecoration.lineThrough

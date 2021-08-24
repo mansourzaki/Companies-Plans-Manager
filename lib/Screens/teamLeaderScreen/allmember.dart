@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter/material.dart';
 import 'package:plansmanager/provider/plan.dart';
 import 'package:plansmanager/provider/user.dart';
+import 'package:plansmanager/widgets/signOutDialog.dart';
 import 'package:provider/provider.dart';
 
 import '../login_screen.dart';
@@ -26,10 +27,7 @@ class _AllTeamMemmbersState extends State<AllTeamMemmbers> {
         actions: [
           IconButton(
               onPressed: () {
-                auth.FirebaseAuth.instance.signOut();
-                context.read<Plan>().clearAllTasks();
-                context.read<Plan>().clearCurrent();
-                Navigator.of(context).popAndPushNamed(LoginScreen.routeName);
+                showDialog(context: context, builder: (_) => SignOutDialog());
               },
               icon: Icon(Icons.exit_to_app)),
         ],

@@ -70,6 +70,7 @@ class _TasksCalendarState extends State<TasksCalendar> {
       },
       onPageChanged: (date) {
         _selectedMonth = date;
+      //  context.read<Plan>().getCustomPlan(date.month);
       },
       onHeaderTapped: (date) {
         context.read<Plan>().setTasksBasedOnSelectedMonth(date.month);

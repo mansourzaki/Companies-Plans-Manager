@@ -6,9 +6,12 @@ class User with ChangeNotifier {
   String? id;
   String? name;
   bool? isLeader = false;
+  bool? isAdmin = false;
   String? email;
   String? team = 'Undefined';
-  User(this.id, this.name, {this.team, this.email, this.isLeader});
+
+  User(this.id, this.name,
+      {this.team, this.email, this.isLeader, this.isAdmin});
 
   // User? currentUser;
   Future<void> addUser(User user) async {

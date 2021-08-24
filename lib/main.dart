@@ -4,11 +4,14 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:plansmanager/Screens/admin_screen.dart';
 import 'package:plansmanager/Screens/forgot_password_screen.dart';
 import 'package:plansmanager/Screens/plans_screen.dart';
 import 'package:plansmanager/Screens/home_screen.dart';
 import 'package:plansmanager/Screens/teamLeaderScreen/allmember.dart';
 import 'package:plansmanager/provider/plan.dart';
+import 'package:plansmanager/provider/task.dart';
+import 'package:plansmanager/widgets/signOutDialog.dart';
 import 'package:provider/provider.dart';
 import 'Screens/login_screen.dart';
 import 'Screens/register_screen.dart';
@@ -28,6 +31,9 @@ Future<void> main() async {
       ChangeNotifierProvider(
         create: (_) => Plan(),
       ),
+      ChangeNotifierProvider(
+        create: (_) => Task(),
+      ),
     ],
     child: MyApp(),
   ));
@@ -44,42 +50,52 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       //to get the cashed user token and sign in automatically
-      home: FutureBuilder(
-        future: FirebaseFirestore.instance
-            .collection('users')
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .get(),
-        builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot1) {
-          if (snapshot1.connectionState == ConnectionState.waiting) {}
-          if (snapshot1.data == null) {
-            return Center();
-          }
-          usser.User user = usser.User(
-            snapshot1.data!['id'],
-            snapshot1.data!['name'],
-            email: snapshot1.data!['email'],
-            isLeader: snapshot1.data!['isLeader'],
-            team: snapshot1.data!['teamName'],
-          );
-          return StreamBuilder(
-            stream: FirebaseAuth.instance.authStateChanges(),
-            builder: (context, userSnashot) {
-              if (userSnashot.connectionState == ConnectionState.waiting) {
-                return Center(
-                  child: CircularProgressIndicator(),
+      home: FirebaseAuth.instance.currentUser == null
+          ? LoginScreen()
+          : FutureBuilder(
+              future: FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(FirebaseAuth.instance.currentUser!.uid)
+                  .get(),
+              builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot1) {
+                if (snapshot1.connectionState == ConnectionState.waiting) {}
+                if (snapshot1.data == null) {
+                  return Center();
+                }
+                if (snapshot1.hasError) {
+                  return Text('An Error Occured ');
+                }
+                usser.User user = usser.User(
+                  snapshot1.data!['id'],
+                  snapshot1.data!['name'],
+                  email: snapshot1.data!['email'],
+                  isLeader: snapshot1.data!['isLeader'],
+                  team: snapshot1.data!['teamName'],
                 );
-              }
-              if (userSnashot.hasData) {
-                print('hi');
-                print(userSnashot.data);
-                return MyHomePage(user: user);
-              }
-              print('hi');
-              return LoginScreen();
-            },
-          );
-        },
-      ),
+                return StreamBuilder(
+                  stream: FirebaseAuth.instance.authStateChanges(),
+                  builder: (context, userSnashot) {
+                    if (userSnashot.connectionState ==
+                        ConnectionState.waiting) {
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                    if (snapshot1.data!['isAdmin'] == true) {
+                      return AdminScreen();
+                    }
+                    if (userSnashot.hasData) {
+                      print('hi');
+                      print(userSnashot.data);
+                      return MyHomePage(user: user);
+                    }
+
+                    print('hi');
+                    return LoginScreen();
+                  },
+                );
+              },
+            ),
       routes: {
         MyHomePage.routeName: (cts) => MyHomePage(),
         HomeScreen.routeName: (ctx) => HomeScreen(),
@@ -242,10 +258,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
         leading: IconButton(
             onPressed: () {
-              FirebaseAuth.instance.signOut();
-              context.read<Plan>().clearAllTasks();
-              context.read<Plan>().clearCurrent();
-              Navigator.of(context).popAndPushNamed(LoginScreen.routeName);
+              showDialog(context: context, builder: (_) => SignOutDialog());
             },
             icon: Icon(Icons.exit_to_app)),
 

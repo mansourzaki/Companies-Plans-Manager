@@ -17,6 +17,7 @@ class Task with ChangeNotifier {
   String? notes;
   bool shared;
   String? sharedBy;
+  String? ownerName;
   List<User>? users;
   Task(
       {this.planId,
@@ -47,4 +48,20 @@ class Task with ChangeNotifier {
 
   //   notifyListeners();
   // }
+
+  Future<String> getTaskOwner(String id) async {
+    try {
+      DocumentSnapshot ref =
+          await FirebaseFirestore.instance.collection('users').doc(id).get();
+      // User user = User(id, ref['name'],
+      //     email: ref['email'], isLeader: ref['isLeader'], team: ref['teamName']);
+
+      this.ownerName = ref['name'];
+      notifyListeners();
+      return ref['name'];
+    } catch (error) {
+      print('catcho $error');
+      return 'dd';
+    }
+  }
 }

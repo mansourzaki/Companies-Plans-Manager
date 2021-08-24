@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:plansmanager/Screens/Test_add_edit_task.dart';
 import 'package:plansmanager/provider/task.dart';
 import 'package:plansmanager/provider/user.dart';
@@ -34,10 +37,18 @@ class _AllUsersTasksState extends State<AllUsersTasks> {
           centerTitle: true,
           bottom: TabBar(tabs: [
             Tab(
-              child: Text('المهام الغير منجزة'),
+              child: Text(
+                'المهام الغير منجزة',
+                style: TextStyle(
+                    color: Colors.red[600], fontWeight: FontWeight.bold),
+              ),
             ),
             Tab(
-              child: Text('المهام المنجزة'),
+              child: Text(
+                'المهام المنجزة',
+                style:
+                    TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+              ),
             )
           ]),
         ),
@@ -149,7 +160,19 @@ class _AllUsersTasksState extends State<AllUsersTasks> {
                         child: ListView.separated(
                             itemBuilder: (context, i) {
                               return ListTile(
-                                trailing: Icon(Icons.task),
+                                trailing: Icon(
+                                  Icons.close,
+                                  color: Colors.red,
+                                ),
+                                leading: CircularPercentIndicator(
+                                    radius: 50,
+                                    lineWidth: 5.0,
+                                    percent: snapshot.data!.docs[i]
+                                            ['percentage'] /
+                                        100,
+                                    center: Text(
+                                        "${(snapshot.data!.docs[i]['percentage'])} %"),
+                                    progressColor: Colors.red),
                                 title: Text(
                                   unFinishedTasks[i].name!,
                                   textAlign: TextAlign.right,
@@ -183,7 +206,19 @@ class _AllUsersTasksState extends State<AllUsersTasks> {
                         child: ListView.separated(
                             itemBuilder: (context, i) {
                               return ListTile(
-                                trailing: Icon(Icons.task),
+                                leading: CircularPercentIndicator(
+                                    radius: 50,
+                                    lineWidth: 5.0,
+                                    percent: snapshot.data!.docs[i]
+                                            ['percentage'] /
+                                        100,
+                                    center: Text(
+                                        "${(snapshot.data!.docs[i]['percentage'])} %"),
+                                    progressColor: Colors.green),
+                                trailing: Icon(
+                                  Icons.check_circle,
+                                  color: Colors.green,
+                                ),
                                 title: Text(
                                   finishedTasks[i].name!,
                                   textAlign: TextAlign.right,

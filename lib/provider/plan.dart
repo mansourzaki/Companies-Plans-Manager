@@ -600,7 +600,6 @@ class Plan with ChangeNotifier {
         .collection('plans')
         .doc(task.planId)
         .update({
-      'status': status,
       'percentage': perc,
     });
 

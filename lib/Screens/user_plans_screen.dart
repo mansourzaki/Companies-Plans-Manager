@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 import 'package:plansmanager/Screens/all_user_tasks_screen.dart';
 import 'package:plansmanager/provider/user.dart';
 
@@ -49,14 +50,24 @@ class _UserPlansScreenState extends State<UserPlansScreen> {
                       itemBuilder: (context, i) {
                         return ListTile(
                           tileColor: Colors.black12,
-                          subtitle: Text(''),
+                          leading: CircularPercentIndicator(
+                              radius: 50,
+                              lineWidth: 5.0,
+                              percent: snapshot.data!.docs[i]['percentage'],
+                              center: Text(
+                                  "${(snapshot.data!.docs[i]['percentage'] * 100).toInt()} %"),
+                              progressColor: Colors.green),
+                          subtitle: Text(
+                              '01/${snapshot.data!.docs[i]['month']}/2021',
+                              textAlign: TextAlign.right),
                           onTap: () async {
-                            var t = await snapshot.data!.docs[i].reference
+                            await snapshot.data!.docs[i].reference
                                 .collection('tasks')
                                 .get();
                             setState(() {
                               _isLoading = true;
                             });
+
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(

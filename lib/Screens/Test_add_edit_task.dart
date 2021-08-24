@@ -80,7 +80,8 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SingleChildScrollView(
+      child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
           iconTheme: IconThemeData(
@@ -474,107 +475,114 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                       ),
                     ),
                   ),
+                  Container(
+                    margin: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+                    height: 50,
+                    width: MediaQuery.of(context).size.width,
+                    child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          elevation: 5,
+                        ),
+                        onPressed: () async {
+                          Plan plan = context.read<Plan>();
+                          _formKey.currentState!.save();
+                          if (_formKey.currentState!.validate()) {
+                            setState(() {
+                              _isLoading = !_isLoading;
+                            });
+
+                            Task task = Task(
+                              id: widget.task == null ? null : widget.task!.id,
+                              name: _nameController.text,
+                              planId: _planId,
+                              startTime: Timestamp.fromDate(_date!),
+                              endTime: DateTime.now(),
+                              workHours: _workhours,
+                              ach: _a,
+                              type: _t,
+                              sharedBy: _sharedBy,
+                              notes: _notesController.text,
+                              percentage: int.parse(
+                                  _percentageController.text == ''
+                                      ? '0'
+                                      : _percentageController.text),
+                              status: false,
+                              teams: _teams,
+                              shared: _users.isEmpty ? false : true,
+                              users: _users,
+                            );
+                            print('out fooor ');
+
+                            try {
+                              widget.task == null
+                                  ? await plan
+                                      .addTask(
+                                          task, task.startTime!.toDate().month)
+                                      .then((value) {
+                                      setState(() {
+                                        _isLoading = !_isLoading;
+                                      });
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                        content: Text('تم'),
+                                        backgroundColor: Colors.green,
+                                      ));
+                                      Navigator.of(context).pop();
+                                    }).onError((error, stackTrace) {
+                                      print('error catched');
+                                    })
+                                  : await plan
+                                      .updateTask(task, plan.current!)
+                                      .then((value) {
+                                      setState(() {
+                                        _isLoading = !_isLoading;
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(SnackBar(
+                                          content: Text('تم'),
+                                          backgroundColor: Colors.green,
+                                        ));
+                                      });
+                                      Navigator.of(context).pop();
+                                    }).onError((error, stackTrace) {
+                                      print('error catched');
+                                    });
+                            } catch (error) {
+                              print(error);
+                            }
+
+                            // print(_date);
+                            // print('${_ach.toString()} ach');
+                            // print(_dateController.text);
+                            // print('${_nameController.text} name');
+                            // print('${_notesController.text} notes');
+                            // print('$_workhours workhours');
+                            // print('${_percentageController.text}');
+                            // print('$_teams teeams');
+                          }
+                        },
+                        child: _isLoading
+                            ? LoadingIndicator(
+                                indicatorType: Indicator.ballBeat,
+                                colors: [Colors.black38, Colors.red],
+                              )
+                            : widget.task == null
+                                ? Text(
+                                    'إضافة',
+                                    style: TextStyle(fontSize: 20),
+                                  )
+                                : Text(
+                                    'تعديل',
+                                    style: TextStyle(fontSize: 20),
+                                  )),
+                  )
                 ],
               ),
             ),
           ),
         ),
-        bottomNavigationBar: Container(
-          margin: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-          height: 50,
-          child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                elevation: 5,
-              ),
-              onPressed: () async {
-                Plan plan = context.read<Plan>();
-                _formKey.currentState!.save();
-                if (_formKey.currentState!.validate()) {
-                  setState(() {
-                    _isLoading = !_isLoading;
-                  });
-
-                  Task task = Task(
-                    id: widget.task == null ? null : widget.task!.id,
-                    name: _nameController.text,
-                    planId: _planId,
-                    startTime: Timestamp.fromDate(_date!),
-                    endTime: DateTime.now(),
-                    workHours: _workhours,
-                    ach: _a,
-                    type: _t,
-                    sharedBy: _sharedBy,
-                    notes: _notesController.text,
-                    percentage: int.parse(_percentageController.text == ''
-                        ? '0'
-                        : _percentageController.text),
-                    status: false,
-                    teams: _teams,
-                    shared: _users.isEmpty ? false : true,
-                    users: _users,
-                  );
-                  print('out fooor ');
-
-                  try {
-                    widget.task == null
-                        ? await plan
-                            .addTask(task, DateTime.now().month)
-                            .then((value) {
-                            setState(() {
-                              _isLoading = !_isLoading;
-                            });
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Text('تم'),
-                              backgroundColor: Colors.green,
-                            ));
-                            Navigator.of(context).pop();
-                          }).onError((error, stackTrace) {
-                            print('error catched');
-                          })
-                        : await plan
-                            .updateTask(task, plan.current!)
-                            .then((value) {
-                            setState(() {
-                              _isLoading = !_isLoading;
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(
-                                content: Text('تم'),
-                                backgroundColor: Colors.green,
-                              ));
-                            });
-                            Navigator.of(context).pop();
-                          }).onError((error, stackTrace) {
-                            print('error catched');
-                          });
-                  } catch (error) {
-                    print(error);
-                  }
-
-                  // print(_date);
-                  // print('${_ach.toString()} ach');
-                  // print(_dateController.text);
-                  // print('${_nameController.text} name');
-                  // print('${_notesController.text} notes');
-                  // print('$_workhours workhours');
-                  // print('${_percentageController.text}');
-                  // print('$_teams teeams');
-                }
-              },
-              child: _isLoading
-                  ? LoadingIndicator(
-                      indicatorType: Indicator.ballBeat,
-                      colors: [Colors.black38, Colors.red],
-                    )
-                  : widget.task == null
-                      ? Text(
-                          'إضافة',
-                          style: TextStyle(fontSize: 20),
-                        )
-                      : Text(
-                          'تعديل',
-                          style: TextStyle(fontSize: 20),
-                        )),
-        ));
+        // bottomNavigationBar:
+      ),
+    );
   }
 }
 

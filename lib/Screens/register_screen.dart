@@ -347,6 +347,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'email': _emailController.text,
         'teamName': _teamNameController.text,
         'isLeader': false,
+        'isAdmin': false
       });
 
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(

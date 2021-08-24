@@ -1,7 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter/material.dart';
+import 'package:plansmanager/Screens/login_screen.dart';
 import 'package:plansmanager/Screens/user_plans_screen.dart';
+import 'package:plansmanager/provider/plan.dart';
 import 'package:plansmanager/provider/user.dart';
+import 'package:plansmanager/widgets/signOutDialog.dart';
+import 'package:provider/provider.dart';
 
 class AdminScreen extends StatefulWidget {
   const AdminScreen({Key? key}) : super(key: key);
@@ -18,6 +23,12 @@ class _AdminScreenState extends State<AdminScreen> {
           title: Text('جميع المستخدمين'),
           centerTitle: true,
           backgroundColor: Colors.white,
+          leading: IconButton(
+              color: Colors.black,
+              onPressed: () {
+                showDialog(context: context, builder: (_) => SignOutDialog());
+              },
+              icon: Icon(Icons.exit_to_app)),
         ),
         body: StreamBuilder(
           stream: FirebaseFirestore.instance.collection('users').snapshots(),

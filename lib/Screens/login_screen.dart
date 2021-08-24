@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:plansmanager/Screens/admin_screen.dart';
 import 'package:plansmanager/Screens/forgot_password_screen.dart';
 import 'package:plansmanager/Screens/register_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -95,108 +97,110 @@ class _LoginScreenState extends State<LoginScreen> {
                   EdgeInsets.only(left: 20, right: 20, bottom: 15, top: 20),
               child: Form(
                   key: _formkey,
-                  child: Column(
-                    children: [
-                      Directionality(
-                        textDirection: TextDirection.rtl,
-                        child: TextFormField(
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'ادخل البريد الكتروني';
-                            }
-                            return null;
-                          },
-                          controller: _emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: InputDecoration(
-                            hintStyle: TextStyle(color: Colors.black),
-                            prefixIcon: Icon(
-                              Icons.email,
-                              color: Colors.black,
-                            ),
-                            labelText: 'البريد الإلكتروني',
-                            labelStyle: TextStyle(color: Colors.black),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 15,
-                      ),
-                      Directionality(
-                        textDirection: TextDirection.rtl,
-                        child: TextFormField(
-                          obscureText: true,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'ادخل كلمة المرور';
-                            }
-                            return null;
-                          },
-                          controller: _passwordController,
-                          decoration: InputDecoration(
-                            prefixIcon: Icon(
-                              Icons.lock,
-                              color: Colors.black,
-                            ),
-                            labelText: 'كلمة المرور',
-                            labelStyle: TextStyle(color: Colors.black),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pushReplacementNamed(
-                                  RegisterScreen.routeName);
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        Directionality(
+                          textDirection: TextDirection.rtl,
+                          child: TextFormField(
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'ادخل البريد الكتروني';
+                              }
+                              return null;
                             },
-                            child: Text(
-                              'تسجيل حساب جديد',
-                              style: GoogleFonts.almarai(
-                                textStyle: TextStyle(
-                                  color: Colors.grey,
-                                ),
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: InputDecoration(
+                              hintStyle: TextStyle(color: Colors.black),
+                              prefixIcon: Icon(
+                                Icons.email,
+                                color: Colors.black,
+                              ),
+                              labelText: 'البريد الإلكتروني',
+                              labelStyle: TextStyle(color: Colors.black),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.black),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.black),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
                               ),
                             ),
                           ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context)
-                                  .pushNamed(ForgotPasswordScreen.routeName);
+                        ),
+                        SizedBox(
+                          height: 15,
+                        ),
+                        Directionality(
+                          textDirection: TextDirection.rtl,
+                          child: TextFormField(
+                            obscureText: true,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'ادخل كلمة المرور';
+                              }
+                              return null;
                             },
-                            child: Text(
-                              'نسيت كلمة المرور؟',
-                              style: GoogleFonts.almarai(
-                                textStyle: TextStyle(
-                                  color: Colors.grey,
-                                ),
+                            controller: _passwordController,
+                            decoration: InputDecoration(
+                              prefixIcon: Icon(
+                                Icons.lock,
+                                color: Colors.black,
+                              ),
+                              labelText: 'كلمة المرور',
+                              labelStyle: TextStyle(color: Colors.black),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.black),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.black),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
                               ),
                             ),
                           ),
-                        ],
-                      ),
-                    ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pushReplacementNamed(
+                                    RegisterScreen.routeName);
+                              },
+                              child: Text(
+                                'تسجيل حساب جديد',
+                                style: GoogleFonts.almarai(
+                                  textStyle: TextStyle(
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context)
+                                    .pushNamed(ForgotPasswordScreen.routeName);
+                              },
+                              child: Text(
+                                'نسيت كلمة المرور؟',
+                                style: GoogleFonts.almarai(
+                                  textStyle: TextStyle(
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   )),
             ),
           ),
@@ -241,8 +245,28 @@ class _LoginScreenState extends State<LoginScreen> {
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
+      DocumentSnapshot userRef = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(_userCredential.user!.uid)
+          .get();
+      user.User newUser = user.User(
+        userRef.id,
+        userRef['name'],
+        team: userRef['teamName'],
+        email: userRef['email'],
+        isLeader: userRef['isLeader'],
+        isAdmin: userRef['isAdmin'],
+      );
 
-      Navigator.of(context).pushReplacementNamed(MyHomePage.routeName);
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => newUser.isAdmin!
+                ? AdminScreen()
+                : MyHomePage(
+                    user: newUser,
+                  ),
+          ));
       print(_userCredential);
     } on FirebaseAuthException catch (e) {
       setState(() {
