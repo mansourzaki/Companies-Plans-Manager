@@ -20,6 +20,7 @@ import 'Screens/login_screen.dart';
 import 'Screens/register_screen.dart';
 import './provider/user.dart' as usser;
 import 'package:firebase_core/firebase_core.dart';
+import 'package:animated_splash_screen/animated_splash_screen.dart';
 
 Future<void> _messageHandler(RemoteMessage message) async {
   print('background message ${message.notification!.body}');
@@ -53,52 +54,56 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       //to get the cashed user token and sign in automatically
-      home: FirebaseAuth.instance.currentUser == null
-          ? LoginScreen()
-          : FutureBuilder(
-              future: FirebaseFirestore.instance
-                  .collection('users')
-                  .doc(FirebaseAuth.instance.currentUser!.uid)
-                  .get(),
-              builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot1) {
-                if (snapshot1.connectionState == ConnectionState.waiting) {}
-                if (snapshot1.data == null) {
-                  return Center();
-                }
-                if (snapshot1.hasError) {
-                  return Text('An Error Occured ');
-                }
-                usser.User user = usser.User(
-                  snapshot1.data!['id'],
-                  snapshot1.data!['name'],
-                  email: snapshot1.data!['email'],
-                  isLeader: snapshot1.data!['isLeader'],
-                  team: snapshot1.data!['teamName'],
-                );
-                return StreamBuilder(
-                  stream: FirebaseAuth.instance.authStateChanges(),
-                  builder: (context, userSnashot) {
-                    if (userSnashot.connectionState ==
-                        ConnectionState.waiting) {
-                      return Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                    if (snapshot1.data!['isAdmin'] == true) {
-                      return AdminScreen();
-                    }
-                    if (userSnashot.hasData) {
-                      print('hi');
-                      print(userSnashot.data);
-                      return MyHomePage(user: user);
-                    }
+      home: AnimatedSplashScreen(
+        splash: 'assets/images/iccon.png',
+        splashTransition: SplashTransition.rotationTransition,
+        nextScreen: FirebaseAuth.instance.currentUser == null
+            ? LoginScreen()
+            : FutureBuilder(
+                future: FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(FirebaseAuth.instance.currentUser!.uid)
+                    .get(),
+                builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot1) {
+                  if (snapshot1.connectionState == ConnectionState.waiting) {}
+                  if (snapshot1.data == null) {
+                    return Center();
+                  }
+                  if (snapshot1.hasError) {
+                    return Text('An Error Occured ');
+                  }
+                  usser.User user = usser.User(
+                    snapshot1.data!['id'],
+                    snapshot1.data!['name'],
+                    email: snapshot1.data!['email'],
+                    isLeader: snapshot1.data!['isLeader'],
+                    team: snapshot1.data!['teamName'],
+                  );
+                  return StreamBuilder(
+                    stream: FirebaseAuth.instance.authStateChanges(),
+                    builder: (context, userSnashot) {
+                      if (userSnashot.connectionState ==
+                          ConnectionState.waiting) {
+                        return Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      if (snapshot1.data!['isAdmin'] == true) {
+                        return AdminScreen();
+                      }
+                      if (userSnashot.hasData) {
+                        print('hi');
+                        print(userSnashot.data);
+                        return MyHomePage(user: user);
+                      }
 
-                    print('hi');
-                    return LoginScreen();
-                  },
-                );
-              },
-            ),
+                      print('hi');
+                      return LoginScreen();
+                    },
+                  );
+                },
+              ),
+      ),
       routes: {
         MyHomePage.routeName: (cts) => MyHomePage(),
         HomeScreen.routeName: (ctx) => HomeScreen(),
