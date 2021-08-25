@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -6,6 +8,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:plansmanager/Screens/admin_screen.dart';
 import 'package:plansmanager/Screens/forgot_password_screen.dart';
+import 'package:plansmanager/Screens/notification_screen.dart';
 import 'package:plansmanager/Screens/plans_screen.dart';
 import 'package:plansmanager/Screens/home_screen.dart';
 import 'package:plansmanager/Screens/teamLeaderScreen/allmember.dart';
@@ -169,8 +172,9 @@ class _MyHomePageState extends State<MyHomePage> {
     PlansScreen(),
     HomeScreen(),
   ];
-
+  StreamController<int> _countController = StreamController<int>();
   int _currentIndex = 0;
+  int _notificationCount = 0;
   final pageController = PageController();
   void onPageChanged(int index) {
     setState(() {
@@ -251,6 +255,63 @@ class _MyHomePageState extends State<MyHomePage> {
         iconTheme: IconThemeData(
           color: Colors.black, //change your color here
         ),
+        actions: [
+          StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('sharedTasks')
+                  .where('recieversId',
+                      arrayContains: FirebaseAuth.instance.currentUser!.uid)
+                  .snapshots(),
+              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                print('lelele ${snapshot.toString()}');
+                if (snapshot.hasData) {
+                  _notificationCount = snapshot.data!.docs.length;
+                }
+                // if (snapshot.connectionState == ConnectionState.active) {
+                //   return Center();
+                // }
+
+                return Stack(
+                  fit: StackFit.passthrough,
+                  children: [
+                    IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => NotificationsScreen(
+                                        snapshot1: snapshot,
+                                      )));
+                        },
+                        icon: Icon(Icons.notifications)),
+                    Positioned(
+                      right: 11,
+                      top: 14,
+                      child: Container(
+                        padding: EdgeInsets.all(2),
+                        decoration: new BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        constraints:
+                            BoxConstraints(minHeight: 14, minWidth: 14),
+                        child: Text('$_notificationCount',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
+                            textAlign: TextAlign.center),
+                      ),
+                    ),
+                  ],
+                );
+              }),
+          Builder(
+            builder: (context) => IconButton(
+                onPressed: () => Scaffold.of(context).openEndDrawer(),
+                icon: Icon(Icons.menu)),
+          )
+        ],
 
         title: Text(_currentIndex == 0 ? 'الخطط' : 'المهام'),
         centerTitle: true,
