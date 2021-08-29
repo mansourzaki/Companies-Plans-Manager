@@ -51,14 +51,15 @@ class Task with ChangeNotifier {
 
   Future<String> getTaskOwner(String id) async {
     try {
+      // this.ownerName = '';
       DocumentSnapshot ref =
           await FirebaseFirestore.instance.collection('users').doc(id).get();
       // User user = User(id, ref['name'],
       //     email: ref['email'], isLeader: ref['isLeader'], team: ref['teamName']);
-
+      this.ownerName = '...';
       this.ownerName = ref['name'];
       notifyListeners();
-      return ref['name'];
+      return this.ownerName!;
     } catch (error) {
       print('catcho $error');
       return 'dd';

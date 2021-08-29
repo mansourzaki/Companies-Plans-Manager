@@ -177,7 +177,7 @@ class _MyHomePageState extends State<MyHomePage> {
     PlansScreen(),
     HomeScreen(),
   ];
-  StreamController<int> _countController = StreamController<int>();
+
   int _currentIndex = 0;
   int _notificationCount = 0;
   final pageController = PageController();
@@ -320,8 +320,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
         title: Text(_currentIndex == 0 ? 'الخطط' : 'المهام'),
         centerTitle: true,
-        backgroundColor: Colors.white,
-
+        backgroundColor: Color(0xffF0F4FD),
+        elevation: 0,
         leading: IconButton(
             onPressed: () {
               showDialog(context: context, builder: (_) => SignOutDialog());
@@ -359,8 +359,13 @@ class _MyHomePageState extends State<MyHomePage> {
         onTap: onTap,
         items: [
           BottomNavigationBarItem(
-              icon: FaIcon(FontAwesomeIcons.projectDiagram), label: 'الخطط'),
-          BottomNavigationBarItem(icon: Icon(Icons.task), label: 'المهام'),
+              icon: FaIcon(FontAwesomeIcons.projectDiagram,), label: 'الخطط'),
+          BottomNavigationBarItem(
+              icon: Icon(
+                Icons.task,
+                color: Colors.orange,
+              ),
+              label: 'المهام'),
         ],
       ),
     );

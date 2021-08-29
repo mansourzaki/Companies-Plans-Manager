@@ -48,6 +48,7 @@ dependencies:
   async: ^2.6.1
   percent_indicator: ^3.0.1
   animated_splash_screen: ^1.1.0
+  dotted_border: ^2.0.0+1
 
 dev_dependencies:
   flutter_test:
@@ -68,7 +69,7 @@ flutter:
   assets:
     - assets/images/logo.png
     - assets/images/iccon.png
-
+    - assets/images/person.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 

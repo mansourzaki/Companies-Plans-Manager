@@ -39,26 +39,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.blue[200]!,
-            Colors.blue[300]!,
-            Colors.blue[400]!,
-            Colors.blue[500]!,
-          ],
-        ),
-      ),
-      child: Column(
+      backgroundColor: Color(0xffF0F4FD),
+      body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Image.asset(
-            'assets/images/logo.png',
-            width: 200,
-            height: 200,
+            'assets/images/iccon.png',
+            width: 150,
+            height: 150,
           ),
           Padding(
             padding: const EdgeInsets.all(10.0),
@@ -94,7 +82,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             hintStyle: TextStyle(color: Colors.black),
                             prefixIcon: Icon(
                               Icons.email,
-                              color: Colors.black,
+                              color: Colors.purple,
                             ),
                             labelText: 'البريد الإلكتروني',
                             labelStyle: TextStyle(color: Colors.black),
@@ -136,6 +124,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               : SizedBox(
                   width: 200,
                   child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        primary: Colors.purple,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15))),
                     onPressed: () async {
                       if (_formkey.currentState!.validate()) {
                         FocusScope.of(context).unfocus();
@@ -151,7 +143,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 )
         ],
       ),
-    ));
+    );
   }
 
   Future _resetPassword() async {

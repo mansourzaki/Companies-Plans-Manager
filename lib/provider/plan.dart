@@ -525,6 +525,7 @@ class Plan with ChangeNotifier {
           .update({
         'name': task.name,
         'startTime': task.startTime,
+        'sharedBy': task.sharedBy,
         'endTime': task.endTime,
         'status': task.status,
         'workHours': task.workHours,

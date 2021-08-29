@@ -42,285 +42,283 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.blue[200]!,
-              Colors.blue[300]!,
-              Colors.blue[400]!,
-              Colors.blue[500]!,
-            ],
-          ),
-        ),
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  'assets/images/logo.png',
-                  width: 200,
-                  height: 200,
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          spreadRadius: 6,
-                          blurRadius: 8,
-                          offset: Offset(0, 3), // changes position of shadow
-                        ),
-                      ]),
-                  margin: EdgeInsets.all(10),
-                  padding: EdgeInsets.all(10),
-                  child: Form(
-                      key: _formKey,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Directionality(
-                              textDirection: TextDirection.rtl,
-                              child: TextFormField(
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return '';
-                                  }
-                                  return null;
-                                },
-                                controller: _nameController,
-                                decoration: InputDecoration(
-                                  hintStyle: TextStyle(color: Colors.black),
-                                  prefixIcon: Icon(
-                                    Icons.person,
-                                    color: Colors.black,
-                                  ),
-                                  labelText: 'الاسم',
-                                  labelStyle: TextStyle(color: Colors.black),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.black),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(10)),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.black),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(10)),
-                                  ),
+      backgroundColor: Color(0xffF0F4FD),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/images/iccon.png',
+                width: 150,
+                height: 150,
+              ),
+              SizedBox(
+                height: 15,
+              ),
+              Container(
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        spreadRadius: 6,
+                        blurRadius: 8,
+                        offset: Offset(0, 3), // changes position of shadow
+                      ),
+                    ]),
+                margin: EdgeInsets.all(10),
+                padding: EdgeInsets.all(10),
+                child: Form(
+                    key: _formKey,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Directionality(
+                            textDirection: TextDirection.rtl,
+                            child: TextFormField(
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return '';
+                                }
+                                return null;
+                              },
+                              controller: _nameController,
+                              decoration: InputDecoration(
+                                hintStyle: TextStyle(color: Colors.black),
+                                prefixIcon: Icon(
+                                  Icons.person,
+                                  color: Colors.purple,
+                                ),
+                                labelText: 'الاسم',
+                                labelStyle: TextStyle(color: Colors.black),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.black),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.black),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
                                 ),
                               ),
                             ),
-                            SizedBox(
-                              height: 15,
-                            ),
-                            // Text('تسجيل حساب جديد',style: TextStyle(fontSize: 24,fontWeight: FontWeight.bold),),
-                            Directionality(
-                              textDirection: TextDirection.rtl,
-                              child: TextFormField(
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'ادخل البريد الكتروني';
-                                  }
-                                  return null;
-                                },
-                                controller: _emailController,
-                                keyboardType: TextInputType.emailAddress,
-                                decoration: InputDecoration(
-                                  hintStyle: TextStyle(color: Colors.black),
-                                  prefixIcon: Icon(
-                                    Icons.email,
-                                    color: Colors.black,
-                                  ),
-                                  labelText: 'البريد الإلكتروني',
-                                  labelStyle: TextStyle(color: Colors.black),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.black),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(10)),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.black),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(10)),
-                                  ),
+                          ),
+                          SizedBox(
+                            height: 15,
+                          ),
+                          // Text('تسجيل حساب جديد',style: TextStyle(fontSize: 24,fontWeight: FontWeight.bold),),
+                          Directionality(
+                            textDirection: TextDirection.rtl,
+                            child: TextFormField(
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'ادخل البريد الكتروني';
+                                }
+                                return null;
+                              },
+                              controller: _emailController,
+                              keyboardType: TextInputType.emailAddress,
+                              decoration: InputDecoration(
+                                hintStyle: TextStyle(color: Colors.black),
+                                prefixIcon: Icon(
+                                  Icons.email,
+                                  color: Colors.purple,
+                                ),
+                                labelText: 'البريد الإلكتروني',
+                                labelStyle: TextStyle(color: Colors.black),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.black),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.black),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
                                 ),
                               ),
                             ),
-                            SizedBox(
-                              height: 15,
-                            ),
-                            Directionality(
-                              textDirection: TextDirection.rtl,
-                              child: TextFormField(
-                                obscureText: true,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'ادخل كلمة المرور';
-                                  }
-                                  return null;
-                                },
-                                controller: _passwordController,
-                                decoration: InputDecoration(
-                                  prefixIcon: Icon(
-                                    Icons.lock,
-                                    color: Colors.black,
-                                  ),
-                                  labelText: 'كلمة المرور',
-                                  labelStyle: TextStyle(color: Colors.black),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.black),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(10)),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.black),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(10)),
-                                  ),
+                          ),
+                          SizedBox(
+                            height: 15,
+                          ),
+                          Directionality(
+                            textDirection: TextDirection.rtl,
+                            child: TextFormField(
+                              obscureText: true,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'ادخل كلمة المرور';
+                                }
+                                return null;
+                              },
+                              controller: _passwordController,
+                              decoration: InputDecoration(
+                                prefixIcon: Icon(
+                                  Icons.lock,
+                                  color: Colors.purple,
+                                ),
+                                labelText: 'كلمة المرور',
+                                labelStyle: TextStyle(color: Colors.black),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.black),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.black),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
                                 ),
                               ),
                             ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            Directionality(
-                              textDirection: TextDirection.rtl,
-                              child: TextFormField(
-                                obscureText: true,
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Directionality(
+                            textDirection: TextDirection.rtl,
+                            child: TextFormField(
+                              obscureText: true,
 
-                                // autovalidateMode:
-                                //     AutovalidateMode.onUserInteraction,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'ادخل كلمة المرور';
-                                  }
-                                  if (value != _passwordController.text) {
-                                    return 'الكلمتان غير متطابقتان';
-                                  }
-                                  return null;
-                                },
-                                controller: _confirmPasswordController,
-                                decoration: InputDecoration(
-                                  prefixIcon: Icon(
-                                    Icons.lock,
-                                    color: Colors.black,
-                                  ),
-                                  labelText: 'تأكيد كلمة المرور',
-                                  labelStyle: TextStyle(color: Colors.black),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.black),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(10)),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.black),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(10)),
-                                  ),
+                              // autovalidateMode:
+                              //     AutovalidateMode.onUserInteraction,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'ادخل كلمة المرور';
+                                }
+                                if (value != _passwordController.text) {
+                                  return 'الكلمتان غير متطابقتان';
+                                }
+                                return null;
+                              },
+                              controller: _confirmPasswordController,
+                              decoration: InputDecoration(
+                                prefixIcon: Icon(
+                                  Icons.lock,
+                                  color: Colors.purple,
+                                ),
+                                labelText: 'تأكيد كلمة المرور',
+                                labelStyle: TextStyle(color: Colors.black),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.black),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.black),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
                                 ),
                               ),
                             ),
-                            SizedBox(
-                              height: 15,
-                            ),
-                            Directionality(
-                              textDirection: TextDirection.rtl,
-                              child: TextFormField(
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'ادخل كلمة المرور';
-                                  }
-                                  return null;
-                                },
-                                controller: _teamNameController,
-                                onTap: () async {
-                                  List teams = await FirebaseFirestore.instance
-                                      .collection('teams')
-                                      .get()
-                                      .then((value) => value.docs.first
-                                          .data()
-                                          .entries
-                                          .map((e) => e.value)
-                                          .toList());
-                                  showMaterialScrollPicker(
-                                      title: 'اختر الفريق',
-                                      headerTextColor: Colors.white,
-                                      onChanged: (selectedTeam) {
-                                        _teamNameController.text =
-                                            selectedTeam.toString();
-                                      },
-                                      context: context,
-                                      items: teams,
-                                      selectedItem: 's');
-                                },
-                                focusNode: AlwaysDisabledFocusNode(),
-                                decoration: InputDecoration(
-                                  prefixIcon: Icon(
-                                    Icons.people,
-                                    color: Colors.black,
-                                  ),
-                                  labelText: 'اسم الفريق',
-                                  labelStyle: TextStyle(color: Colors.black),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.black),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(10)),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.black),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(10)),
-                                  ),
+                          ),
+                          SizedBox(
+                            height: 15,
+                          ),
+                          Directionality(
+                            textDirection: TextDirection.rtl,
+                            child: TextFormField(
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'ادخل كلمة المرور';
+                                }
+                                return null;
+                              },
+                              controller: _teamNameController,
+                              onTap: () async {
+                                List teams = await FirebaseFirestore.instance
+                                    .collection('teams')
+                                    .get()
+                                    .then((value) => value.docs.first
+                                        .data()
+                                        .entries
+                                        .map((e) => e.value)
+                                        .toList());
+                                showMaterialScrollPicker(
+                                    title: 'اختر الفريق',
+                                    headerTextColor: Colors.white,
+                                    onChanged: (selectedTeam) {
+                                      _teamNameController.text =
+                                          selectedTeam.toString();
+                                    },
+                                    context: context,
+                                    headerColor: Colors.purple,
+                                    items: teams,
+                                    showDivider: false,
+                                    selectedItem: 's');
+                              },
+                              focusNode: AlwaysDisabledFocusNode(),
+                              decoration: InputDecoration(
+                                prefixIcon: Icon(
+                                  Icons.people,
+                                  color: Colors.purple,
+                                ),
+                                labelText: 'اسم الفريق',
+                                labelStyle: TextStyle(color: Colors.black),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.black),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.black),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
                                 ),
                               ),
                             ),
+                          ),
 
-                            _isloading
-                                ? CircularProgressIndicator()
-                                : SizedBox(
-                                    width: 200,
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                          primary: Colors.green),
-                                      onPressed: () {
-                                        if (_formKey.currentState!.validate()) {
-                                          FocusScope.of(context).unfocus();
-                                          _register();
+                          _isloading
+                              ? CircularProgressIndicator()
+                              : SizedBox(
+                                  width: 200,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                        primary: Colors.purple,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(15))),
+                                    onPressed: () {
+                                      if (_formKey.currentState!.validate()) {
+                                        FocusScope.of(context).unfocus();
+                                        _register();
+                                      }
+                                    },
+                                    child: Text('تسجيل'),
+                                  ),
+                                ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              TextButton(
+                                  onPressed: !_isloading
+                                      ? () {
+                                          Navigator.of(context)
+                                              .pushReplacementNamed(
+                                                  LoginScreen.routeName);
                                         }
-                                      },
-                                      child: Text('تسجيل'),
-                                    ),
-                                  ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                TextButton(
-                                    onPressed: !_isloading
-                                        ? () {
-                                            Navigator.of(context)
-                                                .pushReplacementNamed(
-                                                    LoginScreen.routeName);
-                                          }
-                                        : null,
-                                    child: Text('تسجيل الدخول'))
-                              ],
-                            )
-                          ],
-                        ),
-                      )),
-                ),
-              ],
-            ),
+                                      : null,
+                                  child: Text(
+                                    'تسجيل الدخول',
+                                    style: TextStyle(color: Colors.grey),
+                                  ))
+                            ],
+                          )
+                        ],
+                      ),
+                    )),
+              ),
+            ],
           ),
         ),
       ),

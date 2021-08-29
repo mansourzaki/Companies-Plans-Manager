@@ -76,6 +76,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             if (snapshot.hasError) {
               return Text('an error has occured');
             }
+            if (snapshot.data == null) {
+              return Center(child: Text('No Notifications'));
+            }
             tasks = snapshot.data!.docs
                 .where((element) => ids.contains(element.id))
                 .map((e) {

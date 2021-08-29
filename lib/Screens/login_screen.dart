@@ -5,7 +5,6 @@ import 'package:plansmanager/Screens/admin_screen.dart';
 import 'package:plansmanager/Screens/forgot_password_screen.dart';
 import 'package:plansmanager/Screens/register_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 import 'package:plansmanager/main.dart';
 import '../provider/user.dart' as user;
 
@@ -52,52 +51,61 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final double _height = MediaQuery.of(context).size.height;
     return Scaffold(
-        body: Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.blue[200]!,
-            Colors.blue[300]!,
-            Colors.blue[400]!,
-            Colors.blue[500]!,
-          ],
-        ),
-      ),
-      //child: Center(
-      //   child: Stack(
-      //  alignment: Alignment.center,
-      //  children: [
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(
-            'assets/images/logo.png',
-            width: 200,
-            height: 200,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Container(
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      spreadRadius: 6,
-                      blurRadius: 8,
-                      offset: Offset(0, 3), // changes position of shadow
-                    ),
-                  ]),
-              margin: EdgeInsets.all(10),
-              padding:
-                  EdgeInsets.only(left: 20, right: 20, bottom: 15, top: 20),
-              child: Form(
-                  key: _formkey,
-                  child: SingleChildScrollView(
+      backgroundColor: Color(0xffF0F4FD),
+      // body: Container(
+      //   decoration: BoxDecoration(
+      //     gradient: LinearGradient(
+      //       begin: Alignment.topLeft,
+      //       end: Alignment.bottomRight,
+      //       colors: [
+      //         Colors.blue[200]!,
+      //         Colors.blue[300]!,
+      //         Colors.blue[400]!,
+      //         Colors.blue[500]!,
+      //       ],
+      //     ),
+      //   ),
+      //   //child: Center(
+      //   //   child: Stack(
+      //   //  alignment: Alignment.center,
+      //   //  children: [
+      //   child:
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            SizedBox(
+              height: _height*0.1,
+            ),
+            Image.asset(
+              'assets/images/iccon.png',
+              width: 150,
+              height: 150,
+            ),
+            SizedBox(
+              height: 60,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Container(
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          spreadRadius: 6,
+                          blurRadius: 8,
+                          offset: Offset(0, 3), // changes position of shadow
+                        ),
+                      ]),
+                  margin: EdgeInsets.all(10),
+                  padding:
+                      EdgeInsets.only(left: 20, right: 20, bottom: 15, top: 20),
+                  child: Form(
+                    key: _formkey,
                     child: Column(
                       children: [
                         Directionality(
@@ -115,7 +123,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               hintStyle: TextStyle(color: Colors.black),
                               prefixIcon: Icon(
                                 Icons.email,
-                                color: Colors.black,
+                                color: Colors.purple,
                               ),
                               labelText: 'البريد الإلكتروني',
                               labelStyle: TextStyle(color: Colors.black),
@@ -149,7 +157,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             decoration: InputDecoration(
                               prefixIcon: Icon(
                                 Icons.lock,
-                                color: Colors.black,
+                                color: Colors.purple,
                               ),
                               labelText: 'كلمة المرور',
                               labelStyle: TextStyle(color: Colors.black),
@@ -203,35 +211,36 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   )),
             ),
-          ),
-          _isloading
-              ? CircularProgressIndicator()
-              : SizedBox(
-                  width: 200,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        primary: Colors.green,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15))),
-                    onPressed: () {
-                      if (_formkey.currentState!.validate()) {
-                        FocusScope.of(context).unfocus();
-                        _login();
-                        print(_passwordController.text);
-                      }
-                    },
-                    child: Text(
-                      'تسجيل الدخول',
-                      style: GoogleFonts.almarai(textStyle: TextStyle()),
+            _isloading
+                ? CircularProgressIndicator()
+                : SizedBox(
+                    width: 200,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          primary: Colors.purple,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15))),
+                      onPressed: () {
+                        if (_formkey.currentState!.validate()) {
+                          FocusScope.of(context).unfocus();
+                          _login();
+                          print(_passwordController.text);
+                        }
+                      },
+                      child: Text(
+                        'تسجيل الدخول',
+                        style: GoogleFonts.almarai(textStyle: TextStyle()),
+                      ),
                     ),
-                  ),
-                )
-        ],
+                  )
+          ],
+        ),
       ),
+
       // ],
       //    ),
       // ),
-    ));
+    );
   }
 
   Future _login() async {

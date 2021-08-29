@@ -176,6 +176,7 @@ class _PlansScreenState extends State<PlansScreen>
               child: Text('أضف خطة جديدة'),
               style: ElevatedButton.styleFrom(
                 elevation: 5,
+                primary: Colors.purple
               ),
               onPressed: () {
                 showDialog(
