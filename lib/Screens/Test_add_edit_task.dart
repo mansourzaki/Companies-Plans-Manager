@@ -95,7 +95,7 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
         child: Form(
           key: _formKey,
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -115,11 +115,11 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                     textDirection: TextDirection.rtl,
                     maxLines: 2,
                     decoration: InputDecoration(
-                      border: OutlineInputBorder(
+                    enabledBorder:  OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
-                            color: Colors.black38,
-                            width: 2.0,
+                            color: Colors.grey,
+                            width: 0.5,
                           )),
                       focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
@@ -181,11 +181,11 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                           }
                         },
                         decoration: InputDecoration(
-                          border: OutlineInputBorder(
+                         enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
-                                color: Colors.black38,
-                                width: 2.0,
+                                color: Colors.grey,
+                                width: 0.5,
                               )),
                           focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
@@ -435,11 +435,11 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                                 color: Colors.purple,
                               ),
                               labelText: 'الفرق المساندة',
-                              border: OutlineInputBorder(
+                              enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
                                   borderSide: BorderSide(
                                     color: Colors.black38,
-                                    width: 2.0,
+                                    width: 0.5,
                                   )),
                               focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
@@ -482,11 +482,11 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                       textDirection: TextDirection.rtl,
                       maxLines: 7,
                       decoration: InputDecoration(
-                        border: OutlineInputBorder(
+                        enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
                             borderSide: BorderSide(
                               color: Colors.black38,
-                              width: 2.0,
+                              width: 0.5,
                             )),
                         focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),

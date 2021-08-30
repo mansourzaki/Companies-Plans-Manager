@@ -24,7 +24,7 @@ class _UserPlansScreenState extends State<UserPlansScreen> {
         title:
             Text(' خطط ${widget.user!.name}', textDirection: TextDirection.rtl),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: Color(0xffF0F4FD),
       ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance

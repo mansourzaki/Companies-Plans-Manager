@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:plansmanager/Screens/home_screen.dart';
+import 'package:plansmanager/main.dart';
 import 'package:plansmanager/provider/plan.dart';
 import 'package:provider/provider.dart';
 import 'package:loading_indicator/loading_indicator.dart';
@@ -133,7 +135,16 @@ class _PlansScreenState extends State<PlansScreen>
                               subtitle: Text(
                                   '01/${snapshot.data!.docs[i]['month']}/2021'),
 
-                              onTap: () {},
+                              onTap: () async {
+                                int? month =
+                                    await snapshot.data!.docs[i]['month'];
+                                HomeScreen.initialMonth =
+                                    month == null ? month : month - 1;
+                                MyHomePage.pageController.jumpToPage(1);
+                                if (month != null) {
+                                  context.read<Plan>().getCustomPlan(month);
+                                }
+                              },
 
                               // data[i]['endDate'].to
 
@@ -175,9 +186,7 @@ class _PlansScreenState extends State<PlansScreen>
           child: ElevatedButton(
               child: Text('أضف خطة جديدة'),
               style: ElevatedButton.styleFrom(
-                elevation: 5,
-                primary: Colors.purple
-              ),
+                  elevation: 5, primary: Colors.purple),
               onPressed: () {
                 showDialog(
                     context: context,

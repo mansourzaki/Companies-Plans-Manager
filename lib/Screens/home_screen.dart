@@ -21,6 +21,7 @@ enum TaskType { support, dev }
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
   static final routeName = 'HomeScreen';
+  static int? initialMonth;
   static bool allmonth = false;
   static int month = 0;
   @override
@@ -67,6 +68,7 @@ class _HomeScreenState extends State<HomeScreen>
     context.read<Plan>().getSharedTasks(DateTime.now().month);
     context.read<Plan>().getAllTasks(DateTime.now().month);
 
+    _selectedIndex = HomeScreen.initialMonth;
     print('init ${FirebaseAuth.instance.currentUser!.uid}');
     //context.read<Plan>().setTasksBasedOnSelectedDay(DateTime.now().day);
     super.initState();
@@ -76,6 +78,7 @@ class _HomeScreenState extends State<HomeScreen>
   int? alert;
   @override
   Widget build(BuildContext context) {
+    _selectedIndex = HomeScreen.initialMonth;
     String? current = Provider.of<Plan>(context, listen: true).current;
     print('$current currrent');
 
@@ -118,6 +121,7 @@ class _HomeScreenState extends State<HomeScreen>
                             onTap: () {
                               setState(() {
                                 _selectedIndex = i;
+                                HomeScreen.initialMonth = i;
                                 _isSelected = !_isSelected;
                               });
                               HomeScreen.allmonth = true;
@@ -130,11 +134,11 @@ class _HomeScreenState extends State<HomeScreen>
                             },
                             child: Container(
                               width: 88,
-                              alignment: Alignment.topCenter,
+                              alignment: Alignment.center,
                               padding: EdgeInsets.symmetric(
-                                  vertical: 5, horizontal: 10),
+                                  vertical: 5, horizontal: 5),
                               margin: EdgeInsets.symmetric(
-                                  vertical: 10, horizontal: 15),
+                                  vertical: 7, horizontal: 7),
                               decoration: BoxDecoration(
                                   color: (_selectedIndex == i &&
                                           _selectedIndex != null)

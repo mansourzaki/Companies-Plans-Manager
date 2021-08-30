@@ -61,17 +61,16 @@ class _TaskCardState extends State<TaskCard> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.only(top: 5,right: 20,bottom: 0),
+              padding: const EdgeInsets.only(top: 5, right: 20, bottom: 0),
               child: Align(
                 alignment: Alignment.centerRight,
                 child: Text(
                   intl.DateFormat.yMMMd()
                       .format(widget.task!.startTime!.toDate()),
-                  style: TextStyle(color: Colors.grey,fontSize: 12),
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
                 ),
               ),
             ),
-           
             Divider(
               indent: 20,
               endIndent: 30,
@@ -125,11 +124,13 @@ class _TaskCardState extends State<TaskCard> {
                               setState(() {
                                 _isLoading = true;
                               });
+                              widget.task!.status = value;
+                              _isLoading = false;
                               await pl.updateTaskSatus(widget.task!, value!);
                               setState(() async {
                                 print('${widget.task!.id} task id');
-                                widget.task!.status = value;
-                                _isLoading = false;
+                                // widget.task!.status = value;
+                                // _isLoading = false;
                               });
                               Future.delayed(Duration(seconds: 2), () async {});
                             }

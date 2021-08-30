@@ -66,7 +66,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           iconTheme: IconThemeData(
             color: Colors.black, //change your color here
           ),
-          backgroundColor: Colors.white,
+          backgroundColor: Color(0xffF0F4FD),
           title: Text('الإشعارات'),
           centerTitle: true,
         ),

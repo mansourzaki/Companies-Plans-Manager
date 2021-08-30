@@ -7,10 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:plansmanager/Screens/admin_screen.dart';
+import 'package:plansmanager/Screens/changePassword_screen.dart';
 import 'package:plansmanager/Screens/forgot_password_screen.dart';
 import 'package:plansmanager/Screens/notification_screen.dart';
 import 'package:plansmanager/Screens/plans_screen.dart';
 import 'package:plansmanager/Screens/home_screen.dart';
+import 'package:plansmanager/Screens/profile.dart';
 import 'package:plansmanager/Screens/teamLeaderScreen/allmember.dart';
 import 'package:plansmanager/provider/plan.dart';
 import 'package:plansmanager/provider/task.dart';
@@ -119,17 +121,22 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   static final routeName = 'MyHomePage';
-  MyHomePage({Key? key, this.user}) : super(key: key);
+  static int currentIndex = 0;
+  static final pageController = PageController();
+  MyHomePage({Key? key, this.user, this.initialMonth}) : super(key: key);
   final usser.User? user;
+  final int? initialMonth;
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
   late FirebaseMessaging messaging;
+
   @override
   void initState() {
     messaging = FirebaseMessaging.instance;
+    _initial = widget.initialMonth;
     // FirebaseFirestore.instance
     //     .collection('users')
     //     .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -173,26 +180,27 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
   }
 
-  final List<Widget> _screens = [
-    PlansScreen(),
-    HomeScreen(),
-  ];
-
+  int? _initial;
   int _currentIndex = 0;
   int _notificationCount = 0;
-  final pageController = PageController();
+
   void onPageChanged(int index) {
     setState(() {
-      _currentIndex = index;
+      //_currentIndex = index;
+      MyHomePage.currentIndex = index;
     });
   }
 
   void onTap(int index) {
-    pageController.jumpToPage(index);
+    MyHomePage.pageController.jumpToPage(index);
   }
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> _screens = [
+      PlansScreen(),
+      HomeScreen(),
+    ];
     return Scaffold(
       backgroundColor: Colors.black,
       endDrawer: Drawer(
@@ -218,18 +226,30 @@ class _MyHomePageState extends State<MyHomePage> {
                       Text(FirebaseAuth.instance.currentUser!.email!)),
             ),
             ListTile(
-              trailing: Icon(Icons.task),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => MyProfileScreen(
+                          user: widget.user!,
+                        )));
+              },
+              trailing: Icon(Icons.person),
               title: Text(
-                'الخطط',
+                'حسابي',
                 textDirection: TextDirection.rtl,
                 style: TextStyle(fontSize: 16),
               ),
             ),
             Divider(),
             ListTile(
-              trailing: Icon(Icons.settings),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => ChangePasswordScreen(
+                          user: widget.user!,
+                        )));
+              },
+              trailing: Icon(Icons.lock),
               title: Text(
-                'الإعدادات',
+                'تغيير كلمة المرور',
                 textDirection: TextDirection.rtl,
                 style: TextStyle(fontSize: 16),
               ),
@@ -350,16 +370,19 @@ class _MyHomePageState extends State<MyHomePage> {
         //     icon: Icon(Icons.add))
       ),
       body: PageView(
-        controller: pageController,
+        controller: MyHomePage.pageController,
         onPageChanged: onPageChanged,
         children: _screens,
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
+        currentIndex: MyHomePage.currentIndex,
         onTap: onTap,
         items: [
           BottomNavigationBarItem(
-              icon: FaIcon(FontAwesomeIcons.projectDiagram,), label: 'الخطط'),
+              icon: FaIcon(
+                FontAwesomeIcons.projectDiagram,
+              ),
+              label: 'الخطط'),
           BottomNavigationBarItem(
               icon: Icon(
                 Icons.task,

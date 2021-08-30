@@ -22,7 +22,7 @@ class _AdminScreenState extends State<AdminScreen> {
         appBar: AppBar(
           title: Text('جميع المستخدمين'),
           centerTitle: true,
-          backgroundColor: Colors.white,
+          backgroundColor: Color(0xffF0F4FD),
           leading: IconButton(
               color: Colors.black,
               onPressed: () {
