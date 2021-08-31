@@ -49,7 +49,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'إدارة المهام',
       theme: ThemeData(
         textTheme: GoogleFonts.almaraiTextTheme(),
         primaryTextTheme: GoogleFonts.almaraiTextTheme(),
@@ -183,7 +183,6 @@ class _MyHomePageState extends State<MyHomePage> {
   int? _initial;
   int _currentIndex = 0;
   int _notificationCount = 0;
-
   void onPageChanged(int index) {
     setState(() {
       //_currentIndex = index;
@@ -288,13 +287,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       arrayContains: FirebaseAuth.instance.currentUser!.uid)
                   .snapshots(),
               builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                print('lelele ${snapshot.toString()}');
                 if (snapshot.hasData) {
                   _notificationCount = snapshot.data!.docs.length;
                 }
-                // if (snapshot.connectionState == ConnectionState.active) {
-                //   return Center();
-                // }
 
                 return Stack(
                   fit: StackFit.passthrough,

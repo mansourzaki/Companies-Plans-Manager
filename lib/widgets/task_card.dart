@@ -33,7 +33,7 @@ class _TaskCardState extends State<TaskCard> {
 
   @override
   Widget build(BuildContext context) {
-    context.read<Task>().getTaskOwner(widget.task!.sharedBy!);
+    //context.read<Task>().getTaskOwner(widget.task!.sharedBy!);
     final pl = context.read<Plan>();
     return Directionality(
       textDirection: TextDirection.rtl,

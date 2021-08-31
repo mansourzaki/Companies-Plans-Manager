@@ -115,7 +115,7 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                     textDirection: TextDirection.rtl,
                     maxLines: 2,
                     decoration: InputDecoration(
-                    enabledBorder:  OutlineInputBorder(
+                      enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
                             color: Colors.grey,
@@ -181,7 +181,7 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                           }
                         },
                         decoration: InputDecoration(
-                         enabledBorder: OutlineInputBorder(
+                          enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
                                 color: Colors.grey,
@@ -451,7 +451,7 @@ class _TestAddEditScreenState extends State<TestAddEditScreen> {
                             chipBuilder: (context, state, data) {
                               return InputChip(
                                 key: ObjectKey(data),
-                                label: Text(data.name!),
+                                label: Text('${data.name} - ${data.team}'),
                                 onDeleted: !widget.isAdmin
                                     ? () => state.deleteChip(data)
                                     : null,
