@@ -405,6 +405,7 @@ class Plan with ChangeNotifier {
               'planId': ref.parent.parent!.id,
               'taskId': ref.id,
               'ownerId': userId,
+              'seen': false,
               'recieversId': f.keys.toList()
             });
           }

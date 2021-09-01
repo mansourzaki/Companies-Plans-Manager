@@ -80,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
               height: _height*0.1,
             ),
             Image.asset(
-              'assets/images/iccon.png',
+              'assets/images/iccon2.png',
               width: 150,
               height: 150,
             ),

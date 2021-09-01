@@ -7,7 +7,7 @@ import 'package:plansmanager/main.dart';
 import 'package:plansmanager/provider/plan.dart';
 import 'package:provider/provider.dart';
 import 'package:loading_indicator/loading_indicator.dart';
-
+import 'package:provider/provider.dart';
 class PlansScreen extends StatefulWidget {
   static final routeName = 'PlansScreen';
 
@@ -282,7 +282,7 @@ class _PlansScreenState extends State<PlansScreen>
                                                   'percentage': 0.0,
                                                 });
                                                 _duplicate = false;
-
+                                              context.read<Plan>().getCurrentPlan();
                                                 Navigator.of(context).pop();
                                               }
                                             }

@@ -57,7 +57,7 @@ class MyApp extends StatelessWidget {
       ),
       //to get the cashed user token and sign in automatically
       home: AnimatedSplashScreen(
-        splash: 'assets/images/iccon.png',
+        splash: 'assets/images/iccon2.png',
         splashTransition: SplashTransition.rotationTransition,
         nextScreen: FirebaseAuth.instance.currentUser == null
             ? LoginScreen()
@@ -285,6 +285,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   .collection('sharedTasks')
                   .where('recieversId',
                       arrayContains: FirebaseAuth.instance.currentUser!.uid)
+                  .where('seen', isEqualTo: false)
                   .snapshots(),
               builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (snapshot.hasData) {
@@ -295,13 +296,19 @@ class _MyHomePageState extends State<MyHomePage> {
                   fit: StackFit.passthrough,
                   children: [
                     IconButton(
-                        onPressed: () {
+                        onPressed: () async {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => NotificationsScreen(
                                         snapshot1: snapshot,
                                       )));
+                          final ref = await FirebaseFirestore.instance
+                              .collection('sharedTasks')
+                              .get();
+                          ref.docs.forEach((element) {
+                            element.reference.update({'seen': true});
+                          });
                         },
                         icon: Icon(Icons.notifications)),
                     Positioned(
@@ -338,7 +345,7 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Color(0xffF0F4FD),
         elevation: 0,
         leading: IconButton(
-            onPressed: () {
+            onPressed: () async {
               showDialog(context: context, builder: (_) => SignOutDialog());
             },
             icon: Icon(Icons.exit_to_app)),

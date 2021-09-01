@@ -530,9 +530,80 @@ class _HomeScreenState extends State<HomeScreen>
                               ? ListView.builder(
                                   itemCount: selectedDayTasks.length,
                                   itemBuilder: (context, i) {
-                                    return TaskCard(
-                                        task: selectedDayTasks[i],
-                                        id: selectedDayTasks[i].id);
+                                    return Dismissible(
+                                        onDismissed: (value) async {
+                                          print('ion dis');
+                                          if (tasks[i].shared == false) {
+                                            await FirebaseFirestore.instance
+                                                .collection('plans')
+                                                .doc(tasks[i].planId)
+                                                .collection('tasks')
+                                                .doc(tasks[i].id)
+                                                .delete();
+                                          } else if (tasks[i].shared == true) {
+                                            await FirebaseFirestore.instance
+                                                .collection('plans')
+                                                .doc(tasks[i].planId)
+                                                .collection('tasks')
+                                                .doc(tasks[i].id)
+                                                .delete();
+                                            var ref = await FirebaseFirestore
+                                                .instance
+                                                .collection('sharedTasks')
+                                                .get();
+                                            ref.docs
+                                                .where((element) =>
+                                                    element['taskId'] ==
+                                                    tasks[i].id)
+                                                .first
+                                                .reference
+                                                .delete();
+                                          }
+                                        },
+                                        confirmDismiss: (direction) async {
+                                          return await showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                return AlertDialog(
+                                                  title: Text(
+                                                      'هل انت متأكد من حذف المهمة'),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.pop(
+                                                            context, false);
+                                                      },
+                                                      child: Text('لا'),
+                                                    ),
+                                                    TextButton(
+                                                      onPressed: () async {
+                                                        Navigator.pop(
+                                                            context, true);
+                                                      },
+                                                      child: Text('نعم'),
+                                                    ),
+                                                  ],
+                                                );
+                                              });
+                                        },
+                                        direction: DismissDirection.endToStart,
+                                        key: UniqueKey(),
+                                        background: Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.red,
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          alignment: Alignment.centerRight,
+                                          padding: EdgeInsets.only(right: 20.0),
+                                          child: Icon(
+                                            Icons.delete,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        child: TaskCard(
+                                            task: selectedDayTasks[i],
+                                            id: selectedDayTasks[i].id));
                                   })
                               : Center(child: Text('No Tasks For Today'));
                     }),

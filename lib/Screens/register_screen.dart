@@ -49,7 +49,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
-                'assets/images/iccon.png',
+                'assets/images/iccon2.png',
                 width: 150,
                 height: 150,
               ),
