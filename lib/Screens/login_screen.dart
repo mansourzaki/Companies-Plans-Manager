@@ -18,7 +18,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formkey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _idNumController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isloading = false;
   void _showErrorDialog(String message) {
@@ -77,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
           mainAxisSize: MainAxisSize.max,
           children: [
             SizedBox(
-              height: _height*0.1,
+              height: _height * 0.1,
             ),
             Image.asset(
               'assets/images/iccon2.png',
@@ -112,20 +112,23 @@ class _LoginScreenState extends State<LoginScreen> {
                           textDirection: TextDirection.rtl,
                           child: TextFormField(
                             validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'ادخل البريد الكتروني';
+                              if (value == null ||
+                                  value.isEmpty ||
+                                  value.length > 9 ||
+                                  double.tryParse(value) == null) {
+                                return 'ادخل رقم الهوية';
                               }
                               return null;
                             },
-                            controller: _emailController,
-                            keyboardType: TextInputType.emailAddress,
+                            controller: _idNumController,
+                            keyboardType: TextInputType.number,
                             decoration: InputDecoration(
                               hintStyle: TextStyle(color: Colors.black),
                               prefixIcon: Icon(
-                                Icons.email,
+                                Icons.badge,
                                 color: Colors.purple,
                               ),
-                              labelText: 'البريد الإلكتروني',
+                              labelText: 'رقم الهوية',
                               labelStyle: TextStyle(color: Colors.black),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: BorderSide(color: Colors.black),
@@ -246,12 +249,20 @@ class _LoginScreenState extends State<LoginScreen> {
   Future _login() async {
     FirebaseAuth _auth = FirebaseAuth.instance;
     UserCredential? _userCredential;
+    String? _email;
     try {
       setState(() {
         _isloading = true;
       });
+      var ref = await FirebaseFirestore.instance
+          .collection('users')
+          .where('idNum', isEqualTo: int.parse(_idNumController.text))
+          .get();
+
+      _email = ref.docs.first.data()['email'];
+
       _userCredential = await _auth.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
+        email: _email ?? 'f',
         password: _passwordController.text.trim(),
       );
       DocumentSnapshot userRef = await FirebaseFirestore.instance
@@ -299,7 +310,17 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         _isloading = false;
       });
-      print(err);
+      if (_email == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '!تأكد من رقم الهوية',
+              textAlign: TextAlign.right,
+            ),
+            backgroundColor: Theme.of(context).errorColor,
+          ),
+        );
+      }
     }
   }
 }

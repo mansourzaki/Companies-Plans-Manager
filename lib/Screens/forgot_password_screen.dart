@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -13,7 +14,7 @@ class ForgotPasswordScreen extends StatefulWidget {
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formkey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _idNumController = TextEditingController();
   bool _isloading = false;
   void _showErrorDialog(String message) {
     showDialog(
@@ -72,19 +73,23 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         textDirection: TextDirection.rtl,
                         child: TextFormField(
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'ادخل البريد الكتروني';
+                            if (value == null ||
+                                value.isEmpty ||
+                                double.tryParse(value) == null ||
+                                value.length > 9) {
+                              return 'ادخل رقم الهوية';
                             }
                             return null;
                           },
-                          controller: _emailController,
+                          keyboardType: TextInputType.number,
+                          controller: _idNumController,
                           decoration: InputDecoration(
                             hintStyle: TextStyle(color: Colors.black),
                             prefixIcon: Icon(
-                              Icons.email,
+                              Icons.badge,
                               color: Colors.purple,
                             ),
-                            labelText: 'البريد الإلكتروني',
+                            labelText: 'رقم الهوية',
                             labelStyle: TextStyle(color: Colors.black),
                             enabledBorder: OutlineInputBorder(
                               borderSide: BorderSide(color: Colors.black),
@@ -148,12 +153,29 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   Future _resetPassword() async {
     FirebaseAuth _auth = FirebaseAuth.instance;
-
+    String? _email;
     try {
       setState(() {
         _isloading = true;
       });
-      await _auth.sendPasswordResetEmail(email: _emailController.text);
+      var ref = await FirebaseFirestore.instance
+          .collection('users')
+          .where('idNum', isEqualTo: int.parse(_idNumController.text))
+          .get();
+      if (ref.docs.isEmpty) {
+        throw FirebaseAuthException(code: 'notEx');
+      }
+
+      _email = ref.docs.first.data()['email'];
+      await _auth.sendPasswordResetEmail(email: _email ?? 'f');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(
+              'تم إرسال رابط تغيير كلمة المرور على البريد المسجل',
+              textAlign: TextAlign.right,
+            ),
+            backgroundColor: Colors.green),
+      );
       Navigator.of(context).pop();
       // Navigator.of(context).pushRepla print(_userCredential);
     } on FirebaseAuthException catch (e) {
@@ -161,13 +183,19 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         _isloading = false;
       });
       var message = 'An error occured please check your credentials';
+      if (e.code == 'notEx') {
+        message = '!رقم الهوية غير موجود';
+      }
       if (e.message != null) {
         message = e.message!;
       }
       //_showErrorDialog(e.code);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(message),
+          content: Text(
+            message,
+            textAlign: TextAlign.right,
+          ),
           backgroundColor: Theme.of(context).errorColor,
         ),
       );

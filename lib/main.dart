@@ -122,7 +122,7 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   static final routeName = 'MyHomePage';
   static int currentIndex = 0;
-  static final pageController = PageController();
+
   MyHomePage({Key? key, this.user, this.initialMonth}) : super(key: key);
   final usser.User? user;
   final int? initialMonth;
@@ -183,6 +183,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int? _initial;
   int _currentIndex = 0;
   int _notificationCount = 0;
+  final pageController = PageController(initialPage: 0);
   void onPageChanged(int index) {
     setState(() {
       //_currentIndex = index;
@@ -191,7 +192,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void onTap(int index) {
-    MyHomePage.pageController.jumpToPage(index);
+    pageController.jumpToPage(index);
   }
 
   @override
@@ -372,9 +373,10 @@ class _MyHomePageState extends State<MyHomePage> {
         //     icon: Icon(Icons.add))
       ),
       body: PageView(
-        controller: MyHomePage.pageController,
+        controller: pageController,
         onPageChanged: onPageChanged,
         children: _screens,
+        // children: _screens,
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: MyHomePage.currentIndex,

@@ -3,8 +3,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_material_pickers/flutter_material_pickers.dart';
+import 'package:plansmanager/Screens/admin_screen.dart';
 import 'package:plansmanager/Screens/login_screen.dart';
 import 'package:plansmanager/main.dart';
+import '../provider/user.dart' as user;
 
 class RegisterScreen extends StatefulWidget {
   static final routeName = 'RegisterScreen';
@@ -15,6 +17,7 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
+  final _idNumController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _teamNameController = TextEditingController();
@@ -94,6 +97,44 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   color: Colors.purple,
                                 ),
                                 labelText: 'الاسم',
+                                labelStyle: TextStyle(color: Colors.black),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.black),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.black),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 15,
+                          ),
+                          Directionality(
+                            textDirection: TextDirection.rtl,
+                            child: TextFormField(
+                              validator: (value) {
+                                if (value == null ||
+                                    value.isEmpty ||
+                                    double.tryParse(value) == null ||
+                                    value.length > 9) {
+                                  return '';
+                                }
+                                return null;
+                              },
+                              controller: _idNumController,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                hintStyle: TextStyle(color: Colors.black),
+                                prefixIcon: Icon(
+                                  Icons.badge,
+                                  color: Colors.purple,
+                                ),
+                                labelText: 'رقم الهوية',
                                 labelStyle: TextStyle(color: Colors.black),
                                 enabledBorder: OutlineInputBorder(
                                   borderSide: BorderSide(color: Colors.black),
@@ -333,6 +374,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
       setState(() {
         _isloading = true;
       });
+
+      var ref = await firestore
+          .collection('users')
+          .where('idNum', isEqualTo: int.parse(_idNumController.text))
+          .get();
+      if (ref.docs.length >= 1) {
+        print('in not empty');
+        throw FirebaseAuthException(code: 'wrong id');
+      }
+
       _userCredential = await _auth.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
@@ -341,18 +392,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
       await _userCredential.user!.updateDisplayName(_nameController.text);
       await firestore.collection('users').doc(_userCredential.user!.uid).set({
         'id': _userCredential.user!.uid,
+        'idNum': int.parse(_idNumController.text),
         'name': _nameController.text,
         'email': _emailController.text,
         'teamName': _teamNameController.text,
         'isLeader': false,
         'isAdmin': false
       });
-
+      user.User newUser = user.User(
+        _userCredential.user!.uid,
+        _nameController.text,
+        team: _teamNameController.text,
+        email: _emailController.text,
+        isLeader: false,
+        isAdmin: false,
+      );
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('تم التسجيل بنجاح'),
         backgroundColor: Colors.green,
       ));
-      Navigator.of(context).pushReplacementNamed(MyHomePage.routeName);
+
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => newUser.isAdmin!
+                ? AdminScreen()
+                : MyHomePage(
+                    user: newUser,
+                  ),
+          ));
 
       setState(() {
         _isloading = false;
@@ -363,13 +431,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _isloading = false;
       });
       var message = 'An error occured please check your credentials';
+      if (e.code == 'wrong id') {
+        message = '!رقم الهوية مسجل من قبل';
+        _idNumController.clear();
+      }
       if (e.message != null) {
         message = e.message!;
       }
       //_showErrorDialog(e.code);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(message),
+          content: Text(
+            message,
+            textAlign: TextAlign.right,
+          ),
           backgroundColor: Theme.of(context).errorColor,
         ),
       );
@@ -380,6 +455,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       setState(() {
         _isloading = false;
       });
+
+      print('gege sign up catch');
       print(err);
     }
   }
